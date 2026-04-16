@@ -44,6 +44,9 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "corsheaders",
+    "accounts",
+    "posts",
+    "follows",
 ]
 
 MIDDLEWARE = [
@@ -142,3 +145,5 @@ CORS_ALLOWED_ORIGINS = [
 # Media files (avatars)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+AUTH_USER_MODEL = 'accounts.User'
