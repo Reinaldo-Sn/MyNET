@@ -1,25 +1,21 @@
 from rest_framework import generics, permissions
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
-from .serializers import RegisterSerializer
+from .serializers import RegisterSerializer, ProfileSerializer
 from .models import User
 
-# Create your views here.
-
+# View de cadastro de usuário
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = RegisterSerializer
-    # Permite acesso sem autenticação — qualquer um pode se cadastrar
     permission_classes = [permissions.AllowAny]
 
+    # Cria o usuário e retorna os tokens JWT
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
-
-        # Gera os tokens JWT automaticamente após o cadastro
         refresh = RefreshToken.for_user(user)
-
         return Response({
             'user': {
                 'id': user.id,
@@ -29,3 +25,12 @@ class RegisterView(generics.CreateAPIView):
             'refresh': str(refresh),
             'access': str(refresh.access_token),
         })
+
+# View de visualização e edição do perfil do usuário autenticado
+class ProfileView(generics.RetrieveUpdateAPIView):
+    serializer_class = ProfileSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    # Retorna o usuário logado como objeto do perfil
+    def get_object(self):
+        return self.request.user
