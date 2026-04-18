@@ -48,6 +48,8 @@ node_modules/
 *.njsproj
 *.sln
 *.sw?
+OVERVIEW.md
+ROADMAP.txt
 
 # ========================
 # Sistema operacional

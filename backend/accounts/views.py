@@ -44,3 +44,7 @@ class UserSearchView(generics.ListAPIView):
         search = self.request.query_params.get('search', '')
         return User.objects.filter(username__icontains=search).exclude(id=self.request.user.id)
 
+class UserDetailView(generics.RetrieveAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ProfileSerializer
+    queryset = User.objects.all()
