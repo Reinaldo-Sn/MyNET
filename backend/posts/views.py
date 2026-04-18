@@ -1,4 +1,5 @@
 from rest_framework import generics, permissions, status
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .models import Post, Like, Comment
@@ -58,3 +59,12 @@ class CommentDeleteView(generics.DestroyAPIView):
 
     def get_queryset(self):
         return Comment.objects.filter(post_id=self.kwargs['pk'])
+    
+class FeedView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = PostSerializer
+
+    def get_queryset(self):
+        following_users = self.request.user.following.values_list('following', flat=True)
+        return Post.objects.filter(author__in=following_users).order_by('-created_at')
+
