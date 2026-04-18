@@ -1,13 +1,17 @@
-from rest_framework import generics, permissions
-from .models import Post
-from .serializers import PostSerializer
+from rest_framework import generics, permissions, status
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from .models import Post, Like, Comment
+from .serializers import PostSerializer, CommentSerializer
 
+# Permite leitura por qualquer um, mas edição/deleção só pelo autor do objeto
 class IsAuthorOrReadOnly(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         if request.method in permissions.SAFE_METHODS:
             return True
         return obj.author == request.user
 
+# Lista todos os posts ou cria um novo (autor = usuário autenticado)
 class PostListCreateView(generics.ListCreateAPIView):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
@@ -16,8 +20,41 @@ class PostListCreateView(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
+# Detalhe, edição parcial e deleção de um post específico
 class PostDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsAuthorOrReadOnly]
     http_method_names = ['get', 'patch', 'delete', 'head', 'options']
+
+# Curtir ou descurtir um post (toggle) — cria o Like se não existir, deleta se existir
+class LikeToggleView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk):
+        post = generics.get_object_or_404(Post, pk=pk)
+        like, created = Like.objects.get_or_create(user=request.user, post=post)
+        if not created:
+            like.delete()
+            return Response({'status': 'unliked'})
+        return Response({'status': 'liked'}, status=status.HTTP_201_CREATED)
+
+# Lista comentários de um post ou cria um novo comentário
+class CommentListCreateView(generics.ListCreateAPIView):
+    serializer_class = CommentSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self):
+        return Comment.objects.filter(post_id=self.kwargs['pk'])
+
+    def perform_create(self, serializer):
+        post = generics.get_object_or_404(Post, pk=self.kwargs['pk'])
+        serializer.save(author=self.request.user, post=post)
+
+# Deleta um comentário específico (só o autor pode deletar)
+class CommentDeleteView(generics.DestroyAPIView):
+    serializer_class = CommentSerializer
+    permission_classes = [permissions.IsAuthenticated, IsAuthorOrReadOnly]
+
+    def get_queryset(self):
+        return Comment.objects.filter(post_id=self.kwargs['pk'])
