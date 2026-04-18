@@ -1,0 +1,143 @@
+================================================================
+                    MYNET — ROADMAP DE DESENVOLVIMENTO
+================================================================
+
+FASE 1 — SETUP DO PROJETO
+----------------------------------------------------------------
+[ ] Criar repositório no GitHub (público)
+[ ] Criar estrutura de pastas (backend/ e frontend/)
+[ ] Inicializar projeto Django dentro de backend/
+    - pip install django djangorestframework djangorestframework-simplejwt django-cors-headers pillow python-dotenv
+[ ] Criar arquivo .env e .env.example
+[ ] Configurar settings.py (CORS, DRF, JWT, media files)
+[ ] Testar servidor rodando: python manage.py runserver
+
+
+FASE 2 — MODELOS E BANCO DE DADOS
+----------------------------------------------------------------
+[ ] Criar app "accounts" (usuário customizado)
+    - Modelo User: estende AbstractUser
+    - Campos extras: bio, avatar, created_at
+[ ] Criar app "posts"
+    - Modelo Post: author, content, image, created_at
+    - Modelo Like: user, post (unique_together)
+    - Modelo Comment: author, post, content, created_at
+[ ] Criar app "follows"
+    - Modelo Follow: follower, following (unique_together)
+[ ] Rodar migrations: python manage.py makemigrations && migrate
+[ ] Registrar modelos no admin e testar no painel Django
+
+
+FASE 3 — AUTENTICAÇÃO (JWT)
+----------------------------------------------------------------
+[ ] Criar serializers de registro e login
+[ ] Criar endpoints:
+    - POST /api/auth/register/
+    - POST /api/auth/login/
+    - POST /api/auth/token/refresh/
+[ ] Testar no Postman / Insomnia:
+    - Cadastrar usuário
+    - Fazer login e receber access + refresh token
+    - Usar token em rota protegida
+
+
+FASE 4 — PERFIL DE USUÁRIO
+----------------------------------------------------------------
+[ ] Criar serializer de perfil (leitura e edição parcial)
+[ ] Criar endpoints:
+    - GET  /api/users/{username}/   (ver perfil)
+    - PATCH /api/users/me/          (editar nome, foto, senha)
+[ ] Garantir que PATCH é parcial (nenhum campo obrigatório)
+[ ] Testar upload de imagem (avatar)
+
+
+FASE 5 — SISTEMA DE SEGUIR
+----------------------------------------------------------------
+[ ] Criar endpoints:
+    - POST /api/users/{username}/follow/      (seguir / deixar de seguir)
+    - GET  /api/users/{username}/followers/   (quem segue)
+    - GET  /api/users/{username}/following/   (quem o usuário segue)
+[ ] Lógica de toggle: se já segue, deixa de seguir
+[ ] Testar com dois usuários distintos
+
+
+FASE 6 — POSTAGENS E FEED
+----------------------------------------------------------------
+[ ] Criar endpoints de posts:
+    - POST   /api/posts/        (criar postagem)
+    - DELETE /api/posts/{id}/   (deletar — apenas o autor)
+[ ] Criar endpoint de feed:
+    - GET /api/posts/feed/      (posts de quem o usuário segue, ordenado por data)
+[ ] Testar: usuário A segue B, feed de A mostra posts de B
+
+
+FASE 7 — CURTIDAS E COMENTÁRIOS
+----------------------------------------------------------------
+[ ] Criar endpoints:
+    - POST /api/posts/{id}/like/            (curtir / descurtir — toggle)
+    - GET  /api/posts/{id}/comments/        (listar comentários)
+    - POST /api/posts/{id}/comments/        (comentar)
+[ ] Incluir contagem de likes e comentários no retorno do post
+[ ] Testar curtir, descurtir, comentar
+
+
+FASE 8 — FRONT-END (REACT)
+----------------------------------------------------------------
+[ ] Criar projeto React com Vite dentro de frontend/
+    - npm create vite@latest frontend -- --template react
+[ ] Instalar dependências: axios, react-router-dom, tailwindcss
+[ ] Configurar variável de ambiente VITE_API_URL
+[ ] Criar páginas:
+    - /register     — tela de cadastro
+    - /login        — tela de login
+    - /feed         — feed principal (rota protegida)
+    - /profile/:username — perfil do usuário
+    - /settings     — editar perfil
+[ ] Criar contexto de autenticação (AuthContext)
+    - Armazenar token JWT no localStorage
+    - Interceptor Axios para enviar token em toda requisição
+[ ] Conectar cada página aos endpoints da API
+[ ] Testar fluxo completo: cadastro → login → seguir → postar → curtir
+
+
+FASE 9 — POLISH E TESTES FINAIS
+----------------------------------------------------------------
+[ ] Verificar responsividade (mobile e desktop)
+[ ] Tratar erros nas requisições (mensagens amigáveis ao usuário)
+[ ] Revisar segurança:
+    - Usuário só pode editar/deletar o que é dele
+    - Tokens expiram e são renovados corretamente
+[ ] Checar todos os endpoints com usuários diferentes
+[ ] Escrever pelo menos um teste no Django (opcional mas recomendado)
+
+
+FASE 10 — DEPLOY
+----------------------------------------------------------------
+[ ] Back-end:
+    - Criar conta no Render ou Railway
+    - Configurar variáveis de ambiente (SECRET_KEY, DATABASE_URL, etc.)
+    - Trocar SQLite por PostgreSQL
+    - Rodar collectstatic para arquivos estáticos
+    - Fazer deploy e testar API online
+[ ] Front-end:
+    - Atualizar VITE_API_URL para a URL do back-end em produção
+    - Fazer deploy na Vercel ou Netlify
+    - Testar fluxo completo em produção
+[ ] Garantir HTTPS em ambos os serviços
+
+
+FASE 11 — ENTREGA
+----------------------------------------------------------------
+[ ] Escrever README.md com:
+    - Descrição do projeto
+    - Prints / GIF da aplicação
+    - Como rodar localmente (passo a passo)
+    - Variáveis de ambiente necessárias (.env.example)
+    - Link do deploy (front + back)
+    - Tecnologias utilizadas
+[ ] Conferir que o repositório está público
+[ ] Enviar link do GitHub + link do deploy
+
+================================================================
+                        BONS ESTUDOS!
+================================================================

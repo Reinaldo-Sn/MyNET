@@ -1,0 +1,64 @@
+# ========================
+# Python / Django
+# ========================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environment
+venv/
+env/
+.venv/
+
+# Django
+*.sqlite3
+/backend/media/
+/backend/staticfiles/
+/backend/static/
+
+# Environment variables (NUNCA subir ao GitHub)
+.env
+.env.local
+.env.production
+
+# ========================
+# Node / React
+# ========================
+node_modules/
+/frontend/dist/
+/frontend/build/
+/frontend/.env
+/frontend/.env.local
+/frontend/.env.production
+
+# ========================
+# IDEs e editores
+# ========================
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# ========================
+# Sistema operacional
+# ========================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ========================
+# Logs e temporários
+# ========================
+*.log
+*.tmp
+*.bak
