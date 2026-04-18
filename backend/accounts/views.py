@@ -1,4 +1,5 @@
 from rest_framework import generics, permissions
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from .serializers import RegisterSerializer, ProfileSerializer
@@ -34,3 +35,12 @@ class ProfileView(generics.RetrieveUpdateAPIView):
     # Retorna o usuário logado como objeto do perfil
     def get_object(self):
         return self.request.user
+
+class UserSearchView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ProfileSerializer
+
+    def get_queryset(self):
+        search = self.request.query_params.get('search', '')
+        return User.objects.filter(username__icontains=search).exclude(id=self.request.user.id)
+

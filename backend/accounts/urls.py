@@ -1,11 +1,11 @@
 from django.urls import path
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from .views import RegisterView, ProfileView
+from .views import RegisterView, ProfileView, UserSearchView
 
 urlpatterns = [
     path('register/', RegisterView.as_view(), name='register'),
     path('login/', TokenObtainPairView.as_view(), name='login'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    # Visualização e edição do perfil do usuário autenticado
     path('profile/', ProfileView.as_view(), name='profile'),
+    path('users/', UserSearchView.as_view(), name='user-search'),
 ]
