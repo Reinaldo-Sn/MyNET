@@ -1,9 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(npm install *)",
-      "Bash(git -C \"c:/Users/Usuario/Documents/MyNET\" ls-files --others --exclude-standard)",
-      "Bash(git -C \"c:/Users/Usuario/Documents/MyNET\" status --short)"
-    ]
-  }
-}
