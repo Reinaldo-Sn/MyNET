@@ -23,16 +23,21 @@ class RegisterSerializer(serializers.ModelSerializer):
 class ProfileSerializer(serializers.ModelSerializer):
     followers_count = serializers.SerializerMethodField()
     following_count = serializers.SerializerMethodField()
+    is_following = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'first_name', 'bio', 'avatar', 'followers_count', 'following_count')
+        fields = ('id', 'username', 'email', 'first_name', 'bio', 'avatar', 'followers_count', 'following_count', 'is_following')
         read_only_fields = ('id', 'username', 'email')
 
-    # Retorna quantidade de seguidores
     def get_followers_count(self, obj):
         return obj.followers.count()
 
-    # Retorna quantidade de usuários que segue
     def get_following_count(self, obj):
         return obj.following.count()
+
+    def get_is_following(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return obj.followers.filter(follower=request.user).exists()
+        return False

@@ -6,4 +6,4 @@ User = get_user_model()
 class UserSummarySerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'name', 'avatar']
+        fields = ['id', 'username', 'avatar']

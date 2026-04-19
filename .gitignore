@@ -41,6 +41,7 @@ node_modules/
 # ========================
 # IDEs e editores
 # ========================
+.claude/
 .vscode/
 .idea/
 *.suo

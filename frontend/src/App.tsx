@@ -1,12 +1,14 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import LoginPage from "./pages/LoginPage";
-import RegisterPage from "./pages/RegisterPage";
-import FeedPage from "./pages/FeedPage";
+import LoginPage from "./pages/LoginPage/main";
+import RegisterPage from "./pages/RegisterPage/main";
+import FeedPage from "./pages/FeedPage/main";
+import ProfilePage from "./pages/ProfilePage/main";
+import SearchPage from "./pages/SearchPage/main";
+import UserProfilePage from "./pages/UserProfilePage/main";
+import CreatePostPage from "./pages/CreatePostPage/main";
+import PostPage from "./pages/PostPage/main";
 import PrivateRoute from "./components/PrivateRoute";
-import ProfilePage from "./pages/ProfilePage";
-import SearchPage from "./pages/SearchPage";
-import UserProfilePage from "./pages/UserProfilePage";
-import CreatePostPage from "./pages/CreatePostPage";
+import Layout from "./components/Layout";
 
 function App() {
   return (
@@ -19,7 +21,7 @@ function App() {
           path="/feed"
           element={
             <PrivateRoute>
-              <FeedPage />
+              <Layout><FeedPage /></Layout>
             </PrivateRoute>
           }
         />
@@ -27,7 +29,7 @@ function App() {
           path="/profile"
           element={
             <PrivateRoute>
-              <ProfilePage />
+              <Layout><ProfilePage /></Layout>
             </PrivateRoute>
           }
         />
@@ -35,7 +37,7 @@ function App() {
           path="/search"
           element={
             <PrivateRoute>
-              <SearchPage />
+              <Layout><SearchPage /></Layout>
             </PrivateRoute>
           }
         />
@@ -43,7 +45,7 @@ function App() {
           path="/users/:id"
           element={
             <PrivateRoute>
-              <UserProfilePage />
+              <Layout><UserProfilePage /></Layout>
             </PrivateRoute>
           }
         />
@@ -51,7 +53,15 @@ function App() {
           path="/posts/create"
           element={
             <PrivateRoute>
-              <CreatePostPage />
+              <Layout><CreatePostPage /></Layout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/posts/:id"
+          element={
+            <PrivateRoute>
+              <Layout><PostPage /></Layout>
             </PrivateRoute>
           }
         />

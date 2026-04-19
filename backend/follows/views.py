@@ -32,7 +32,7 @@ class FollowersListView(APIView):
     def get(self, request, user_id):
         target = get_object_or_404(User, id=user_id)
         followers = User.objects.filter(following__following=target)
-        serializer = UserSummarySerializer(followers, many=True)
+        serializer = UserSummarySerializer(followers, many=True, context={'request': request})
         return Response(serializer.data)
 
 class FollowingListView(APIView):
@@ -41,5 +41,5 @@ class FollowingListView(APIView):
     def get(self, request, user_id):
         target = get_object_or_404(User, id=user_id)
         following = User.objects.filter(followers__follower=target)
-        serializer = UserSummarySerializer(following, many=True)
+        serializer = UserSummarySerializer(following, many=True, context={'request': request})
         return Response(serializer.data)
