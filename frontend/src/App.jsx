@@ -6,6 +6,7 @@ import PrivateRoute from "./components/PrivateRoute";
 import ProfilePage from "./pages/ProfilePage";
 import SearchPage from "./pages/SearchPage";
 import UserProfilePage from "./pages/UserProfilePage";
+import CreatePostPage from "./pages/CreatePostPage";
 
 function App() {
   return (
@@ -43,6 +44,14 @@ function App() {
           element={
             <PrivateRoute>
               <UserProfilePage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/posts/create"
+          element={
+            <PrivateRoute>
+              <CreatePostPage />
             </PrivateRoute>
           }
         />
