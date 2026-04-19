@@ -2,11 +2,12 @@ import { useState, FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { Heart, MessageCircle, Pencil, Trash2, X } from "lucide-react";
 import api from "../../api/axios";
+import { timeAgo } from "../../utils/timeAgo";
 import {
   Card, Author, Content, PostImage, Footer, FooterLeft,
   LikeButton, CommentToggle, EditButton, DeleteButton, DateText,
   EditArea, EditActions, SaveButton, CancelButton,
-  CommentsSection, CommentItem, CommentText, CommentDelete,
+  CommentsSection, CommentItem, CommentText, CommentMeta, CommentDate, CommentDelete,
   CommentForm, CommentInput, CommentSubmit,
 } from "./style";
 
@@ -27,6 +28,7 @@ interface Comment {
   author: number;
   author_username: string;
   content: string;
+  created_at: string;
 }
 
 interface Props {
@@ -83,10 +85,10 @@ const PostCard = ({ post, currentUserId, onLike, onDelete, onEdit }: Props) => {
 
   return (
     <Card>
-      <Author>{post.author_username}</Author>
+      <Author onClick={() => navigate(`/users/${post.author}`)}>{post.author_username}</Author>
 
       {editing ? (
-        <EditActions as="form" onSubmit={handleSaveEdit}>
+        <EditActions as="form" onSubmit={handleSaveEdit} style={{ flexDirection: "column" }}>
           <EditArea
             value={editContent}
             onChange={(e) => setEditContent(e.target.value)}
@@ -113,7 +115,7 @@ const PostCard = ({ post, currentUserId, onLike, onDelete, onEdit }: Props) => {
           </CommentToggle>
         </FooterLeft>
         <FooterLeft>
-          <DateText>{new window.Date(post.created_at).toLocaleDateString()}</DateText>
+          <DateText>{timeAgo(post.created_at)}</DateText>
           {post.author === currentUserId && (
             <>
               <EditButton onClick={() => setEditing(true)}><Pencil size={13} /></EditButton>
@@ -128,7 +130,11 @@ const PostCard = ({ post, currentUserId, onLike, onDelete, onEdit }: Props) => {
           {comments.map((c) => (
             <CommentItem key={c.id}>
               <CommentText>
-                <span>{c.author_username}</span>{c.content}
+                <CommentMeta>
+                  <span>{c.author_username}</span>
+                  <CommentDate>{timeAgo(c.created_at)}</CommentDate>
+                </CommentMeta>
+                {c.content}
               </CommentText>
               {c.author === currentUserId && (
                 <CommentDelete onClick={() => handleDeleteComment(c.id)}><X size={12} /></CommentDelete>

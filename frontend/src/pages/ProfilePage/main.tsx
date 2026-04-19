@@ -1,52 +1,59 @@
-import { useEffect, useState, FormEvent } from "react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import api from "../../api/axios";
 import perfilPadrao from "../../assets/perfil_padrao.png";
 import PostCard, { Post } from "../../components/PostCard/main";
 import FollowModal from "../../components/FollowModal/main";
+import EditProfileModal from "../../components/EditProfileModal/main";
+import AvatarCropModal from "../../components/AvatarCropModal/main";
 import {
   Container, ProfileHeader, Avatar, Username, Bio, Stats, StatButton,
-  SectionTitle, Empty, EditButton, EditForm, EditInput,
-  EditTextarea, EditActions, SaveButton, CancelButton,
+  SectionTitle, Empty, ProfileActions, EditButton, LogoutButton,
 } from "./style";
 
 type ModalType = "followers" | "following" | null;
 
 const ProfilePage = () => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [posts, setPosts] = useState<Post[]>([]);
   const [editing, setEditing] = useState(false);
-  const [bio, setBio] = useState("");
-  const [avatarFile, setAvatarFile] = useState<File | null>(null);
-  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [cropSrc, setCropSrc] = useState<string | null>(null);
+  const [croppedFile, setCroppedFile] = useState<File | null>(null);
+  const [croppedPreview, setCroppedPreview] = useState<string | null>(null);
   const [modal, setModal] = useState<ModalType>(null);
 
   useEffect(() => {
     if (!user) return;
-    setBio(user.bio || "");
     api.get("/posts/").then((res) => {
-      const myPosts = res.data.filter((p: Post) => p.author === user.id);
-      setPosts(myPosts);
+      setPosts(res.data.filter((p: Post) => p.author === user.id));
     });
   }, [user]);
 
-  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0] ?? null;
-    setAvatarFile(file);
-    if (file) setAvatarPreview(URL.createObjectURL(file));
+  const handleSelectImage = (src: string) => {
+    setCropSrc(src);
+    setEditing(false);
   };
 
-  const handleSave = async (e: FormEvent) => {
-    e.preventDefault();
+  const handleCropSave = (file: File) => {
+    setCroppedFile(file);
+    setCroppedPreview(URL.createObjectURL(file));
+    setCropSrc(null);
+    setEditing(true);
+  };
+
+  const handleSave = async (bio: string, avatarFile: File | null) => {
     const formData = new FormData();
     formData.append("bio", bio);
-    if (avatarFile) formData.append("avatar", avatarFile);
+    const fileToUpload = avatarFile || croppedFile;
+    if (fileToUpload) formData.append("avatar", fileToUpload);
     await api.patch("/auth/profile/", formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
     setEditing(false);
-    setAvatarFile(null);
-    setAvatarPreview(null);
+    setCroppedFile(null);
+    setCroppedPreview(null);
     window.location.reload();
   };
 
@@ -71,37 +78,40 @@ const ProfilePage = () => {
 
   return (
     <Container>
+      {cropSrc && (
+        <AvatarCropModal
+          imageSrc={cropSrc}
+          onCancel={() => { setCropSrc(null); setEditing(true); }}
+          onSave={handleCropSave}
+        />
+      )}
+
+      {editing && (
+        <EditProfileModal
+          currentAvatar={croppedPreview || user?.avatar || null}
+          currentBio={user?.bio || ""}
+          onClose={() => { setEditing(false); setCroppedFile(null); setCroppedPreview(null); }}
+          onSave={handleSave}
+          onSelectImage={handleSelectImage}
+        />
+      )}
+
       <ProfileHeader>
-        <Avatar src={avatarPreview || user?.avatar || perfilPadrao} alt="avatar" />
-        {!editing ? (
-          <>
-            <Username>{user?.username}</Username>
-            <Bio>{user?.bio || "Sem bio."}</Bio>
-            <Stats>
-              <StatButton onClick={() => setModal("followers")}>
-                Seguidores: {user?.followers_count}
-              </StatButton>
-              <StatButton onClick={() => setModal("following")}>
-                Seguindo: {user?.following_count}
-              </StatButton>
-            </Stats>
-            <EditButton onClick={() => setEditing(true)}>Editar perfil</EditButton>
-          </>
-        ) : (
-          <EditForm onSubmit={handleSave}>
-            <EditTextarea
-              value={bio}
-              onChange={(e) => setBio(e.target.value)}
-              placeholder="Sua bio..."
-              rows={3}
-            />
-            <EditInput type="file" accept="image/*" onChange={handleAvatarChange} />
-            <EditActions>
-              <SaveButton type="submit">Salvar</SaveButton>
-              <CancelButton type="button" onClick={() => setEditing(false)}>Cancelar</CancelButton>
-            </EditActions>
-          </EditForm>
-        )}
+        <Avatar src={croppedPreview || user?.avatar || perfilPadrao} alt="avatar" />
+        <Username>{user?.username}</Username>
+        <Bio>{user?.bio || "Sem bio."}</Bio>
+        <Stats>
+          <StatButton onClick={() => setModal("followers")}>
+            Seguidores: {user?.followers_count}
+          </StatButton>
+          <StatButton onClick={() => setModal("following")}>
+            Seguindo: {user?.following_count}
+          </StatButton>
+        </Stats>
+        <ProfileActions>
+          <EditButton onClick={() => setEditing(true)}>Editar perfil</EditButton>
+          <LogoutButton onClick={() => { logout(); navigate("/login"); }}>Sair</LogoutButton>
+        </ProfileActions>
       </ProfileHeader>
 
       <SectionTitle>Meus posts</SectionTitle>

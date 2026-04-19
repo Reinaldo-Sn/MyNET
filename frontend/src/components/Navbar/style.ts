@@ -53,3 +53,61 @@ export const Button = styled.button`
     color: #fff;
   }
 `;
+
+export const SearchWrapper = styled.div`
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 458px;
+  max-width: calc(100% - 420px);
+`;
+
+export const SearchInput = styled.input`
+  width: 100%;
+  padding: 0.4rem 0.9rem;
+  border: 1px solid #2a2a2a;
+  border-radius: 999px;
+  font-size: 0.88rem;
+  outline: none;
+  box-sizing: border-box;
+  background: #1a1a1a;
+  color: #e8e8e8;
+  font-family: inherit;
+  &::placeholder { color: #555; }
+  &:focus { border-color: #e94560; }
+`;
+
+export const SearchResults = styled.div`
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  background: #111;
+  border: 1px solid #2a2a2a;
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  z-index: 200;
+  overflow: hidden;
+`;
+
+export const UserCard = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 0.9rem;
+  cursor: pointer;
+  &:hover { background: #1a1a1a; }
+`;
+
+export const UserAvatar = styled.img`
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+`;
+
+export const UserName = styled.span`
+  color: #e8e8e8;
+  font-size: 0.88rem;
+  font-weight: 500;
+`;

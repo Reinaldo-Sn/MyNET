@@ -16,7 +16,9 @@ export const ProfileHeader = styled.div`
   padding: 1.5rem 1.25rem;
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 0.5rem;
+  text-align: center;
 `;
 
 export const Avatar = styled.img`
@@ -59,9 +61,14 @@ export const StatButton = styled.button`
   &:hover { color: #e8e8e8; }
 `;
 
-export const EditButton = styled.button`
-  align-self: flex-start;
+export const ProfileActions = styled.div`
+  display: flex;
+  gap: 0.5rem;
   margin-top: 0.3rem;
+  align-self: flex-end;
+`;
+
+export const EditButton = styled.button`
   padding: 0.35rem 0.9rem;
   background: transparent;
   border: 1px solid #2a2a2a;
@@ -103,6 +110,19 @@ export const EditInput = styled.input`
 export const EditActions = styled.div`
   display: flex;
   gap: 0.5rem;
+`;
+
+export const LogoutButton = styled.button`
+  padding: 0.35rem 0.9rem;
+  background: transparent;
+  border: 1px solid #e94560;
+  border-radius: 6px;
+  color: #e94560;
+  font-size: 0.82rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  &:hover { background: #e94560; color: #fff; }
 `;
 
 export const SaveButton = styled.button`

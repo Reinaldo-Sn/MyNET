@@ -110,7 +110,7 @@ export const EditArea = styled.textarea`
   color: #e8e8e8;
   font-size: 0.9rem;
   font-family: inherit;
-  resize: vertical;
+  resize: none;
   box-sizing: border-box;
   &:focus { outline: none; border-color: #e94560; }
 `;
@@ -118,6 +118,7 @@ export const EditArea = styled.textarea`
 export const EditActions = styled.div`
   display: flex;
   gap: 0.5rem;
+  justify-content: flex-end;
 `;
 
 export const SaveButton = styled.button`
@@ -157,18 +158,35 @@ export const CommentItem = styled.div`
   justify-content: space-between;
   align-items: flex-start;
   gap: 0.5rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid #1a1a1a;
+  &:last-of-type { border-bottom: none; }
 `;
 
-export const CommentText = styled.p`
+export const CommentText = styled.div`
   color: #aaa;
   font-size: 0.85rem;
   margin: 0;
   line-height: 1.5;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+`;
+
+export const CommentMeta = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   span {
     color: #e94560;
     font-weight: 600;
-    margin-right: 0.35rem;
+    font-size: 0.82rem;
   }
+`;
+
+export const CommentDate = styled.small`
+  color: #444;
+  font-size: 0.75rem;
 `;
 
 export const CommentDelete = styled.button`

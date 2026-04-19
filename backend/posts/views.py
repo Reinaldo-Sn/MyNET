@@ -57,8 +57,14 @@ class CommentDeleteView(generics.DestroyAPIView):
     serializer_class = CommentSerializer
     permission_classes = [permissions.IsAuthenticated, IsAuthorOrReadOnly]
 
-    def get_queryset(self):
-        return Comment.objects.filter(post_id=self.kwargs['pk'])
+    def get_object(self):
+        comment = generics.get_object_or_404(
+            Comment,
+            pk=self.kwargs['comment_pk'],
+            post_id=self.kwargs['pk']
+        )
+        self.check_object_permissions(self.request, comment)
+        return comment
     
 class FeedView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
