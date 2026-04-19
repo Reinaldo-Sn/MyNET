@@ -11,8 +11,8 @@ export const Overlay = styled.div`
 `;
 
 export const Modal = styled.div`
-  background: #111;
-  border: 1px solid #1e1e1e;
+  background: ${({ theme }) => theme.surface};
+  border: 1px solid ${({ theme }) => theme.border};
   border-radius: 12px;
   padding: 1.5rem;
   width: 100%;
@@ -24,7 +24,7 @@ export const Modal = styled.div`
 `;
 
 export const Title = styled.h2`
-  color: #e8e8e8;
+  color: ${({ theme }) => theme.text};
   font-size: 1rem;
   font-weight: 600;
   margin: 0;
@@ -47,12 +47,12 @@ export const SliderWrapper = styled.div`
 
 export const SliderLabel = styled.span`
   font-size: 0.78rem;
-  color: #666;
+  color: ${({ theme }) => theme.textSubtle};
 `;
 
 export const Slider = styled.input`
   width: 100%;
-  accent-color: #e94560;
+  accent-color: ${({ theme }) => theme.accent};
 `;
 
 export const Footer = styled.div`
@@ -64,24 +64,24 @@ export const Footer = styled.div`
 export const CancelButton = styled.button`
   padding: 0.5rem 1.1rem;
   background: transparent;
-  border: 1px solid #2a2a2a;
+  border: 1px solid ${({ theme }) => theme.borderAlt};
   border-radius: 6px;
-  color: #666;
+  color: ${({ theme }) => theme.textSubtle};
   font-size: 0.88rem;
   font-family: inherit;
   cursor: pointer;
-  &:hover { border-color: #444; color: #888; }
+  &:hover { border-color: ${({ theme }) => theme.textFaint}; color: ${({ theme }) => theme.textMuted}; }
 `;
 
 export const SaveButton = styled.button`
   padding: 0.5rem 1.2rem;
-  background: #e94560;
-  color: white;
+  background: ${({ theme }) => theme.accent};
+  color: ${({ theme }) => theme.accentFg};
   border: none;
   border-radius: 6px;
   font-size: 0.88rem;
   font-weight: 500;
   font-family: inherit;
   cursor: pointer;
-  &:hover { background: #c73652; }
+  &:hover { background: ${({ theme }) => theme.accentHover}; }
 `;

@@ -12,12 +12,12 @@ export const Container = styled.div`
 export const BackButton = styled.button`
   background: none;
   border: none;
-  color: #555;
+  color: ${({ theme }) => theme.textFaint};
   font-size: 0.85rem;
   font-family: inherit;
   cursor: pointer;
   padding: 0;
   align-self: flex-start;
   transition: color 0.15s;
-  &:hover { color: #e8e8e8; }
+  &:hover { color: ${({ theme }) => theme.text}; }
 `;

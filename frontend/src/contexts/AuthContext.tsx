@@ -7,6 +7,7 @@ interface User {
   email: string;
   bio: string;
   avatar: string | null;
+  banner: string | null;
   followers_count: number;
   following_count: number;
 }

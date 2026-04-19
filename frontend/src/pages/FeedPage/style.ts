@@ -10,7 +10,7 @@ export const Container = styled.div`
 `;
 
 export const Empty = styled.p`
-  color: #444;
+  color: ${({ theme }) => theme.textDimmer};
   text-align: center;
   margin-top: 3rem;
   font-size: 0.9rem;
@@ -24,17 +24,16 @@ export const SearchWrapper = styled.div`
 export const SearchInput = styled.input`
   width: 100%;
   padding: 0.65rem 1rem;
-  border: 1px solid #ddd;
+  border: 1px solid ${({ theme }) => theme.borderAlt};
   border-radius: 999px;
   font-size: 0.95rem;
   outline: none;
   box-sizing: border-box;
-  background: #f9f9f9;
-
-  &:focus {
-    border-color: #1d9bf0;
-    background: #fff;
-  }
+  background: ${({ theme }) => theme.surface};
+  color: ${({ theme }) => theme.text};
+  font-family: inherit;
+  &::placeholder { color: ${({ theme }) => theme.textDimmer}; }
+  &:focus { border-color: ${({ theme }) => theme.accent}; }
 `;
 
 export const SearchResults = styled.div`
@@ -42,10 +41,10 @@ export const SearchResults = styled.div`
   top: calc(100% + 6px);
   left: 0;
   right: 0;
-  background: #fff;
-  border: 1px solid #ddd;
+  background: ${({ theme }) => theme.surface};
+  border: 1px solid ${({ theme }) => theme.borderAlt};
   border-radius: 12px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
   z-index: 100;
   overflow: hidden;
 `;
@@ -56,10 +55,7 @@ export const UserCard = styled.div`
   gap: 0.75rem;
   padding: 0.75rem 1rem;
   cursor: pointer;
-
-  &:hover {
-    background: #f5f5f5;
-  }
+  &:hover { background: ${({ theme }) => theme.surfaceAlt}; }
 `;
 
 export const UserAvatar = styled.img`
@@ -77,16 +73,17 @@ export const UserInfo = styled.div`
 export const UserName = styled.span`
   font-weight: 600;
   font-size: 0.9rem;
+  color: ${({ theme }) => theme.text};
 `;
 
 export const Followers = styled.span`
   font-size: 0.78rem;
-  color: #666;
+  color: ${({ theme }) => theme.textSubtle};
 `;
 
 export const QuickPost = styled.form`
-  background: #111;
-  border: 1px solid #1e1e1e;
+  background: ${({ theme }) => theme.surface};
+  border: 1px solid ${({ theme }) => theme.border};
   border-radius: 10px;
   padding: 1rem;
   display: flex;
@@ -98,15 +95,15 @@ export const QuickTextarea = styled.textarea`
   width: 100%;
   padding: 0.6rem 0.8rem;
   border-radius: 6px;
-  border: 1px solid #2a2a2a;
-  background: #0a0a0a;
-  color: #e8e8e8;
+  border: 1px solid ${({ theme }) => theme.borderAlt};
+  background: ${({ theme }) => theme.bg};
+  color: ${({ theme }) => theme.text};
   font-size: 0.9rem;
   font-family: inherit;
   resize: none;
   box-sizing: border-box;
-  &::placeholder { color: #444; }
-  &:focus { outline: none; border-color: #e94560; }
+  &::placeholder { color: ${({ theme }) => theme.textDimmer}; }
+  &:focus { outline: none; border-color: ${({ theme }) => theme.accent}; }
 `;
 
 export const QuickFooter = styled.div`
@@ -117,14 +114,14 @@ export const QuickFooter = styled.div`
 
 export const CharCount = styled.span<{ $over: boolean }>`
   font-size: 0.78rem;
-  color: ${({ $over }) => ($over ? "#e94560" : "#555")};
+  color: ${({ $over, theme }) => ($over ? theme.accent : theme.textFaint)};
 `;
 
 export const QuickButton = styled.button`
   align-self: flex-end;
   padding: 0.45rem 1.2rem;
-  background: #e94560;
-  color: white;
+  background: ${({ theme }) => theme.accent};
+  color: ${({ theme }) => theme.accentFg};
   border: none;
   border-radius: 6px;
   font-size: 0.85rem;
@@ -132,13 +129,13 @@ export const QuickButton = styled.button`
   font-family: inherit;
   cursor: pointer;
   transition: background 0.15s;
-  &:hover { background: #c73652; }
+  &:hover { background: ${({ theme }) => theme.accentHover}; }
   &:disabled { opacity: 0.4; cursor: not-allowed; }
 `;
 
 export const SearchMessage = styled.p`
   padding: 0.75rem 1rem;
   font-size: 0.85rem;
-  color: #666;
+  color: ${({ theme }) => theme.textSubtle};
   margin: 0;
 `;

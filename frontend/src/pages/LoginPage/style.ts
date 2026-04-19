@@ -5,12 +5,12 @@ export const Container = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #0a0a0a;
+  background: ${({ theme }) => theme.bg};
 `;
 
 export const Card = styled.div`
-  background: #111;
-  border: 1px solid #1e1e1e;
+  background: ${({ theme }) => theme.surface};
+  border: 1px solid ${({ theme }) => theme.border};
   border-radius: 8px;
   padding: 2.5rem 2rem;
   width: 100%;
@@ -21,34 +21,34 @@ export const Card = styled.div`
 `;
 
 export const Title = styled.h1`
-  color: #e8e8e8;
+  color: ${({ theme }) => theme.text};
   font-size: 1.4rem;
   font-weight: 600;
   margin: 0;
   text-align: center;
   letter-spacing: -0.3px;
-  span { color: #e94560; }
+  span { color: ${({ theme }) => theme.accent}; }
 `;
 
 export const Input = styled.input`
   width: 100%;
   padding: 0.65rem 0.9rem;
   border-radius: 6px;
-  border: 1px solid #2a2a2a;
-  background: #0a0a0a;
-  color: #e8e8e8;
+  border: 1px solid ${({ theme }) => theme.borderAlt};
+  background: ${({ theme }) => theme.bg};
+  color: ${({ theme }) => theme.text};
   font-size: 0.9rem;
   font-family: inherit;
   box-sizing: border-box;
-  &::placeholder { color: #444; }
-  &:focus { outline: none; border-color: #e94560; }
+  &::placeholder { color: ${({ theme }) => theme.textDimmer}; }
+  &:focus { outline: none; border-color: ${({ theme }) => theme.accent}; }
 `;
 
 export const Button = styled.button`
   width: 100%;
   padding: 0.7rem;
-  background: #e94560;
-  color: white;
+  background: ${({ theme }) => theme.accent};
+  color: ${({ theme }) => theme.accentFg};
   border: none;
   border-radius: 6px;
   font-size: 0.9rem;
@@ -56,24 +56,24 @@ export const Button = styled.button`
   font-family: inherit;
   cursor: pointer;
   transition: background 0.15s;
-  &:hover { background: #c73652; }
+  &:hover { background: ${({ theme }) => theme.accentHover}; }
 `;
 
 export const ErrorMsg = styled.p`
-  color: #e94560;
+  color: ${({ theme }) => theme.accent};
   font-size: 0.82rem;
   margin: 0;
   text-align: center;
 `;
 
 export const LinkText = styled.p`
-  color: #555;
+  color: ${({ theme }) => theme.textFaint};
   font-size: 0.82rem;
   text-align: center;
   margin: 0;
   a {
-    color: #888;
+    color: ${({ theme }) => theme.textMuted};
     text-decoration: none;
-    &:hover { color: #e8e8e8; }
+    &:hover { color: ${({ theme }) => theme.text}; }
   }
 `;

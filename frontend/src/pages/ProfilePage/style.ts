@@ -10,15 +10,24 @@ export const Container = styled.div`
 `;
 
 export const ProfileHeader = styled.div`
-  background: #111;
-  border: 1px solid #1e1e1e;
+  background: ${({ theme }) => theme.surface};
+  border: 1px solid ${({ theme }) => theme.border};
   border-radius: 8px;
-  padding: 1.5rem 1.25rem;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  text-align: center;
+  overflow: visible;
+`;
+
+export const BannerSection = styled.div`
+  position: relative;
+`;
+
+export const Banner = styled.div<{ $src: string | null }>`
+  height: 150px;
+  width: 100%;
+  border-radius: 8px 8px 0 0;
+  overflow: hidden;
+  background: ${({ $src, theme }) => $src ? `url(${$src}) center/cover no-repeat` : theme.surfaceAlt};
 `;
 
 export const Avatar = styled.img`
@@ -26,10 +35,25 @@ export const Avatar = styled.img`
   height: 72px;
   border-radius: 50%;
   object-fit: cover;
+  border: 3px solid ${({ theme }) => theme.surface};
+  position: absolute;
+  bottom: -36px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1;
+`;
+
+export const ProfileInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  text-align: center;
+  padding: 46px 1.25rem 1.5rem;
 `;
 
 export const Username = styled.h1`
-  color: #e8e8e8;
+  color: ${({ theme }) => theme.text};
   margin: 0;
   font-size: 1.15rem;
   font-weight: 600;
@@ -37,7 +61,7 @@ export const Username = styled.h1`
 `;
 
 export const Bio = styled.p`
-  color: #666;
+  color: ${({ theme }) => theme.textSubtle};
   margin: 0;
   font-size: 0.88rem;
   line-height: 1.5;
@@ -52,13 +76,13 @@ export const Stats = styled.div`
 export const StatButton = styled.button`
   background: none;
   border: none;
-  color: #555;
+  color: ${({ theme }) => theme.textFaint};
   font-size: 0.82rem;
   font-family: inherit;
   cursor: pointer;
   padding: 0;
   transition: color 0.15s;
-  &:hover { color: #e8e8e8; }
+  &:hover { color: ${({ theme }) => theme.text}; }
 `;
 
 export const ProfileActions = styled.div`
@@ -71,14 +95,14 @@ export const ProfileActions = styled.div`
 export const EditButton = styled.button`
   padding: 0.35rem 0.9rem;
   background: transparent;
-  border: 1px solid #2a2a2a;
+  border: 1px solid ${({ theme }) => theme.borderAlt};
   border-radius: 6px;
-  color: #666;
+  color: ${({ theme }) => theme.textSubtle};
   font-size: 0.82rem;
   font-family: inherit;
   cursor: pointer;
   transition: border-color 0.15s, color 0.15s;
-  &:hover { border-color: #555; color: #e8e8e8; }
+  &:hover { border-color: ${({ theme }) => theme.textFaint}; color: ${({ theme }) => theme.text}; }
 `;
 
 export const EditForm = styled.form`
@@ -91,18 +115,18 @@ export const EditForm = styled.form`
 export const EditTextarea = styled.textarea`
   padding: 0.65rem 0.9rem;
   border-radius: 6px;
-  border: 1px solid #2a2a2a;
-  background: #0a0a0a;
-  color: #e8e8e8;
+  border: 1px solid ${({ theme }) => theme.borderAlt};
+  background: ${({ theme }) => theme.bg};
+  color: ${({ theme }) => theme.text};
   font-size: 0.88rem;
   font-family: inherit;
   resize: vertical;
-  &::placeholder { color: #444; }
-  &:focus { outline: none; border-color: #e94560; }
+  &::placeholder { color: ${({ theme }) => theme.textDimmer}; }
+  &:focus { outline: none; border-color: ${({ theme }) => theme.accent}; }
 `;
 
 export const EditInput = styled.input`
-  color: #555;
+  color: ${({ theme }) => theme.textFaint};
   font-size: 0.82rem;
   font-family: inherit;
 `;
@@ -115,42 +139,42 @@ export const EditActions = styled.div`
 export const LogoutButton = styled.button`
   padding: 0.35rem 0.9rem;
   background: transparent;
-  border: 1px solid #e94560;
+  border: 1px solid ${({ theme }) => theme.accent};
   border-radius: 6px;
-  color: #e94560;
+  color: ${({ theme }) => theme.accent};
   font-size: 0.82rem;
   font-family: inherit;
   cursor: pointer;
   transition: background 0.15s, color 0.15s;
-  &:hover { background: #e94560; color: #fff; }
+  &:hover { background: ${({ theme }) => theme.accent}; color: ${({ theme }) => theme.accentFg}; }
 `;
 
 export const SaveButton = styled.button`
   padding: 0.35rem 0.9rem;
-  background: #e94560;
-  color: white;
+  background: ${({ theme }) => theme.accent};
+  color: ${({ theme }) => theme.accentFg};
   border: none;
   border-radius: 6px;
   font-size: 0.82rem;
   font-family: inherit;
   cursor: pointer;
-  &:hover { background: #c73652; }
+  &:hover { background: ${({ theme }) => theme.accentHover}; }
 `;
 
 export const CancelButton = styled.button`
   padding: 0.35rem 0.9rem;
   background: transparent;
-  border: 1px solid #2a2a2a;
+  border: 1px solid ${({ theme }) => theme.borderAlt};
   border-radius: 6px;
-  color: #555;
+  color: ${({ theme }) => theme.textFaint};
   font-size: 0.82rem;
   font-family: inherit;
   cursor: pointer;
-  &:hover { border-color: #444; }
+  &:hover { border-color: ${({ theme }) => theme.textFaint}; }
 `;
 
 export const SectionTitle = styled.h2`
-  color: #555;
+  color: ${({ theme }) => theme.textFaint};
   font-size: 0.78rem;
   font-weight: 500;
   margin: 0.5rem 0 0;
@@ -159,6 +183,6 @@ export const SectionTitle = styled.h2`
 `;
 
 export const Empty = styled.p`
-  color: #333;
+  color: ${({ theme }) => theme.textGhost};
   font-size: 0.88rem;
 `;

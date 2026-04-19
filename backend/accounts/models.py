@@ -11,6 +11,7 @@ class User(AbstractUser):
     bio = models.TextField(blank=True, default='')
     # Foto de perfil — salva na pasta media/avatars/ — não é obrigatória
     avatar = models.ImageField(upload_to='avatars/', blank=True, null=True)
+    banner = models.ImageField(upload_to='banners/', blank=True, null=True)
     # Preenchido automaticamente com a data/hora em que a conta foi criada
     created_at = models.DateTimeField(auto_now_add=True)
 

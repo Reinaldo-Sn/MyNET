@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Sun, Moon } from "lucide-react";
 import { usePostContext } from "../../contexts/PostContext";
+import { useThemeToggle } from "../../contexts/ThemeContext";
 import api from "../../api/axios";
 import perfilPadrao from "../../assets/perfil_padrao.png";
-import { Nav, Logo, NavLinks, NavLink, Button, SearchWrapper, SearchInput, SearchResults, UserCard, UserAvatar, UserName } from './style';
+import { Nav, Logo, NavLinks, NavLink, Button, ToggleButton, SearchWrapper, SearchInput, SearchResults, UserCard, UserAvatar, UserName } from './style';
 
 interface UserResult {
   id: number;
@@ -13,6 +15,7 @@ interface UserResult {
 
 const Navbar = () => {
     const { openModal } = usePostContext();
+    const { isDark, toggleTheme } = useThemeToggle();
     const navigate = useNavigate();
     const [query, setQuery] = useState("");
     const [results, setResults] = useState<UserResult[]>([]);
@@ -68,6 +71,9 @@ const Navbar = () => {
                 <NavLink to="/search">Explorar</NavLink>
                 <NavLink to="/profile">Perfil</NavLink>
                 <Button onClick={openModal}>Postar</Button>
+                <ToggleButton onClick={toggleTheme}>
+                    {isDark ? <Sun size={16} /> : <Moon size={16} />}
+                </ToggleButton>
             </NavLinks>
         </Nav>
     );

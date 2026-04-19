@@ -3,38 +3,51 @@ import { Camera } from "lucide-react";
 import perfilPadrao from "../../assets/perfil_padrao.png";
 import {
   Overlay, Modal, Header, Title, CloseButton,
+  BannerWrapper, BannerArea, BannerOverlay,
   AvatarWrapper, AvatarImg, CameraOverlay, HiddenInput,
   BioTextarea, Footer, SaveButton, CancelButton,
 } from "./style";
 
 interface Props {
   currentAvatar: string | null;
+  currentBanner: string | null;
   currentBio: string;
   onClose: () => void;
-  onSave: (bio: string, avatarFile: File | null) => Promise<void>;
+  onSave: (bio: string, avatarFile: File | null, bannerFile: File | null) => Promise<void>;
   onSelectImage: (src: string) => void;
 }
 
-const EditProfileModal = ({ currentAvatar, currentBio, onClose, onSave, onSelectImage }: Props) => {
+const EditProfileModal = ({ currentAvatar, currentBanner, currentBio, onClose, onSave, onSelectImage }: Props) => {
   const [bio, setBio] = useState(currentBio);
-  const [preview, setPreview] = useState<string | null>(null);
-  const [pendingFile, setPendingFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [bannerPreview, setBannerPreview] = useState<string | null>(null);
+  const [pendingAvatar, setPendingAvatar] = useState<File | null>(null);
+  const [pendingBanner, setPendingBanner] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
-  const fileRef = useRef<HTMLInputElement>(null);
+  const avatarRef = useRef<HTMLInputElement>(null);
+  const bannerRef = useRef<HTMLInputElement>(null);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] ?? null;
     if (!file) return;
     const src = URL.createObjectURL(file);
-    setPendingFile(file);
-    setPreview(src);
+    setPendingAvatar(file);
+    setAvatarPreview(src);
     onSelectImage(src);
+    e.target.value = "";
+  };
+
+  const handleBannerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] ?? null;
+    if (!file) return;
+    setPendingBanner(file);
+    setBannerPreview(URL.createObjectURL(file));
     e.target.value = "";
   };
 
   const handleSave = async () => {
     setSaving(true);
-    await onSave(bio, pendingFile);
+    await onSave(bio, pendingAvatar, pendingBanner);
     setSaving(false);
   };
 
@@ -46,12 +59,20 @@ const EditProfileModal = ({ currentAvatar, currentBio, onClose, onSave, onSelect
           <CloseButton onClick={onClose}>✕</CloseButton>
         </Header>
 
-        <AvatarWrapper onClick={() => fileRef.current?.click()}>
-          <AvatarImg src={preview || currentAvatar || perfilPadrao} alt="avatar" />
+        <BannerWrapper onClick={() => bannerRef.current?.click()}>
+          <BannerArea $src={bannerPreview || currentBanner} />
+          <BannerOverlay>
+            <Camera size={22} color="#fff" />
+          </BannerOverlay>
+          <HiddenInput ref={bannerRef} type="file" accept="image/*" onChange={handleBannerChange} />
+        </BannerWrapper>
+
+        <AvatarWrapper onClick={() => avatarRef.current?.click()}>
+          <AvatarImg src={avatarPreview || currentAvatar || perfilPadrao} alt="avatar" />
           <CameraOverlay>
             <Camera size={22} color="#fff" />
           </CameraOverlay>
-          <HiddenInput ref={fileRef} type="file" accept="image/*" onChange={handleFileChange} />
+          <HiddenInput ref={avatarRef} type="file" accept="image/*" onChange={handleAvatarChange} />
         </AvatarWrapper>
 
         <BioTextarea

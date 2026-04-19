@@ -10,7 +10,7 @@ export const Container = styled.div`
 `;
 
 export const Title = styled.h1`
-  color: #e8e8e8;
+  color: ${({ theme }) => theme.text};
   font-size: 1.1rem;
   font-weight: 600;
   margin: 0;
@@ -26,19 +26,19 @@ export const Input = styled.input`
   flex: 1;
   padding: 0.65rem 0.9rem;
   border-radius: 6px;
-  border: 1px solid #2a2a2a;
-  background: #111;
-  color: #e8e8e8;
+  border: 1px solid ${({ theme }) => theme.borderAlt};
+  background: ${({ theme }) => theme.surface};
+  color: ${({ theme }) => theme.text};
   font-size: 0.9rem;
   font-family: inherit;
-  &::placeholder { color: #444; }
-  &:focus { outline: none; border-color: #e94560; }
+  &::placeholder { color: ${({ theme }) => theme.textDimmer}; }
+  &:focus { outline: none; border-color: ${({ theme }) => theme.accent}; }
 `;
 
 export const Button = styled.button`
   padding: 0.65rem 1.1rem;
-  background: #e94560;
-  color: white;
+  background: ${({ theme }) => theme.accent};
+  color: ${({ theme }) => theme.accentFg};
   border: none;
   border-radius: 6px;
   font-size: 0.88rem;
@@ -46,12 +46,12 @@ export const Button = styled.button`
   font-family: inherit;
   cursor: pointer;
   transition: background 0.15s;
-  &:hover { background: #c73652; }
+  &:hover { background: ${({ theme }) => theme.accentHover}; }
 `;
 
 export const UserCard = styled.div`
-  background: #111;
-  border: 1px solid #1e1e1e;
+  background: ${({ theme }) => theme.surface};
+  border: 1px solid ${({ theme }) => theme.border};
   border-radius: 8px;
   padding: 0.75rem 1.1rem;
   cursor: pointer;
@@ -59,7 +59,7 @@ export const UserCard = styled.div`
   align-items: center;
   gap: 0.85rem;
   transition: border-color 0.15s;
-  &:hover { border-color: #333; }
+  &:hover { border-color: ${({ theme }) => theme.borderAlt}; }
 `;
 
 export const UserAvatar = styled.img`
@@ -77,13 +77,13 @@ export const UserInfo = styled.div`
 `;
 
 export const UserName = styled.strong`
-  color: #e8e8e8;
+  color: ${({ theme }) => theme.text};
   font-size: 0.9rem;
   font-weight: 500;
 `;
 
 export const Followers = styled.p`
-  color: #555;
+  color: ${({ theme }) => theme.textFaint};
   font-size: 0.8rem;
   margin: 0;
 `;

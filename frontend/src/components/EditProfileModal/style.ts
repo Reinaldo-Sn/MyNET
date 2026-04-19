@@ -11,8 +11,8 @@ export const Overlay = styled.div`
 `;
 
 export const Modal = styled.div`
-  background: #111;
-  border: 1px solid #1e1e1e;
+  background: ${({ theme }) => theme.surface};
+  border: 1px solid ${({ theme }) => theme.border};
   border-radius: 12px;
   padding: 1.5rem;
   width: 100%;
@@ -30,7 +30,7 @@ export const Header = styled.div`
 `;
 
 export const Title = styled.h2`
-  color: #e8e8e8;
+  color: ${({ theme }) => theme.text};
   font-size: 1rem;
   font-weight: 600;
   margin: 0;
@@ -39,12 +39,37 @@ export const Title = styled.h2`
 export const CloseButton = styled.button`
   background: transparent;
   border: none;
-  color: #666;
+  color: ${({ theme }) => theme.textSubtle};
   font-size: 1.2rem;
   cursor: pointer;
   line-height: 1;
   padding: 0;
-  &:hover { color: #e8e8e8; }
+  &:hover { color: ${({ theme }) => theme.text}; }
+`;
+
+export const BannerWrapper = styled.div`
+  position: relative;
+  cursor: pointer;
+  border-radius: 8px;
+  overflow: hidden;
+`;
+
+export const BannerArea = styled.div<{ $src: string | null }>`
+  height: 100px;
+  width: 100%;
+  background: ${({ $src, theme }) => $src ? `url(${$src}) center/cover no-repeat` : theme.surfaceAlt};
+`;
+
+export const BannerOverlay = styled.div`
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s;
+  ${BannerWrapper}:hover & { opacity: 1; }
 `;
 
 export const AvatarWrapper = styled.div`
@@ -86,15 +111,15 @@ export const BioTextarea = styled.textarea`
   width: 100%;
   padding: 0.65rem 0.9rem;
   border-radius: 6px;
-  border: 1px solid #2a2a2a;
-  background: #0a0a0a;
-  color: #e8e8e8;
+  border: 1px solid ${({ theme }) => theme.borderAlt};
+  background: ${({ theme }) => theme.bg};
+  color: ${({ theme }) => theme.text};
   font-size: 0.88rem;
   font-family: inherit;
   resize: none;
   box-sizing: border-box;
-  &::placeholder { color: #444; }
-  &:focus { outline: none; border-color: #e94560; }
+  &::placeholder { color: ${({ theme }) => theme.textDimmer}; }
+  &:focus { outline: none; border-color: ${({ theme }) => theme.accent}; }
 `;
 
 export const Footer = styled.div`
@@ -105,25 +130,25 @@ export const Footer = styled.div`
 
 export const SaveButton = styled.button`
   padding: 0.5rem 1.2rem;
-  background: #e94560;
-  color: white;
+  background: ${({ theme }) => theme.accent};
+  color: ${({ theme }) => theme.accentFg};
   border: none;
   border-radius: 6px;
   font-size: 0.88rem;
   font-weight: 500;
   font-family: inherit;
   cursor: pointer;
-  &:hover { background: #c73652; }
+  &:hover { background: ${({ theme }) => theme.accentHover}; }
 `;
 
 export const CancelButton = styled.button`
   padding: 0.5rem 1.1rem;
   background: transparent;
-  border: 1px solid #2a2a2a;
+  border: 1px solid ${({ theme }) => theme.borderAlt};
   border-radius: 6px;
-  color: #666;
+  color: ${({ theme }) => theme.textSubtle};
   font-size: 0.88rem;
   font-family: inherit;
   cursor: pointer;
-  &:hover { border-color: #444; color: #888; }
+  &:hover { border-color: ${({ theme }) => theme.textFaint}; color: ${({ theme }) => theme.textMuted}; }
 `;

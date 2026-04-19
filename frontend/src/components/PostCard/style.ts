@@ -1,8 +1,8 @@
 import styled from "styled-components";
 
 export const Card = styled.div`
-  background: #111;
-  border: 1px solid #1e1e1e;
+  background: ${({ theme }) => theme.surface};
+  border: 1px solid ${({ theme }) => theme.border};
   border-radius: 8px;
   padding: 1.1rem 1.25rem;
   display: flex;
@@ -11,7 +11,7 @@ export const Card = styled.div`
 `;
 
 export const Author = styled.strong`
-  color: #e94560;
+  color: ${({ theme }) => theme.accent};
   font-size: 0.88rem;
   font-weight: 600;
   cursor: pointer;
@@ -19,7 +19,7 @@ export const Author = styled.strong`
 `;
 
 export const Content = styled.p`
-  color: #d8d8d8;
+  color: ${({ theme }) => theme.text};
   margin: 0;
   line-height: 1.6;
   font-size: 0.95rem;
@@ -49,7 +49,7 @@ export const LikeButton = styled.button<{ $liked: boolean }>`
   background: none;
   border: none;
   cursor: pointer;
-  color: ${({ $liked }) => ($liked ? "#e94560" : "#555")};
+  color: ${({ $liked, theme }) => ($liked ? theme.accent : theme.textFaint)};
   font-size: 0.85rem;
   font-family: inherit;
   padding: 0;
@@ -57,47 +57,50 @@ export const LikeButton = styled.button<{ $liked: boolean }>`
   align-items: center;
   gap: 0.3rem;
   transition: color 0.15s;
-  &:hover { color: #e94560; }
+  &:hover { color: ${({ theme }) => theme.accent}; }
 `;
 
 export const CommentToggle = styled.button`
   background: none;
   border: none;
   cursor: pointer;
-  color: #555;
+  color: ${({ theme }) => theme.textFaint};
   font-size: 0.85rem;
   font-family: inherit;
   padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
   transition: color 0.15s;
-  &:hover { color: #888; }
+  &:hover { color: ${({ theme }) => theme.textMuted}; }
 `;
 
 export const EditButton = styled.button`
   background: none;
   border: none;
   cursor: pointer;
-  color: #444;
+  color: ${({ theme }) => theme.textGhost};
   font-size: 0.82rem;
   font-family: inherit;
   padding: 0;
   transition: color 0.15s;
-  &:hover { color: #888; }
+  &:hover { color: ${({ theme }) => theme.textMuted}; }
 `;
 
 export const DeleteButton = styled.button`
   background: none;
   border: none;
   cursor: pointer;
-  color: #333;
+  color: ${({ theme }) => theme.textGhost};
   font-size: 0.82rem;
   font-family: inherit;
   padding: 0;
   transition: color 0.15s;
-  &:hover { color: #e94560; }
+  &:hover { color: ${({ theme }) => theme.accent}; }
 `;
 
 export const DateText = styled.small`
-  color: #444;
+  color: ${({ theme }) => theme.textDimmer};
   font-size: 0.78rem;
 `;
 
@@ -105,14 +108,14 @@ export const EditArea = styled.textarea`
   width: 100%;
   padding: 0.65rem 0.9rem;
   border-radius: 6px;
-  border: 1px solid #2a2a2a;
-  background: #0a0a0a;
-  color: #e8e8e8;
+  border: 1px solid ${({ theme }) => theme.borderAlt};
+  background: ${({ theme }) => theme.bg};
+  color: ${({ theme }) => theme.text};
   font-size: 0.9rem;
   font-family: inherit;
   resize: none;
   box-sizing: border-box;
-  &:focus { outline: none; border-color: #e94560; }
+  &:focus { outline: none; border-color: ${({ theme }) => theme.accent}; }
 `;
 
 export const EditActions = styled.div`
@@ -123,33 +126,33 @@ export const EditActions = styled.div`
 
 export const SaveButton = styled.button`
   padding: 0.35rem 0.9rem;
-  background: #e94560;
-  color: white;
+  background: ${({ theme }) => theme.accent};
+  color: ${({ theme }) => theme.accentFg};
   border: none;
   border-radius: 6px;
   font-size: 0.82rem;
   font-family: inherit;
   cursor: pointer;
-  &:hover { background: #c73652; }
+  &:hover { background: ${({ theme }) => theme.accentHover}; }
 `;
 
 export const CancelButton = styled.button`
   padding: 0.35rem 0.9rem;
   background: transparent;
-  border: 1px solid #2a2a2a;
+  border: 1px solid ${({ theme }) => theme.borderAlt};
   border-radius: 6px;
-  color: #666;
+  color: ${({ theme }) => theme.textSubtle};
   font-size: 0.82rem;
   font-family: inherit;
   cursor: pointer;
-  &:hover { border-color: #444; color: #888; }
+  &:hover { border-color: ${({ theme }) => theme.textFaint}; color: ${({ theme }) => theme.textMuted}; }
 `;
 
 export const CommentsSection = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
-  border-top: 1px solid #1a1a1a;
+  border-top: 1px solid ${({ theme }) => theme.border};
   padding-top: 0.75rem;
 `;
 
@@ -159,12 +162,12 @@ export const CommentItem = styled.div`
   align-items: flex-start;
   gap: 0.5rem;
   padding-bottom: 0.6rem;
-  border-bottom: 1px solid #1a1a1a;
+  border-bottom: 1px solid ${({ theme }) => theme.border};
   &:last-of-type { border-bottom: none; }
 `;
 
 export const CommentText = styled.div`
-  color: #aaa;
+  color: ${({ theme }) => theme.textMuted};
   font-size: 0.85rem;
   margin: 0;
   line-height: 1.5;
@@ -178,14 +181,14 @@ export const CommentMeta = styled.div`
   align-items: center;
   gap: 0.5rem;
   span {
-    color: #e94560;
+    color: ${({ theme }) => theme.accent};
     font-weight: 600;
     font-size: 0.82rem;
   }
 `;
 
 export const CommentDate = styled.small`
-  color: #444;
+  color: ${({ theme }) => theme.textDimmer};
   font-size: 0.75rem;
 `;
 
@@ -193,13 +196,13 @@ export const CommentDelete = styled.button`
   background: none;
   border: none;
   cursor: pointer;
-  color: #333;
+  color: ${({ theme }) => theme.textGhost};
   font-size: 0.78rem;
   font-family: inherit;
   padding: 0;
   flex-shrink: 0;
   transition: color 0.15s;
-  &:hover { color: #e94560; }
+  &:hover { color: ${({ theme }) => theme.accent}; }
 `;
 
 export const CommentForm = styled.form`
@@ -211,22 +214,22 @@ export const CommentInput = styled.input`
   flex: 1;
   padding: 0.5rem 0.8rem;
   border-radius: 6px;
-  border: 1px solid #2a2a2a;
-  background: #0a0a0a;
-  color: #e8e8e8;
+  border: 1px solid ${({ theme }) => theme.borderAlt};
+  background: ${({ theme }) => theme.bg};
+  color: ${({ theme }) => theme.text};
   font-size: 0.85rem;
   font-family: inherit;
-  &:focus { outline: none; border-color: #e94560; }
+  &:focus { outline: none; border-color: ${({ theme }) => theme.accent}; }
 `;
 
 export const CommentSubmit = styled.button`
   padding: 0.5rem 0.9rem;
-  background: #e94560;
-  color: white;
+  background: ${({ theme }) => theme.accent};
+  color: ${({ theme }) => theme.accentFg};
   border: none;
   border-radius: 6px;
   font-size: 0.85rem;
   font-family: inherit;
   cursor: pointer;
-  &:hover { background: #c73652; }
+  &:hover { background: ${({ theme }) => theme.accentHover}; }
 `;

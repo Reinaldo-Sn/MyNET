@@ -3,12 +3,14 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import api from "../../api/axios";
 import perfilPadrao from "../../assets/perfil_padrao.png";
+import fundoPadrao from "../../assets/fundo_padrao.webp";
 import PostCard, { Post } from "../../components/PostCard/main";
 import FollowModal from "../../components/FollowModal/main";
 import EditProfileModal from "../../components/EditProfileModal/main";
 import AvatarCropModal from "../../components/AvatarCropModal/main";
 import {
-  Container, ProfileHeader, Avatar, Username, Bio, Stats, StatButton,
+  Container, ProfileHeader, BannerSection, Banner, Avatar, ProfileInfo,
+  Username, Bio, Stats, StatButton,
   SectionTitle, Empty, ProfileActions, EditButton, LogoutButton,
 } from "./style";
 
@@ -43,11 +45,12 @@ const ProfilePage = () => {
     setEditing(true);
   };
 
-  const handleSave = async (bio: string, avatarFile: File | null) => {
+  const handleSave = async (bio: string, avatarFile: File | null, bannerFile: File | null) => {
     const formData = new FormData();
     formData.append("bio", bio);
     const fileToUpload = avatarFile || croppedFile;
     if (fileToUpload) formData.append("avatar", fileToUpload);
+    if (bannerFile) formData.append("banner", bannerFile);
     await api.patch("/auth/profile/", formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
@@ -89,6 +92,7 @@ const ProfilePage = () => {
       {editing && (
         <EditProfileModal
           currentAvatar={croppedPreview || user?.avatar || null}
+          currentBanner={user?.banner || null}
           currentBio={user?.bio || ""}
           onClose={() => { setEditing(false); setCroppedFile(null); setCroppedPreview(null); }}
           onSave={handleSave}
@@ -97,21 +101,26 @@ const ProfilePage = () => {
       )}
 
       <ProfileHeader>
-        <Avatar src={croppedPreview || user?.avatar || perfilPadrao} alt="avatar" />
-        <Username>{user?.username}</Username>
-        <Bio>{user?.bio || "Sem bio."}</Bio>
-        <Stats>
-          <StatButton onClick={() => setModal("followers")}>
-            Seguidores: {user?.followers_count}
-          </StatButton>
-          <StatButton onClick={() => setModal("following")}>
-            Seguindo: {user?.following_count}
-          </StatButton>
-        </Stats>
-        <ProfileActions>
-          <EditButton onClick={() => setEditing(true)}>Editar perfil</EditButton>
-          <LogoutButton onClick={() => { logout(); navigate("/login"); }}>Sair</LogoutButton>
-        </ProfileActions>
+        <BannerSection>
+          <Banner $src={user?.banner || fundoPadrao} />
+          <Avatar src={croppedPreview || user?.avatar || perfilPadrao} alt="avatar" />
+        </BannerSection>
+        <ProfileInfo>
+          <Username>{user?.username}</Username>
+          <Bio>{user?.bio || "Sem bio."}</Bio>
+          <Stats>
+            <StatButton onClick={() => setModal("followers")}>
+              Seguidores: {user?.followers_count}
+            </StatButton>
+            <StatButton onClick={() => setModal("following")}>
+              Seguindo: {user?.following_count}
+            </StatButton>
+          </Stats>
+          <ProfileActions>
+            <EditButton onClick={() => setEditing(true)}>Editar perfil</EditButton>
+            <LogoutButton onClick={() => { logout(); navigate("/login"); }}>Sair</LogoutButton>
+          </ProfileActions>
+        </ProfileInfo>
       </ProfileHeader>
 
       <SectionTitle>Meus posts</SectionTitle>

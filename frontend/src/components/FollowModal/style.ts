@@ -11,8 +11,8 @@ export const Overlay = styled.div`
 `;
 
 export const Modal = styled.div`
-  background: #111;
-  border: 1px solid #1e1e1e;
+  background: ${({ theme }) => theme.surface};
+  border: 1px solid ${({ theme }) => theme.border};
   border-radius: 8px;
   width: 100%;
   max-width: 360px;
@@ -27,11 +27,11 @@ export const ModalHeader = styled.div`
   align-items: center;
   justify-content: space-between;
   padding: 1rem 1.25rem;
-  border-bottom: 1px solid #1a1a1a;
+  border-bottom: 1px solid ${({ theme }) => theme.border};
 `;
 
 export const ModalTitle = styled.h2`
-  color: #e8e8e8;
+  color: ${({ theme }) => theme.text};
   font-size: 0.95rem;
   font-weight: 600;
   margin: 0;
@@ -40,13 +40,13 @@ export const ModalTitle = styled.h2`
 export const CloseButton = styled.button`
   background: none;
   border: none;
-  color: #555;
+  color: ${({ theme }) => theme.textFaint};
   font-size: 1rem;
   cursor: pointer;
   padding: 0;
   font-family: inherit;
   transition: color 0.15s;
-  &:hover { color: #e8e8e8; }
+  &:hover { color: ${({ theme }) => theme.text}; }
 `;
 
 export const UserList = styled.div`
@@ -62,7 +62,7 @@ export const UserItem = styled.div`
   padding: 0.75rem 1.25rem;
   cursor: pointer;
   transition: background 0.15s;
-  &:hover { background: #171717; }
+  &:hover { background: ${({ theme }) => theme.surfaceAlt}; }
 `;
 
 export const UserAvatar = styled.img`
@@ -73,13 +73,13 @@ export const UserAvatar = styled.img`
 `;
 
 export const UserName = styled.span`
-  color: #d8d8d8;
+  color: ${({ theme }) => theme.text};
   font-size: 0.9rem;
   font-weight: 500;
 `;
 
 export const Empty = styled.p`
-  color: #555;
+  color: ${({ theme }) => theme.textFaint};
   text-align: center;
   padding: 2rem;
   font-size: 0.88rem;

@@ -10,7 +10,7 @@ export const Container = styled.div`
 `;
 
 export const Title = styled.h1`
-  color: #e8e8e8;
+  color: ${({ theme }) => theme.text};
   font-size: 1.1rem;
   font-weight: 600;
   margin: 0;
@@ -18,8 +18,8 @@ export const Title = styled.h1`
 `;
 
 export const Form = styled.form`
-  background: #111;
-  border: 1px solid #1e1e1e;
+  background: ${({ theme }) => theme.surface};
+  border: 1px solid ${({ theme }) => theme.border};
   border-radius: 8px;
   padding: 1.25rem;
   display: flex;
@@ -31,19 +31,19 @@ export const Textarea = styled.textarea`
   width: 100%;
   padding: 0.7rem 0.9rem;
   border-radius: 6px;
-  border: 1px solid #2a2a2a;
-  background: #0a0a0a;
-  color: #e8e8e8;
+  border: 1px solid ${({ theme }) => theme.borderAlt};
+  background: ${({ theme }) => theme.bg};
+  color: ${({ theme }) => theme.text};
   font-size: 0.9rem;
   font-family: inherit;
   resize: vertical;
   box-sizing: border-box;
-  &::placeholder { color: #444; }
-  &:focus { outline: none; border-color: #e94560; }
+  &::placeholder { color: ${({ theme }) => theme.textDimmer}; }
+  &:focus { outline: none; border-color: ${({ theme }) => theme.accent}; }
 `;
 
 export const FileInput = styled.input`
-  color: #555;
+  color: ${({ theme }) => theme.textFaint};
   font-size: 0.82rem;
   font-family: inherit;
 `;
@@ -51,8 +51,8 @@ export const FileInput = styled.input`
 export const Button = styled.button`
   align-self: flex-end;
   padding: 0.55rem 1.3rem;
-  background: #e94560;
-  color: white;
+  background: ${({ theme }) => theme.accent};
+  color: ${({ theme }) => theme.accentFg};
   border: none;
   border-radius: 6px;
   font-size: 0.88rem;
@@ -60,11 +60,11 @@ export const Button = styled.button`
   font-family: inherit;
   cursor: pointer;
   transition: background 0.15s;
-  &:hover { background: #c73652; }
+  &:hover { background: ${({ theme }) => theme.accentHover}; }
 `;
 
 export const ErrorMsg = styled.p`
-  color: #e94560;
+  color: ${({ theme }) => theme.accent};
   font-size: 0.82rem;
   margin: 0;
 `;

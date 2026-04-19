@@ -10,13 +10,24 @@ export const Container = styled.div`
 `;
 
 export const ProfileHeader = styled.div`
-  background: #111;
-  border: 1px solid #1e1e1e;
+  background: ${({ theme }) => theme.surface};
+  border: 1px solid ${({ theme }) => theme.border};
   border-radius: 8px;
-  padding: 1.5rem 1.25rem;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  overflow: visible;
+`;
+
+export const BannerSection = styled.div`
+  position: relative;
+`;
+
+export const Banner = styled.div<{ $src: string | null }>`
+  height: 150px;
+  width: 100%;
+  border-radius: 8px 8px 0 0;
+  overflow: hidden;
+  background: ${({ $src, theme }) => $src ? `url(${$src}) center/cover no-repeat` : theme.surfaceAlt};
 `;
 
 export const Avatar = styled.img`
@@ -24,10 +35,25 @@ export const Avatar = styled.img`
   height: 72px;
   border-radius: 50%;
   object-fit: cover;
+  border: 3px solid ${({ theme }) => theme.surface};
+  position: absolute;
+  bottom: -36px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1;
+`;
+
+export const ProfileInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  text-align: center;
+  padding: 46px 1.25rem 1.5rem;
 `;
 
 export const Username = styled.h1`
-  color: #e8e8e8;
+  color: ${({ theme }) => theme.text};
   margin: 0;
   font-size: 1.15rem;
   font-weight: 600;
@@ -35,7 +61,7 @@ export const Username = styled.h1`
 `;
 
 export const Bio = styled.p`
-  color: #666;
+  color: ${({ theme }) => theme.textSubtle};
   margin: 0;
   font-size: 0.88rem;
   line-height: 1.5;
@@ -50,17 +76,17 @@ export const Stats = styled.div`
 export const StatButton = styled.button`
   background: none;
   border: none;
-  color: #555;
+  color: ${({ theme }) => theme.textFaint};
   font-size: 0.82rem;
   font-family: inherit;
   cursor: pointer;
   padding: 0;
   transition: color 0.15s;
-  &:hover { color: #e8e8e8; }
+  &:hover { color: ${({ theme }) => theme.text}; }
 `;
 
 export const FollowButton = styled.button<{ $following: boolean }>`
-  align-self: flex-start;
+  align-self: center;
   margin-top: 0.3rem;
   padding: 0.35rem 0.9rem;
   border-radius: 6px;
@@ -69,16 +95,16 @@ export const FollowButton = styled.button<{ $following: boolean }>`
   font-family: inherit;
   cursor: pointer;
   transition: background 0.15s, color 0.15s, border-color 0.15s;
-  ${({ $following }) => $following
-    ? `background: transparent; border: 1px solid #2a2a2a; color: #555;
-       &:hover { border-color: #555; color: #e8e8e8; }`
-    : `background: #e94560; border: 1px solid #e94560; color: white;
-       &:hover { background: #c73652; border-color: #c73652; }`
+  ${({ $following, theme }) => $following
+    ? `background: transparent; border: 1px solid ${theme.borderAlt}; color: ${theme.textFaint};
+       &:hover { border-color: ${theme.textFaint}; color: ${theme.text}; }`
+    : `background: ${theme.accent}; border: 1px solid ${theme.accent}; color: ${theme.accentFg};
+       &:hover { background: ${theme.accentHover}; border-color: ${theme.accentHover}; }`
   }
 `;
 
 export const SectionTitle = styled.h2`
-  color: #555;
+  color: ${({ theme }) => theme.textFaint};
   font-size: 0.78rem;
   font-weight: 500;
   margin: 0.5rem 0 0;
@@ -87,6 +113,6 @@ export const SectionTitle = styled.h2`
 `;
 
 export const Empty = styled.p`
-  color: #333;
+  color: ${({ theme }) => theme.textGhost};
   font-size: 0.88rem;
 `;

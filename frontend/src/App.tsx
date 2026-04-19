@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { ThemeProvider, createGlobalStyle } from "styled-components";
 import LoginPage from "./pages/LoginPage/main";
 import RegisterPage from "./pages/RegisterPage/main";
 import FeedPage from "./pages/FeedPage/main";
@@ -10,10 +11,22 @@ import PostPage from "./pages/PostPage/main";
 import PrivateRoute from "./components/PrivateRoute";
 import Layout from "./components/Layout";
 import { PostProvider } from "./contexts/PostContext";
+import { ThemeContextProvider, useThemeToggle } from "./contexts/ThemeContext";
+import { darkTheme, lightTheme } from "./styles/theme";
 
-function App() {
+const GlobalStyle = createGlobalStyle`
+  body {
+    background: ${({ theme }) => theme.bg};
+    color: ${({ theme }) => theme.text};
+    transition: background 0.2s, color 0.2s;
+  }
+`;
+
+const ThemedApp = () => {
+  const { isDark } = useThemeToggle();
   return (
-    <PostProvider>
+    <ThemeProvider theme={isDark ? darkTheme : lightTheme}>
+      <GlobalStyle />
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Navigate to="/feed" />} />
@@ -27,6 +40,16 @@ function App() {
           <Route path="/posts/:id" element={<PrivateRoute><Layout><PostPage /></Layout></PrivateRoute>} />
         </Routes>
       </BrowserRouter>
+    </ThemeProvider>
+  );
+};
+
+function App() {
+  return (
+    <PostProvider>
+      <ThemeContextProvider>
+        <ThemedApp />
+      </ThemeContextProvider>
     </PostProvider>
   );
 }

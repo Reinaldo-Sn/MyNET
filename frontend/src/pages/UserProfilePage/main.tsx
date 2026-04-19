@@ -3,15 +3,20 @@ import { useParams } from "react-router-dom";
 import api from "../../api/axios";
 import { useAuth } from "../../contexts/AuthContext";
 import perfilPadrao from "../../assets/perfil_padrao.png";
+import fundoPadrao from "../../assets/fundo_padrao.webp";
 import PostCard, { Post } from "../../components/PostCard/main";
 import FollowModal from "../../components/FollowModal/main";
-import { Container, ProfileHeader, Avatar, Username, Bio, Stats, StatButton, FollowButton, SectionTitle, Empty } from "./style";
+import {
+  Container, ProfileHeader, BannerSection, Banner, Avatar, ProfileInfo,
+  Username, Bio, Stats, StatButton, FollowButton, SectionTitle, Empty,
+} from "./style";
 
 interface Profile {
   id: number;
   username: string;
   bio: string;
   avatar: string | null;
+  banner: string | null;
   followers_count: number;
   following_count: number;
   is_following: boolean;
@@ -69,20 +74,25 @@ const UserProfilePage = () => {
   return (
     <Container>
       <ProfileHeader>
-        <Avatar src={profile.avatar || perfilPadrao} alt="avatar" />
-        <Username>{profile.username}</Username>
-        <Bio>{profile.bio || "Sem bio."}</Bio>
-        <Stats>
-          <StatButton onClick={() => setModal("followers")}>
-            Seguidores: {profile.followers_count}
-          </StatButton>
-          <StatButton onClick={() => setModal("following")}>
-            Seguindo: {profile.following_count}
-          </StatButton>
-        </Stats>
-        <FollowButton $following={following} onClick={handleFollow}>
-          {following ? "Deixar de seguir" : "Seguir"}
-        </FollowButton>
+        <BannerSection>
+          <Banner $src={profile.banner || fundoPadrao} />
+          <Avatar src={profile.avatar || perfilPadrao} alt="avatar" />
+        </BannerSection>
+        <ProfileInfo>
+          <Username>{profile.username}</Username>
+          <Bio>{profile.bio || "Sem bio."}</Bio>
+          <Stats>
+            <StatButton onClick={() => setModal("followers")}>
+              Seguidores: {profile.followers_count}
+            </StatButton>
+            <StatButton onClick={() => setModal("following")}>
+              Seguindo: {profile.following_count}
+            </StatButton>
+          </Stats>
+          <FollowButton $following={following} onClick={handleFollow}>
+            {following ? "Deixar de seguir" : "Seguir"}
+          </FollowButton>
+        </ProfileInfo>
       </ProfileHeader>
 
       <SectionTitle>Posts</SectionTitle>

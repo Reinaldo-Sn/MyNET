@@ -67,7 +67,7 @@ const FeedPage = () => {
         <QuickFooter>
           <CharCount $over={quickContent.length > 180}>{quickContent.length}/180</CharCount>
           <QuickButton type="submit" disabled={quickLoading || !quickContent.trim() || quickContent.length > 180}>
-            {quickLoading ? "Publicando..." : "Publicar"}
+            {quickLoading ? "Postando..." : "Postar"}
           </QuickButton>
         </QuickFooter>
       </QuickPost>
