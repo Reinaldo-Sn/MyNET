@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: mynet-api
+    runtime: python
+    rootDir: backend
+    buildCommand: ./build.sh
+    startCommand: gunicorn core.wsgi:application
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: ALLOWED_HOSTS
+        value: mynet-api.onrender.com
+      - key: DATABASE_URL
+        fromDatabase:
+          name: mynet-db
+          property: connectionString
+      - key: CORS_ALLOWED_ORIGINS
+        value: https://mynet.vercel.app
+
+databases:
+  - name: mynet-db
+    databaseName: mynet
+    user: mynet
