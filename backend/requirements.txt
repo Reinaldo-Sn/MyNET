@@ -12,3 +12,5 @@ tzdata==2026.1
 psycopg2-binary==2.9.10
 whitenoise==6.9.0
 dj-database-url==2.3.0
+cloudinary==1.42.1
+django-cloudinary-storage==0.3.0
