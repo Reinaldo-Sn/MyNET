@@ -26,13 +26,6 @@ export const AuthorAvatar = styled.img`
   flex-shrink: 0;
 `;
 
-export const AuthorAvatarPlaceholder = styled.div`
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  background: ${({ theme }) => theme.border};
-  flex-shrink: 0;
-`;
 
 export const Author = styled.strong`
   color: ${({ theme }) => theme.accent};

@@ -105,36 +105,6 @@ export const EditButton = styled.button`
   &:hover { border-color: ${({ theme }) => theme.textFaint}; color: ${({ theme }) => theme.text}; }
 `;
 
-export const EditForm = styled.form`
-  display: flex;
-  flex-direction: column;
-  gap: 0.8rem;
-  width: 100%;
-`;
-
-export const EditTextarea = styled.textarea`
-  padding: 0.65rem 0.9rem;
-  border-radius: 6px;
-  border: 1px solid ${({ theme }) => theme.borderAlt};
-  background: ${({ theme }) => theme.bg};
-  color: ${({ theme }) => theme.text};
-  font-size: 0.88rem;
-  font-family: inherit;
-  resize: vertical;
-  &::placeholder { color: ${({ theme }) => theme.textDimmer}; }
-  &:focus { outline: none; border-color: ${({ theme }) => theme.accent}; }
-`;
-
-export const EditInput = styled.input`
-  color: ${({ theme }) => theme.textFaint};
-  font-size: 0.82rem;
-  font-family: inherit;
-`;
-
-export const EditActions = styled.div`
-  display: flex;
-  gap: 0.5rem;
-`;
 
 export const LogoutButton = styled.button`
   padding: 0.35rem 0.9rem;
@@ -149,29 +119,6 @@ export const LogoutButton = styled.button`
   &:hover { background: ${({ theme }) => theme.accent}; color: ${({ theme }) => theme.accentFg}; }
 `;
 
-export const SaveButton = styled.button`
-  padding: 0.35rem 0.9rem;
-  background: ${({ theme }) => theme.accent};
-  color: ${({ theme }) => theme.accentFg};
-  border: none;
-  border-radius: 6px;
-  font-size: 0.82rem;
-  font-family: inherit;
-  cursor: pointer;
-  &:hover { background: ${({ theme }) => theme.accentHover}; }
-`;
-
-export const CancelButton = styled.button`
-  padding: 0.35rem 0.9rem;
-  background: transparent;
-  border: 1px solid ${({ theme }) => theme.borderAlt};
-  border-radius: 6px;
-  color: ${({ theme }) => theme.textFaint};
-  font-size: 0.82rem;
-  font-family: inherit;
-  cursor: pointer;
-  &:hover { border-color: ${({ theme }) => theme.textFaint}; }
-`;
 
 export const SectionTitle = styled.h2`
   color: ${({ theme }) => theme.textFaint};

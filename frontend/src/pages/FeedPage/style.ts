@@ -16,70 +16,6 @@ export const Empty = styled.p`
   font-size: 0.9rem;
 `;
 
-export const SearchWrapper = styled.div`
-  position: relative;
-  width: 100%;
-`;
-
-export const SearchInput = styled.input`
-  width: 100%;
-  padding: 0.65rem 1rem;
-  border: 1px solid ${({ theme }) => theme.borderAlt};
-  border-radius: 999px;
-  font-size: 0.95rem;
-  outline: none;
-  box-sizing: border-box;
-  background: ${({ theme }) => theme.surface};
-  color: ${({ theme }) => theme.text};
-  font-family: inherit;
-  &::placeholder { color: ${({ theme }) => theme.textDimmer}; }
-  &:focus { border-color: ${({ theme }) => theme.accent}; }
-`;
-
-export const SearchResults = styled.div`
-  position: absolute;
-  top: calc(100% + 6px);
-  left: 0;
-  right: 0;
-  background: ${({ theme }) => theme.surface};
-  border: 1px solid ${({ theme }) => theme.borderAlt};
-  border-radius: 12px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-  z-index: 100;
-  overflow: hidden;
-`;
-
-export const UserCard = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
-  cursor: pointer;
-  &:hover { background: ${({ theme }) => theme.surfaceAlt}; }
-`;
-
-export const UserAvatar = styled.img`
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  object-fit: cover;
-`;
-
-export const UserInfo = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
-
-export const UserName = styled.span`
-  font-weight: 600;
-  font-size: 0.9rem;
-  color: ${({ theme }) => theme.text};
-`;
-
-export const Followers = styled.span`
-  font-size: 0.78rem;
-  color: ${({ theme }) => theme.textSubtle};
-`;
 
 export const QuickPost = styled.form`
   background: ${({ theme }) => theme.surface};
@@ -133,9 +69,3 @@ export const QuickButton = styled.button`
   &:disabled { opacity: 0.4; cursor: not-allowed; }
 `;
 
-export const SearchMessage = styled.p`
-  padding: 0.75rem 1rem;
-  font-size: 0.85rem;
-  color: ${({ theme }) => theme.textSubtle};
-  margin: 0;
-`;
