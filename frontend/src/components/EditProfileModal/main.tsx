@@ -15,14 +15,11 @@ interface Props {
   onClose: () => void;
   onSave: (bio: string, avatarFile: File | null, bannerFile: File | null) => Promise<void>;
   onSelectImage: (src: string) => void;
+  onSelectBannerImage: (src: string) => void;
 }
 
-const EditProfileModal = ({ currentAvatar, currentBanner, currentBio, onClose, onSave, onSelectImage }: Props) => {
+const EditProfileModal = ({ currentAvatar, currentBanner, currentBio, onClose, onSave, onSelectImage, onSelectBannerImage }: Props) => {
   const [bio, setBio] = useState(currentBio);
-  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
-  const [bannerPreview, setBannerPreview] = useState<string | null>(null);
-  const [pendingAvatar, setPendingAvatar] = useState<File | null>(null);
-  const [pendingBanner, setPendingBanner] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
   const avatarRef = useRef<HTMLInputElement>(null);
   const bannerRef = useRef<HTMLInputElement>(null);
@@ -30,24 +27,20 @@ const EditProfileModal = ({ currentAvatar, currentBanner, currentBio, onClose, o
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] ?? null;
     if (!file) return;
-    const src = URL.createObjectURL(file);
-    setPendingAvatar(file);
-    setAvatarPreview(src);
-    onSelectImage(src);
+    onSelectImage(URL.createObjectURL(file));
     e.target.value = "";
   };
 
   const handleBannerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] ?? null;
     if (!file) return;
-    setPendingBanner(file);
-    setBannerPreview(URL.createObjectURL(file));
+    onSelectBannerImage(URL.createObjectURL(file));
     e.target.value = "";
   };
 
   const handleSave = async () => {
     setSaving(true);
-    await onSave(bio, pendingAvatar, pendingBanner);
+    await onSave(bio, null, null);
     setSaving(false);
   };
 
@@ -60,7 +53,7 @@ const EditProfileModal = ({ currentAvatar, currentBanner, currentBio, onClose, o
         </Header>
 
         <BannerWrapper onClick={() => bannerRef.current?.click()}>
-          <BannerArea $src={bannerPreview || currentBanner} />
+          <BannerArea $src={currentBanner} />
           <BannerOverlay>
             <Camera size={22} color="#fff" />
           </BannerOverlay>
@@ -68,7 +61,7 @@ const EditProfileModal = ({ currentAvatar, currentBanner, currentBio, onClose, o
         </BannerWrapper>
 
         <AvatarWrapper onClick={() => avatarRef.current?.click()}>
-          <AvatarImg src={avatarPreview || currentAvatar || perfilPadrao} alt="avatar" />
+          <AvatarImg src={currentAvatar || perfilPadrao} alt="avatar" />
           <CameraOverlay>
             <Camera size={22} color="#fff" />
           </CameraOverlay>

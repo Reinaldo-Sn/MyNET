@@ -1,10 +1,12 @@
 import { useState, FormEvent } from "react";
+import defaultAvatar from "../../assets/perfil_padrao.png";
 import { useNavigate } from "react-router-dom";
 import { Heart, MessageCircle, Pencil, Trash2, X } from "lucide-react";
 import api from "../../api/axios";
 import { timeAgo } from "../../utils/timeAgo";
 import {
-  Card, Author, Content, PostImage, Footer, FooterLeft,
+  Card, AuthorRow, AuthorAvatar, AuthorAvatarPlaceholder, Author,
+  Content, PostImage, Footer, FooterLeft,
   LikeButton, CommentToggle, EditButton, DeleteButton, DateText,
   EditArea, EditActions, SaveButton, CancelButton,
   CommentsSection, CommentItem, CommentText, CommentMeta, CommentDate, CommentDelete,
@@ -15,6 +17,7 @@ export interface Post {
   id: number;
   author: number;
   author_username: string;
+  author_avatar: string | null;
   content: string;
   image: string | null;
   likes_count: number;
@@ -27,6 +30,7 @@ interface Comment {
   id: number;
   author: number;
   author_username: string;
+  author_avatar: string | null;
   content: string;
   created_at: string;
 }
@@ -43,6 +47,7 @@ const PostCard = ({ post, currentUserId, onLike, onDelete, onEdit }: Props) => {
   const navigate = useNavigate();
   const [showComments, setShowComments] = useState(false);
   const [comments, setComments] = useState<Comment[]>([]);
+  const [commentsCount, setCommentsCount] = useState(post.comments_count);
   const [newComment, setNewComment] = useState("");
   const [commentsLoaded, setCommentsLoaded] = useState(false);
   const [editing, setEditing] = useState(false);
@@ -62,12 +67,14 @@ const PostCard = ({ post, currentUserId, onLike, onDelete, onEdit }: Props) => {
     if (!newComment.trim()) return;
     const res = await api.post(`/posts/${post.id}/comments/`, { content: newComment });
     setComments((prev) => [...prev, res.data]);
+    setCommentsCount((prev) => prev + 1);
     setNewComment("");
   };
 
   const handleDeleteComment = async (commentId: number) => {
     await api.delete(`/posts/${post.id}/comments/${commentId}/`);
     setComments((prev) => prev.filter((c) => c.id !== commentId));
+    setCommentsCount((prev) => prev - 1);
   };
 
   const handleDelete = async () => {
@@ -85,7 +92,10 @@ const PostCard = ({ post, currentUserId, onLike, onDelete, onEdit }: Props) => {
 
   return (
     <Card>
-      <Author onClick={() => navigate(`/users/${post.author}`)}>{post.author_username}</Author>
+      <AuthorRow onClick={() => navigate(`/users/${post.author}`)}>
+        <AuthorAvatar src={post.author_avatar || defaultAvatar} alt={post.author_username} />
+        <Author>{post.author_username}</Author>
+      </AuthorRow>
 
       {editing ? (
         <EditActions as="form" onSubmit={handleSaveEdit} style={{ flexDirection: "column" }}>
@@ -111,7 +121,7 @@ const PostCard = ({ post, currentUserId, onLike, onDelete, onEdit }: Props) => {
             <Heart size={14} fill={post.is_liked ? "currentColor" : "none"} /> {post.likes_count}
           </LikeButton>
           <CommentToggle onClick={toggleComments}>
-            <MessageCircle size={14} /> {post.comments_count}
+            <MessageCircle size={14} /> {commentsCount}
           </CommentToggle>
         </FooterLeft>
         <FooterLeft>
@@ -131,7 +141,8 @@ const PostCard = ({ post, currentUserId, onLike, onDelete, onEdit }: Props) => {
             <CommentItem key={c.id}>
               <CommentText>
                 <CommentMeta>
-                  <span>{c.author_username}</span>
+                  <AuthorAvatar src={c.author_avatar || defaultAvatar} alt={c.author_username} style={{ width: 22, height: 22 }} />
+                  <span style={{ cursor: "pointer" }} onClick={() => navigate(`/users/${c.author}`)}>{c.author_username}</span>
                   <CommentDate>{timeAgo(c.created_at)}</CommentDate>
                 </CommentMeta>
                 {c.content}

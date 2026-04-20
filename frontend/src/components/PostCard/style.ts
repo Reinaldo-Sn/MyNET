@@ -10,12 +10,34 @@ export const Card = styled.div`
   gap: 0.65rem;
 `;
 
+export const AuthorRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  &:hover { opacity: 0.8; }
+`;
+
+export const AuthorAvatar = styled.img`
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+`;
+
+export const AuthorAvatarPlaceholder = styled.div`
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: ${({ theme }) => theme.border};
+  flex-shrink: 0;
+`;
+
 export const Author = styled.strong`
   color: ${({ theme }) => theme.accent};
   font-size: 0.88rem;
   font-weight: 600;
-  cursor: pointer;
-  &:hover { opacity: 0.8; }
 `;
 
 export const Content = styled.p`

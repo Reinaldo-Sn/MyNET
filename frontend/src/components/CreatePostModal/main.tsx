@@ -9,6 +9,31 @@ import {
 } from "./style";
 
 const MAX = 180;
+const MAX_FILE_MB = 5;
+
+async function compressImage(file: File): Promise<File> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      const MAX_DIM = 1280;
+      let { width, height } = img;
+      if (width > MAX_DIM || height > MAX_DIM) {
+        if (width > height) { height = Math.round((height * MAX_DIM) / width); width = MAX_DIM; }
+        else { width = Math.round((width * MAX_DIM) / height); height = MAX_DIM; }
+      }
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      canvas.getContext("2d")!.drawImage(img, 0, 0, width, height);
+      URL.revokeObjectURL(url);
+      canvas.toBlob((blob) => {
+        resolve(new File([blob!], file.name, { type: "image/jpeg" }));
+      }, "image/jpeg", 0.82);
+    };
+    img.src = url;
+  });
+}
 
 interface Props {
   onClose: () => void;
@@ -23,12 +48,18 @@ const CreatePostModal = ({ onClose, onCreated }: Props) => {
   const [loading, setLoading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] ?? null;
     if (!file) return;
-    setImage(file);
-    setImagePreview(URL.createObjectURL(file));
     e.target.value = "";
+    if (file.size > MAX_FILE_MB * 1024 * 1024) {
+      setError(`Imagem muito grande. Máximo ${MAX_FILE_MB}MB.`);
+      return;
+    }
+    const compressed = await compressImage(file);
+    setImage(compressed);
+    setImagePreview(URL.createObjectURL(compressed));
+    setError("");
   };
 
   const removeImage = () => {

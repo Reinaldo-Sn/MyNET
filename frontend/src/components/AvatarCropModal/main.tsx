@@ -7,6 +7,9 @@ interface Props {
   imageSrc: string;
   onCancel: () => void;
   onSave: (file: File) => void;
+  aspect?: number;
+  cropShape?: "round" | "rect";
+  title?: string;
 }
 
 async function getCroppedFile(imageSrc: string, croppedArea: Area): Promise<File> {
@@ -36,7 +39,7 @@ async function getCroppedFile(imageSrc: string, croppedArea: Area): Promise<File
   });
 }
 
-const AvatarCropModal = ({ imageSrc, onCancel, onSave }: Props) => {
+const AvatarCropModal = ({ imageSrc, onCancel, onSave, aspect = 1, cropShape = "round", title = "Ajustar foto de perfil" }: Props) => {
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [croppedArea, setCroppedArea] = useState<Area | null>(null);
@@ -54,14 +57,14 @@ const AvatarCropModal = ({ imageSrc, onCancel, onSave }: Props) => {
   return (
     <Overlay>
       <Modal>
-        <Title>Ajustar foto de perfil</Title>
+        <Title>{title}</Title>
         <CropArea>
           <Cropper
             image={imageSrc}
             crop={crop}
             zoom={zoom}
-            aspect={1}
-            cropShape="round"
+            aspect={aspect}
+            cropShape={cropShape}
             showGrid={false}
             onCropChange={setCrop}
             onZoomChange={setZoom}

@@ -22,8 +22,11 @@ const ProfilePage = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [editing, setEditing] = useState(false);
   const [cropSrc, setCropSrc] = useState<string | null>(null);
+  const [cropType, setCropType] = useState<"avatar" | "banner">("avatar");
   const [croppedFile, setCroppedFile] = useState<File | null>(null);
   const [croppedPreview, setCroppedPreview] = useState<string | null>(null);
+  const [croppedBannerFile, setCroppedBannerFile] = useState<File | null>(null);
+  const [croppedBannerPreview, setCroppedBannerPreview] = useState<string | null>(null);
   const [modal, setModal] = useState<ModalType>(null);
 
   useEffect(() => {
@@ -34,15 +37,24 @@ const ProfilePage = () => {
   }, [user]);
 
   const handleSelectImage = (src: string) => {
+    setCropType("avatar");
     setCropSrc(src);
-    setEditing(false);
+  };
+
+  const handleSelectBannerImage = (src: string) => {
+    setCropType("banner");
+    setCropSrc(src);
   };
 
   const handleCropSave = (file: File) => {
-    setCroppedFile(file);
-    setCroppedPreview(URL.createObjectURL(file));
+    if (cropType === "banner") {
+      setCroppedBannerFile(file);
+      setCroppedBannerPreview(URL.createObjectURL(file));
+    } else {
+      setCroppedFile(file);
+      setCroppedPreview(URL.createObjectURL(file));
+    }
     setCropSrc(null);
-    setEditing(true);
   };
 
   const handleSave = async (bio: string, avatarFile: File | null, bannerFile: File | null) => {
@@ -50,13 +62,16 @@ const ProfilePage = () => {
     formData.append("bio", bio);
     const fileToUpload = avatarFile || croppedFile;
     if (fileToUpload) formData.append("avatar", fileToUpload);
-    if (bannerFile) formData.append("banner", bannerFile);
+    const bannerToUpload = bannerFile || croppedBannerFile;
+    if (bannerToUpload) formData.append("banner", bannerToUpload);
     await api.patch("/auth/profile/", formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
     setEditing(false);
     setCroppedFile(null);
     setCroppedPreview(null);
+    setCroppedBannerFile(null);
+    setCroppedBannerPreview(null);
     window.location.reload();
   };
 
@@ -84,19 +99,23 @@ const ProfilePage = () => {
       {cropSrc && (
         <AvatarCropModal
           imageSrc={cropSrc}
-          onCancel={() => { setCropSrc(null); setEditing(true); }}
+          onCancel={() => setCropSrc(null)}
           onSave={handleCropSave}
+          aspect={cropType === "banner" ? 3 : 1}
+          cropShape={cropType === "banner" ? "rect" : "round"}
+          title={cropType === "banner" ? "Ajustar banner" : "Ajustar foto de perfil"}
         />
       )}
 
       {editing && (
         <EditProfileModal
           currentAvatar={croppedPreview || user?.avatar || null}
-          currentBanner={user?.banner || null}
+          currentBanner={croppedBannerPreview || user?.banner || null}
           currentBio={user?.bio || ""}
-          onClose={() => { setEditing(false); setCroppedFile(null); setCroppedPreview(null); }}
+          onClose={() => { setEditing(false); setCroppedFile(null); setCroppedPreview(null); setCroppedBannerFile(null); setCroppedBannerPreview(null); }}
           onSave={handleSave}
           onSelectImage={handleSelectImage}
+          onSelectBannerImage={handleSelectBannerImage}
         />
       )}
 
