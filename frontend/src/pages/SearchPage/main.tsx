@@ -30,6 +30,7 @@ const SearchPage = () => {
           placeholder="Digite um username"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
+          autoComplete="off"
         />
         <Button type="submit">Buscar</Button>
       </SearchForm>

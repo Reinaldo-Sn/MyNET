@@ -30,18 +30,18 @@ export const Title = styled.h1`
   span { color: ${({ theme }) => theme.accent}; }
 `;
 
-export const Input = styled.input`
+export const Input = styled.input<{ $error?: boolean }>`
   width: 100%;
   padding: 0.65rem 0.9rem;
   border-radius: 6px;
-  border: 1px solid ${({ theme }) => theme.borderAlt};
+  border: 1px solid ${({ theme, $error }) => ($error ? "#e05555" : theme.borderAlt)};
   background: ${({ theme }) => theme.bg};
   color: ${({ theme }) => theme.text};
   font-size: 0.9rem;
   font-family: inherit;
   box-sizing: border-box;
   &::placeholder { color: ${({ theme }) => theme.textDimmer}; }
-  &:focus { outline: none; border-color: ${({ theme }) => theme.accent}; }
+  &:focus { outline: none; border-color: ${({ theme, $error }) => ($error ? "#e05555" : theme.accent)}; }
 `;
 
 export const Button = styled.button`

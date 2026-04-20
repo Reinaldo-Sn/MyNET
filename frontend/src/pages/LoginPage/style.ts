@@ -44,7 +44,7 @@ export const Input = styled.input`
   &:focus { outline: none; border-color: ${({ theme }) => theme.accent}; }
 `;
 
-export const Button = styled.button`
+export const Button = styled.button<{ $loading?: boolean }>`
   width: 100%;
   padding: 0.7rem;
   background: ${({ theme }) => theme.accent};
@@ -54,8 +54,9 @@ export const Button = styled.button`
   font-size: 0.9rem;
   font-weight: 500;
   font-family: inherit;
-  cursor: pointer;
-  transition: background 0.15s;
+  cursor: ${({ $loading }) => ($loading ? "not-allowed" : "pointer")};
+  opacity: ${({ $loading }) => ($loading ? 0.7 : 1)};
+  transition: background 0.15s, opacity 0.15s;
   &:hover { background: ${({ theme }) => theme.accentHover}; }
 `;
 

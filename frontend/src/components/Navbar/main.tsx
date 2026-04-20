@@ -1,80 +1,50 @@
-import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Sun, Moon } from "lucide-react";
+import { useState } from "react";
+import { Sun, Moon, Menu, X } from "lucide-react";
 import { usePostContext } from "../../contexts/PostContext";
 import { useThemeToggle } from "../../contexts/ThemeContext";
-import api from "../../api/axios";
-import perfilPadrao from "../../assets/perfil_padrao.png";
-import { Nav, Logo, NavLinks, NavLink, Button, ToggleButton, SearchWrapper, SearchInput, SearchResults, UserCard, UserAvatar, UserName } from './style';
-
-interface UserResult {
-  id: number;
-  username: string;
-  avatar: string | null;
-}
+import {
+    Nav, Logo, NavLinks, NavLink, Button, ToggleButton,
+    HamburgerButton, MobileMenu, MobileNavLink, MobileActions, NavRow
+} from './style';
 
 const Navbar = () => {
     const { openModal } = usePostContext();
     const { isDark, toggleTheme } = useThemeToggle();
-    const navigate = useNavigate();
-    const [query, setQuery] = useState("");
-    const [results, setResults] = useState<UserResult[]>([]);
-    const wrapperRef = useRef<HTMLDivElement>(null);
+    const [menuOpen, setMenuOpen] = useState(false);
 
-    useEffect(() => {
-        const handleClickOutside = (e: MouseEvent) => {
-            if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
-                setQuery("");
-            }
-        };
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, []);
-
-    useEffect(() => {
-        if (query.trim().length < 2) { setResults([]); return; }
-        const timer = setTimeout(() => {
-            api.get(`/auth/users/?search=${query}`)
-                .then((res) => setResults(res.data))
-                .catch(() => setResults([]));
-        }, 300);
-        return () => clearTimeout(timer);
-    }, [query]);
-
-    const handleSelect = (id: number) => {
-        setQuery("");
-        navigate(`/users/${id}`);
-    };
+    const closeMenu = () => setMenuOpen(false);
 
     return (
         <Nav>
-            <Logo to="/feed">MyNET</Logo>
-            <SearchWrapper ref={wrapperRef}>
-                <SearchInput
-                    placeholder="Buscar usuários..."
-                    value={query}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setQuery(e.target.value)}
-                />
-                {query.trim().length >= 2 && results.length > 0 && (
-                    <SearchResults>
-                        {results.map((u) => (
-                            <UserCard key={u.id} onClick={() => handleSelect(u.id)}>
-                                <UserAvatar src={u.avatar || perfilPadrao} alt="avatar" />
-                                <UserName>{u.username}</UserName>
-                            </UserCard>
-                        ))}
-                    </SearchResults>
-                )}
-            </SearchWrapper>
-            <NavLinks>
-                <NavLink to="/feed">Página inicial</NavLink>
-                <NavLink to="/search">Explorar</NavLink>
-                <NavLink to="/profile">Perfil</NavLink>
-                <Button onClick={openModal}>Postar</Button>
-                <ToggleButton onClick={toggleTheme}>
-                    {isDark ? <Sun size={16} /> : <Moon size={16} />}
-                </ToggleButton>
-            </NavLinks>
+            <NavRow>
+                <Logo to="/feed">MyNET</Logo>
+
+                <NavLinks>
+                    <NavLink to="/feed">Página inicial</NavLink>
+                    <NavLink to="/search">Buscar</NavLink>
+                    <NavLink to="/profile">Perfil</NavLink>
+                    <Button onClick={openModal}>Postar</Button>
+                    <ToggleButton onClick={toggleTheme}>
+                        {isDark ? <Sun size={16} /> : <Moon size={16} />}
+                    </ToggleButton>
+                </NavLinks>
+
+                <HamburgerButton onClick={() => setMenuOpen(!menuOpen)}>
+                    {menuOpen ? <X size={22} /> : <Menu size={22} />}
+                </HamburgerButton>
+            </NavRow>
+
+            <MobileMenu $open={menuOpen}>
+                <MobileNavLink to="/feed" onClick={closeMenu}>Página inicial</MobileNavLink>
+                <MobileNavLink to="/search" onClick={closeMenu}>Explorar</MobileNavLink>
+                <MobileNavLink to="/profile" onClick={closeMenu}>Perfil</MobileNavLink>
+                <MobileActions>
+                    <Button onClick={() => { openModal(); closeMenu(); }}>Postar</Button>
+                    <ToggleButton onClick={toggleTheme}>
+                        {isDark ? <Sun size={16} /> : <Moon size={16} />}
+                    </ToggleButton>
+                </MobileActions>
+            </MobileMenu>
         </Nav>
     );
 };

@@ -8,14 +8,19 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const [form, setForm] = useState({ username: "", password: "" });
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    setLoading(true);
+    setError("");
     try {
       await login(form.username, form.password);
       navigate("/feed");
     } catch {
       setError("Usuário ou senha inválidos.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -35,7 +40,9 @@ const LoginPage = () => {
             value={form.password}
             onChange={(e) => setForm({ ...form, password: e.target.value })}
           />
-          <Button type="submit">Entrar</Button>
+          <Button type="submit" disabled={loading} $loading={loading}>
+            {loading ? "Entrando..." : "Entrar"}
+          </Button>
         </form>
         {error && <ErrorMsg>{error}</ErrorMsg>}
         <LinkText>

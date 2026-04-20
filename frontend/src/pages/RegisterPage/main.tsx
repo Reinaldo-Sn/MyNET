@@ -6,10 +6,16 @@ import { Container, Card, Title, Input, Button, ErrorMsg, LinkText } from "./sty
 const RegisterPage = () => {
   const navigate = useNavigate();
   const [form, setForm] = useState({ username: "", email: "", password: "" });
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [confirmTouched, setConfirmTouched] = useState(false);
   const [error, setError] = useState("");
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    if (form.password !== confirmPassword) {
+      setError("As senhas não coincidem.");
+      return;
+    }
     try {
       await api.post("/auth/register/", form);
       navigate("/login");
@@ -37,7 +43,16 @@ const RegisterPage = () => {
             type="password"
             placeholder="Senha"
             value={form.password}
+            $error={confirmTouched && form.password !== confirmPassword}
             onChange={(e) => setForm({ ...form, password: e.target.value })}
+          />
+          <Input
+            type="password"
+            placeholder="Confirmar senha"
+            value={confirmPassword}
+            $error={confirmTouched && form.password !== confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            onBlur={() => setConfirmTouched(true)}
           />
           <Button type="submit">Cadastrar</Button>
         </form>

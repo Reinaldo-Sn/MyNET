@@ -12,6 +12,14 @@ export const Nav = styled.nav`
   position: sticky;
   top: 0;
   z-index: 100;
+
+  @media (max-width: 768px) {
+    flex-wrap: wrap;
+    height: auto;
+    min-height: 56px;
+    padding: 0 1rem;
+    align-items: flex-start;
+  }
 `;
 
 export const Logo = styled(Link)`
@@ -26,6 +34,10 @@ export const NavLinks = styled.div`
   display: flex;
   gap: 1.5rem;
   align-items: center;
+
+  @media (max-width: 768px) {
+    display: none;
+  }
 `;
 
 export const NavLink = styled(Link)`
@@ -66,60 +78,65 @@ export const ToggleButton = styled.button`
   &:hover { color: ${({ theme }) => theme.text}; }
 `;
 
-export const SearchWrapper = styled.div`
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 548px;
-  max-width: calc(100% - 420px);
+export const HamburgerButton = styled.button`
+  display: none;
+  background: transparent;
+  border: none;
+  color: ${({ theme }) => theme.textMuted};
+  cursor: pointer;
+  padding: 0.25rem;
+  align-items: center;
+  transition: color 0.15s;
+  &:hover { color: ${({ theme }) => theme.text}; }
+
+  @media (max-width: 768px) {
+    display: flex;
+    align-self: center;
+  }
 `;
 
-export const SearchInput = styled.input`
-  width: 100%;
-  padding: 0.4rem 0.9rem;
-  border: 1px solid ${({ theme }) => theme.borderAlt};
-  border-radius: 999px;
-  font-size: 0.88rem;
-  outline: none;
-  box-sizing: border-box;
-  background: ${({ theme }) => theme.surfaceAlt};
-  color: ${({ theme }) => theme.text};
-  font-family: inherit;
-  &::placeholder { color: ${({ theme }) => theme.textFaint}; }
-  &:focus { border-color: ${({ theme }) => theme.accent}; }
+export const MobileMenu = styled.div<{ $open: boolean }>`
+  display: none;
+
+  @media (max-width: 768px) {
+    display: ${({ $open }) => ($open ? 'flex' : 'none')};
+    flex-direction: column;
+    width: 100%;
+    padding: 0.5rem 0 0.75rem;
+    border-top: 1px solid ${({ theme }) => theme.border};
+    gap: 0.1rem;
+  }
 `;
 
-export const SearchResults = styled.div`
-  position: absolute;
-  top: calc(100% + 8px);
-  left: 0;
-  right: 0;
-  background: ${({ theme }) => theme.surface};
-  border: 1px solid ${({ theme }) => theme.borderAlt};
-  border-radius: 10px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
-  z-index: 200;
-  overflow: hidden;
+export const MobileNavLink = styled(Link)`
+  color: ${({ theme }) => theme.textMuted};
+  text-decoration: none;
+  font-size: 0.95rem;
+  font-weight: 500;
+  padding: 0.65rem 0.5rem;
+  border-radius: 8px;
+  transition: color 0.15s, background 0.15s;
+  &:hover {
+    color: ${({ theme }) => theme.text};
+    background: ${({ theme }) => theme.surfaceAlt};
+  }
 `;
 
-export const UserCard = styled.div`
+export const MobileActions = styled.div`
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-  padding: 0.6rem 0.9rem;
-  cursor: pointer;
-  &:hover { background: ${({ theme }) => theme.surfaceAlt}; }
+  gap: 0.75rem;
+  padding: 0.4rem 0.5rem 0;
 `;
 
-export const UserAvatar = styled.img`
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  object-fit: cover;
-`;
+export const NavRow = styled.div`
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  height: 56px;
 
-export const UserName = styled.span`
-  color: ${({ theme }) => theme.text};
-  font-size: 0.88rem;
-  font-weight: 500;
+  @media (min-width: 769px) {
+    display: contents;
+  }
 `;
