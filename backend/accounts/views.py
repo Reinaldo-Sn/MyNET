@@ -2,6 +2,7 @@ from rest_framework import generics, permissions
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.db.models import Q
 from .serializers import RegisterSerializer, ProfileSerializer
 from .models import User
 
@@ -42,7 +43,9 @@ class UserSearchView(generics.ListAPIView):
 
     def get_queryset(self):
         search = self.request.query_params.get('search', '')
-        return User.objects.filter(username__icontains=search).exclude(id=self.request.user.id)
+        return User.objects.filter(
+            Q(username__icontains=search) | Q(display_name__icontains=search)
+        ).exclude(id=self.request.user.id)
 
 class UserDetailView(generics.RetrieveAPIView):
     permission_classes = [IsAuthenticated]

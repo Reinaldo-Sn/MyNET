@@ -60,6 +60,12 @@ export const Username = styled.h1`
   letter-spacing: -0.2px;
 `;
 
+export const UserHandle = styled.span`
+  color: ${({ theme }) => theme.textSubtle};
+  font-size: 0.85rem;
+  margin-top: -0.25rem;
+`;
+
 export const Bio = styled.p`
   color: ${({ theme }) => theme.textSubtle};
   margin: 0;

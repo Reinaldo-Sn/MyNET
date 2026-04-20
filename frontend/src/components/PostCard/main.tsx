@@ -1,4 +1,4 @@
-import { useState, FormEvent } from "react";
+import { useState, useEffect, FormEvent } from "react";
 import defaultAvatar from "../../assets/perfil_padrao.png";
 import { useNavigate } from "react-router-dom";
 import { Heart, MessageCircle, Pencil, Trash2, X } from "lucide-react";
@@ -41,9 +41,10 @@ interface Props {
   onLike: (postId: number) => void;
   onDelete: (postId: number) => void;
   onEdit: (postId: number, newContent: string) => void;
+  autoShowComments?: boolean;
 }
 
-const PostCard = ({ post, currentUserId, onLike, onDelete, onEdit }: Props) => {
+const PostCard = ({ post, currentUserId, onLike, onDelete, onEdit, autoShowComments }: Props) => {
   const navigate = useNavigate();
   const [showComments, setShowComments] = useState(false);
   const [comments, setComments] = useState<Comment[]>([]);
@@ -52,6 +53,15 @@ const PostCard = ({ post, currentUserId, onLike, onDelete, onEdit }: Props) => {
   const [commentsLoaded, setCommentsLoaded] = useState(false);
   const [editing, setEditing] = useState(false);
   const [editContent, setEditContent] = useState(post.content);
+
+  useEffect(() => {
+    if (!autoShowComments) return;
+    api.get(`/posts/${post.id}/comments/`).then((res) => {
+      setComments(res.data);
+      setCommentsLoaded(true);
+      setShowComments(true);
+    });
+  }, [autoShowComments, post.id]);
 
   const toggleComments = async () => {
     if (!commentsLoaded) {
@@ -113,7 +123,7 @@ const PostCard = ({ post, currentUserId, onLike, onDelete, onEdit }: Props) => {
         <Content style={{ cursor: "pointer" }} onClick={() => navigate(`/posts/${post.id}`)}>{post.content}</Content>
       )}
 
-      {post.image && <PostImage src={post.image} alt="imagem do post" />}
+      {post.image && <PostImage src={post.image} alt="imagem do post" style={{ cursor: "pointer" }} onClick={() => navigate(`/posts/${post.id}`)} />}
 
       <Footer>
         <FooterLeft>

@@ -39,6 +39,7 @@ const PostPage = () => {
         onLike={handleLike}
         onDelete={handleDelete}
         onEdit={handleEdit}
+        autoShowComments
       />
     </Container>
   );

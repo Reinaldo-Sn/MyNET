@@ -10,7 +10,7 @@ import EditProfileModal from "../../components/EditProfileModal/main";
 import AvatarCropModal from "../../components/AvatarCropModal/main";
 import {
   Container, ProfileHeader, BannerSection, Banner, Avatar, ProfileInfo,
-  Username, Bio, Stats, StatButton,
+  Username, UserHandle, Bio, Stats, StatButton,
   SectionTitle, Empty, ProfileActions, EditButton, LogoutButton,
 } from "./style";
 
@@ -130,6 +130,7 @@ const ProfilePage = () => {
         </BannerSection>
         <ProfileInfo>
           <Username>{user?.display_name || user?.username}</Username>
+          <UserHandle>@{user?.username}</UserHandle>
           <Bio>{user?.bio || "Sem bio."}</Bio>
           <Stats>
             <StatButton onClick={() => setModal("followers")}>

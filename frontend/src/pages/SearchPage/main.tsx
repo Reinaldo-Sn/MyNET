@@ -7,6 +7,7 @@ import { Container, Title, SearchForm, Input, Button, UserCard, UserAvatar, User
 interface UserResult {
   id: number;
   username: string;
+  display_name: string;
   avatar: string | null;
   followers_count: number;
 }
@@ -39,7 +40,7 @@ const SearchPage = () => {
         <UserCard key={u.id} onClick={() => navigate(`/users/${u.id}`)}>
           <UserAvatar src={u.avatar || perfilPadrao} alt="avatar" />
           <UserInfo>
-            <UserName>{u.username}</UserName>
+            <UserName>{u.display_name || u.username}</UserName>
             <Followers>Seguidores: {u.followers_count}</Followers>
           </UserInfo>
         </UserCard>

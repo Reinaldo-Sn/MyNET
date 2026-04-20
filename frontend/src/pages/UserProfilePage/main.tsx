@@ -8,12 +8,13 @@ import PostCard, { Post } from "../../components/PostCard/main";
 import FollowModal from "../../components/FollowModal/main";
 import {
   Container, ProfileHeader, BannerSection, Banner, Avatar, ProfileInfo,
-  Username, Bio, Stats, StatButton, FollowButton, SectionTitle, Empty,
+  Username, UserHandle, Bio, Stats, StatButton, FollowButton, SectionTitle, Empty,
 } from "./style";
 
 interface Profile {
   id: number;
   username: string;
+  display_name: string;
   bio: string;
   avatar: string | null;
   banner: string | null;
@@ -79,7 +80,8 @@ const UserProfilePage = () => {
           <Avatar src={profile.avatar || perfilPadrao} alt="avatar" />
         </BannerSection>
         <ProfileInfo>
-          <Username>{profile.username}</Username>
+          <Username>{profile.display_name || profile.username}</Username>
+          <UserHandle>@{profile.username}</UserHandle>
           <Bio>{profile.bio || "Sem bio."}</Bio>
           <Stats>
             <StatButton onClick={() => setModal("followers")}>
