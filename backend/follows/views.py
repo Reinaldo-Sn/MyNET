@@ -6,6 +6,7 @@ from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from .models import Follow
 from .serializers import UserSummarySerializer
+from notifications.models import Notification
 
 User = get_user_model()
 
@@ -22,8 +23,10 @@ class FollowToggleView(APIView):
 
         if not created:
             follow.delete()
+            Notification.objects.filter(recipient=target, sender=request.user, type=Notification.FOLLOW).delete()
             return Response({'detail': 'Deixou de seguir.'}, status=status.HTTP_200_OK)
 
+        Notification.objects.get_or_create(recipient=target, sender=request.user, type=Notification.FOLLOW)
         return Response({'detail': 'Seguindo.'}, status=status.HTTP_201_CREATED)
 
 class FollowersListView(APIView):

@@ -137,6 +137,69 @@ export const MobileActions = styled.div`
   padding: 0.4rem 0.5rem 0;
 `;
 
+export const BellWrapper = styled.div`
+  position: relative;
+  display: flex;
+  align-items: center;
+`;
+
+export const BellButton = styled.button`
+  background: transparent;
+  border: none;
+  color: ${({ theme }) => theme.textMuted};
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  transition: color 0.15s;
+  &:hover { color: ${({ theme }) => theme.text}; }
+`;
+
+export const Badge = styled.span`
+  position: absolute;
+  top: -5px;
+  right: -6px;
+  background: #e05555;
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 600;
+  border-radius: 99px;
+  padding: 1px 5px;
+  pointer-events: none;
+`;
+
+export const Dropdown = styled.div`
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 260px;
+  background: ${({ theme }) => theme.surface};
+  border: 1px solid ${({ theme }) => theme.border};
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+  z-index: 200;
+  overflow: hidden;
+`;
+
+export const DropdownItem = styled.div`
+  padding: 0.75rem 1rem;
+  font-size: 0.85rem;
+  color: ${({ theme }) => theme.text};
+  border-bottom: 1px solid ${({ theme }) => theme.border};
+  cursor: pointer;
+  transition: background 0.15s;
+  &:last-child { border-bottom: none; }
+  &:hover { background: ${({ theme }) => theme.surfaceAlt}; }
+  span { color: ${({ theme }) => theme.textMuted}; }
+`;
+
+export const DropdownEmpty = styled.div`
+  padding: 1rem;
+  font-size: 0.85rem;
+  color: ${({ theme }) => theme.textMuted};
+  text-align: center;
+`;
+
 export const NavRow = styled.div`
   display: flex;
   width: 100%;
