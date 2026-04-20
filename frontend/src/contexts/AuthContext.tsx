@@ -4,6 +4,7 @@ import api from '../api/axios';
 interface User {
   id: number;
   username: string;
+  display_name: string;
   email: string;
   bio: string;
   avatar: string | null;

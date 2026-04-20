@@ -57,9 +57,12 @@ const ProfilePage = () => {
     setCropSrc(null);
   };
 
-  const handleSave = async (bio: string, avatarFile: File | null, bannerFile: File | null) => {
+  const handleSave = async (bio: string, avatarFile: File | null, bannerFile: File | null, displayName: string, currentPassword: string, newPassword: string) => {
     const formData = new FormData();
     formData.append("bio", bio);
+    formData.append("display_name", displayName);
+    if (currentPassword) formData.append("current_password", currentPassword);
+    if (newPassword) formData.append("new_password", newPassword);
     const fileToUpload = avatarFile || croppedFile;
     if (fileToUpload) formData.append("avatar", fileToUpload);
     const bannerToUpload = bannerFile || croppedBannerFile;
@@ -112,6 +115,7 @@ const ProfilePage = () => {
           currentAvatar={croppedPreview || user?.avatar || null}
           currentBanner={croppedBannerPreview || user?.banner || null}
           currentBio={user?.bio || ""}
+          currentDisplayName={user?.display_name || ""}
           onClose={() => { setEditing(false); setCroppedFile(null); setCroppedPreview(null); setCroppedBannerFile(null); setCroppedBannerPreview(null); }}
           onSave={handleSave}
           onSelectImage={handleSelectImage}
@@ -125,7 +129,7 @@ const ProfilePage = () => {
           <Avatar src={croppedPreview || user?.avatar || perfilPadrao} alt="avatar" />
         </BannerSection>
         <ProfileInfo>
-          <Username>{user?.username}</Username>
+          <Username>{user?.display_name || user?.username}</Username>
           <Bio>{user?.bio || "Sem bio."}</Bio>
           <Stats>
             <StatButton onClick={() => setModal("followers")}>

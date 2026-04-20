@@ -2,7 +2,7 @@ from rest_framework import serializers
 from .models import Post, Comment
 
 class PostSerializer(serializers.ModelSerializer):
-    author_username = serializers.ReadOnlyField(source='author.username')
+    author_username = serializers.SerializerMethodField()
     author_avatar = serializers.SerializerMethodField()
     likes_count = serializers.SerializerMethodField()
     comments_count = serializers.SerializerMethodField()
@@ -13,6 +13,9 @@ class PostSerializer(serializers.ModelSerializer):
         fields = ['id', 'author', 'author_username', 'author_avatar', 'content', 'image',
                   'likes_count', 'comments_count', 'is_liked', 'created_at']
         read_only_fields = ['id', 'author', 'created_at']
+
+    def get_author_username(self, obj):
+        return obj.author.display_name or obj.author.username
 
     def get_author_avatar(self, obj):
         request = self.context.get('request')
@@ -34,13 +37,16 @@ class PostSerializer(serializers.ModelSerializer):
         return False
     
 class CommentSerializer(serializers.ModelSerializer):
-    author_username = serializers.ReadOnlyField(source='author.username')
+    author_username = serializers.SerializerMethodField()
     author_avatar = serializers.SerializerMethodField()
 
     class Meta:
         model = Comment
         fields = ['id', 'author', 'author_username', 'author_avatar', 'content', 'created_at']
         read_only_fields = ['id', 'author', 'created_at']
+
+    def get_author_username(self, obj):
+        return obj.author.display_name or obj.author.username
 
     def get_author_avatar(self, obj):
         request = self.context.get('request')

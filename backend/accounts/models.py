@@ -8,6 +8,7 @@ from django.db import models
 
 class User(AbstractUser):
     # Texto de apresentação opcional do perfil
+    display_name = models.CharField(max_length=100, blank=True, default='')
     bio = models.TextField(blank=True, default='')
     # Foto de perfil — salva na pasta media/avatars/ — não é obrigatória
     avatar = models.ImageField(upload_to='avatars/', blank=True, null=True)

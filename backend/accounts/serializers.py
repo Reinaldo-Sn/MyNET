@@ -24,10 +24,12 @@ class ProfileSerializer(serializers.ModelSerializer):
     followers_count = serializers.SerializerMethodField()
     following_count = serializers.SerializerMethodField()
     is_following = serializers.SerializerMethodField()
+    current_password = serializers.CharField(write_only=True, required=False, allow_blank=True)
+    new_password = serializers.CharField(write_only=True, required=False, allow_blank=True)
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'first_name', 'bio', 'avatar', 'banner', 'followers_count', 'following_count', 'is_following')
+        fields = ('id', 'username', 'email', 'display_name', 'bio', 'avatar', 'banner', 'followers_count', 'following_count', 'is_following', 'current_password', 'new_password')
         read_only_fields = ('id', 'username', 'email')
 
     def get_followers_count(self, obj):
@@ -41,3 +43,27 @@ class ProfileSerializer(serializers.ModelSerializer):
         if request and request.user.is_authenticated:
             return obj.followers.filter(follower=request.user).exists()
         return False
+
+    def validate_new_password(self, value):
+        if value:
+            validate_password(value)
+        return value
+
+    def validate(self, attrs):
+        current_password = attrs.get('current_password', '')
+        new_password = attrs.get('new_password', '')
+        if new_password:
+            if not current_password:
+                raise serializers.ValidationError({'current_password': 'Informe a senha atual.'})
+            if not self.instance.check_password(current_password):
+                raise serializers.ValidationError({'current_password': 'Senha atual incorreta.'})
+        return attrs
+
+    def update(self, instance, validated_data):
+        validated_data.pop('current_password', None)
+        new_password = validated_data.pop('new_password', None)
+        instance = super().update(instance, validated_data)
+        if new_password:
+            instance.set_password(new_password)
+            instance.save()
+        return instance

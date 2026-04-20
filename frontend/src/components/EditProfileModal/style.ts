@@ -107,6 +107,46 @@ export const HiddenInput = styled.input`
   display: none;
 `;
 
+export const FieldInput = styled.input`
+  width: 100%;
+  padding: 0.65rem 0.9rem;
+  border-radius: 6px;
+  border: 1px solid ${({ theme }) => theme.borderAlt};
+  background: ${({ theme }) => theme.bg};
+  color: ${({ theme }) => theme.text};
+  font-size: 0.88rem;
+  font-family: inherit;
+  box-sizing: border-box;
+  &::placeholder { color: ${({ theme }) => theme.textDimmer}; }
+  &:focus { outline: none; border-color: ${({ theme }) => theme.accent}; }
+`;
+
+export const ErrorText = styled.p`
+  color: #e05555;
+  font-size: 0.8rem;
+  margin: 0;
+`;
+
+export const PasswordToggle = styled.button`
+  background: transparent;
+  border: 1px solid ${({ theme }) => theme.borderAlt};
+  border-radius: 6px;
+  color: ${({ theme }) => theme.textMuted};
+  font-size: 0.85rem;
+  font-family: inherit;
+  padding: 0.5rem 0.9rem;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.15s, color 0.15s;
+  &:hover { border-color: ${({ theme }) => theme.textFaint}; color: ${({ theme }) => theme.text}; }
+`;
+
+export const PasswordSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+`;
+
 export const BioTextarea = styled.textarea`
   width: 100%;
   padding: 0.65rem 0.9rem;
