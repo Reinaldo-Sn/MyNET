@@ -3,6 +3,7 @@ import styled from "styled-components";
 export const Container = styled.div`
   min-height: 100vh;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   background: ${({ theme }) => theme.bg};
@@ -44,7 +45,7 @@ export const Input = styled.input<{ $error?: boolean }>`
   &:focus { outline: none; border-color: ${({ theme, $error }) => ($error ? "#e05555" : theme.accent)}; }
 `;
 
-export const Button = styled.button`
+export const Button = styled.button<{ $loading?: boolean }>`
   width: 100%;
   padding: 0.7rem;
   background: ${({ theme }) => theme.accent};
@@ -54,8 +55,9 @@ export const Button = styled.button`
   font-size: 0.9rem;
   font-weight: 500;
   font-family: inherit;
-  cursor: pointer;
-  transition: background 0.15s;
+  cursor: ${({ $loading }) => ($loading ? "not-allowed" : "pointer")};
+  opacity: ${({ $loading }) => ($loading ? 0.7 : 1)};
+  transition: background 0.15s, opacity 0.15s;
   &:hover { background: ${({ theme }) => theme.accentHover}; }
 `;
 

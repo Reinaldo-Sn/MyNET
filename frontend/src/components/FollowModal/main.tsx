@@ -8,6 +8,7 @@ import { Overlay, Modal, ModalHeader, ModalTitle, CloseButton, UserList, UserIte
 interface User {
   id: number;
   username: string;
+  display_name: string | null;
   avatar: string | null;
 }
 
@@ -42,7 +43,7 @@ const FollowModal = ({ userId, type, onClose }: Props) => {
           {users.map((u) => (
             <UserItem key={u.id} onClick={() => handleUserClick(u.id)}>
               <UserAvatar src={u.avatar || perfilPadrao} alt="avatar" />
-              <UserName>{u.username}</UserName>
+              <UserName>{u.display_name || u.username}</UserName>
             </UserItem>
           ))}
         </UserList>

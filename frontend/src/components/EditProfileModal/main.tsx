@@ -111,6 +111,7 @@ const EditProfileModal = ({ currentAvatar, currentBanner, currentBio, currentDis
           placeholder="Nome de exibição"
           value={displayName}
           onChange={(e) => setDisplayName(e.target.value)}
+          autoComplete="off"
         />
 
         <BioTextarea
@@ -134,18 +135,21 @@ const EditProfileModal = ({ currentAvatar, currentBanner, currentBio, currentDis
               placeholder="Senha atual"
               value={currentPassword}
               onChange={(e) => setCurrentPassword(e.target.value)}
+              autoComplete="current-password"
             />
             <FieldInput
               type="password"
               placeholder="Nova senha"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
+              autoComplete="new-password"
             />
             <FieldInput
               type="password"
               placeholder="Confirmar nova senha"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
+              autoComplete="new-password"
             />
             {passwordError && <ErrorText>{passwordError}</ErrorText>}
           </PasswordSection>

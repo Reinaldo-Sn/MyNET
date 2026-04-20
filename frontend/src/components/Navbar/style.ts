@@ -28,6 +28,14 @@ export const Logo = styled(Link)`
   font-weight: 600;
   text-decoration: none;
   letter-spacing: -0.3px;
+  display: flex;
+  align-items: center;
+`;
+
+export const OwlImg = styled.img`
+  height: 24px;
+  margin-left: 6px;
+  filter: ${({ theme }) => theme.bg === "#0d1117" ? "brightness(0) invert(1)" : "none"};
 `;
 
 export const NavLinks = styled.div`

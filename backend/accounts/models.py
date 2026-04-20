@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+import cloudinary.uploader
 
 # AbstractUser já traz os campos padrão do Django:
 # username, email, password, first_name, last_name, is_active, is_staff, etc.
@@ -16,6 +17,22 @@ class User(AbstractUser):
     # Preenchido automaticamente com a data/hora em que a conta foi criada
     created_at = models.DateTimeField(auto_now_add=True)
 
+    def save(self, *args, **kwargs):
+        if self.pk:
+            old = User.objects.filter(pk=self.pk).values('avatar', 'banner').first()
+            if old:
+                self._delete_if_changed('avatar', old['avatar'])
+                self._delete_if_changed('banner', old['banner'])
+        super().save(*args, **kwargs)
+
+    def _delete_if_changed(self, field, old_value):
+        new_value = getattr(self, field)
+        if old_value and str(new_value) != str(old_value):
+            public_id = old_value.rsplit('.', 1)[0]
+            try:
+                cloudinary.uploader.destroy(public_id)
+            except Exception:
+                pass
+
     def __str__(self):
-        # Exibe o username no painel admin e no terminal
         return self.username

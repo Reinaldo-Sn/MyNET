@@ -87,3 +87,22 @@ export const Followers = styled.p`
   font-size: 0.8rem;
   margin: 0;
 `;
+
+export const FollowButton = styled.button<{ $following?: boolean }>`
+  margin-left: auto;
+  flex-shrink: 0;
+  padding: 0.35rem 0.9rem;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  background: ${({ $following, theme }) => ($following ? "transparent" : theme.accent)};
+  color: ${({ $following, theme }) => ($following ? theme.textMuted : theme.accentFg)};
+  border: 1px solid ${({ $following, theme }) => ($following ? theme.border : theme.accent)};
+  &:hover {
+    background: ${({ $following, theme }) => ($following ? theme.surfaceAlt : theme.accentHover)};
+    border-color: ${({ $following, theme }) => ($following ? theme.borderAlt : theme.accentHover)};
+  }
+`;

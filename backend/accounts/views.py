@@ -2,7 +2,7 @@ from rest_framework import generics, permissions
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
-from django.db.models import Q
+from django.db.models import Q, Count
 from .serializers import RegisterSerializer, ProfileSerializer
 from .models import User
 
@@ -43,9 +43,11 @@ class UserSearchView(generics.ListAPIView):
 
     def get_queryset(self):
         search = self.request.query_params.get('search', '')
-        return User.objects.filter(
-            Q(username__icontains=search) | Q(display_name__icontains=search)
-        ).exclude(id=self.request.user.id)
+        top = self.request.query_params.get('top')
+        qs = User.objects.exclude(id=self.request.user.id)
+        if top:
+            return qs.annotate(fc=Count('followers')).order_by('-fc')[:int(top)]
+        return qs.filter(Q(username__icontains=search) | Q(display_name__icontains=search))
 
 class UserDetailView(generics.RetrieveAPIView):
     permission_classes = [IsAuthenticated]

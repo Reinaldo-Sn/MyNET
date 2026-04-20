@@ -12,16 +12,20 @@ interface Props {
   title?: string;
 }
 
-async function getCroppedFile(imageSrc: string, croppedArea: Area): Promise<File> {
+async function getCroppedFile(imageSrc: string, croppedArea: Area, maxWidth: number, maxHeight: number): Promise<File> {
   const image = await new Promise<HTMLImageElement>((resolve) => {
     const img = new Image();
     img.onload = () => resolve(img);
     img.src = imageSrc;
   });
 
+  const scale = Math.min(1, maxWidth / croppedArea.width, maxHeight / croppedArea.height);
+  const outW = Math.round(croppedArea.width * scale);
+  const outH = Math.round(croppedArea.height * scale);
+
   const canvas = document.createElement("canvas");
-  canvas.width = croppedArea.width;
-  canvas.height = croppedArea.height;
+  canvas.width = outW;
+  canvas.height = outH;
   const ctx = canvas.getContext("2d")!;
 
   ctx.drawImage(
@@ -29,13 +33,13 @@ async function getCroppedFile(imageSrc: string, croppedArea: Area): Promise<File
     croppedArea.x, croppedArea.y,
     croppedArea.width, croppedArea.height,
     0, 0,
-    croppedArea.width, croppedArea.height
+    outW, outH
   );
 
   return new Promise((resolve) => {
     canvas.toBlob((blob) => {
       resolve(new File([blob!], "avatar.jpg", { type: "image/jpeg" }));
-    }, "image/jpeg", 0.9);
+    }, "image/jpeg", 0.85);
   });
 }
 
@@ -50,7 +54,8 @@ const AvatarCropModal = ({ imageSrc, onCancel, onSave, aspect = 1, cropShape = "
 
   const handleSave = async () => {
     if (!croppedArea) return;
-    const file = await getCroppedFile(imageSrc, croppedArea);
+    const isBanner = aspect !== 1;
+    const file = await getCroppedFile(imageSrc, croppedArea, isBanner ? 1200 : 400, isBanner ? 400 : 400);
     onSave(file);
   };
 

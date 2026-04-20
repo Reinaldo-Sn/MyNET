@@ -2,9 +2,10 @@ import { useState } from "react";
 import { Sun, Moon, Menu, X } from "lucide-react";
 import { usePostContext } from "../../contexts/PostContext";
 import { useThemeToggle } from "../../contexts/ThemeContext";
+import coruja from "../../assets/corujapreta.png";
 import {
     Nav, Logo, NavLinks, NavLink, Button, ToggleButton,
-    HamburgerButton, MobileMenu, MobileNavLink, MobileActions, NavRow
+    HamburgerButton, MobileMenu, MobileNavLink, MobileActions, NavRow, OwlImg
 } from './style';
 
 const Navbar = () => {
@@ -17,7 +18,7 @@ const Navbar = () => {
     return (
         <Nav>
             <NavRow>
-                <Logo to="/feed">MyNET</Logo>
+                <Logo to="/feed">MyNET<OwlImg src={coruja} alt="coruja" /></Logo>
 
                 <NavLinks>
                     <NavLink to="/feed">Página inicial</NavLink>
