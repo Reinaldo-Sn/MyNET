@@ -218,6 +218,7 @@ export const CommentMeta = styled.div`
 export const CommentDate = styled.small`
   color: ${({ theme }) => theme.textDimmer};
   font-size: 0.75rem;
+  flex-shrink: 0;
 `;
 
 export const CommentDelete = styled.button`
@@ -267,4 +268,24 @@ export const CommentBody = styled.p`
   width: 100%;
   word-break: break-word;
   overflow-wrap: break-word;
+`
+
+export const SeeMoreButton = styled.button`
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: ${({ theme }) => theme.accent};
+  font-size: 0.82rem;
+  font-family: inherit;
+  padding: 0;
+  align-self: flex-start;
+  &:hover { opacity: 0.75; }
+`
+
+export const CommentGif = styled.img`
+  max-width: 40%;
+  max-height: 80px;
+  border-radius: 6px;
+  display: block;
+  margin-top: 0.2rem;
 `

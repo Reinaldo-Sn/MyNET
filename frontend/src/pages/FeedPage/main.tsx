@@ -81,6 +81,7 @@ const FeedPage = () => {
           onLike={handleLike}
           onDelete={handleDelete}
           onEdit={handleEdit}
+          commentLimit={4}
         />
       ))}
     </Container>

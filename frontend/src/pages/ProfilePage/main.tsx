@@ -157,6 +157,7 @@ const ProfilePage = () => {
           onLike={handleLike}
           onDelete={handleDelete}
           onEdit={handleEdit}
+          commentLimit={4}
         />
       ))}
 

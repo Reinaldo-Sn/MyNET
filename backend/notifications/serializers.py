@@ -7,7 +7,7 @@ class NotificationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Notification
-        fields = ['id', 'type', 'sender_id', 'sender_display', 'created_at']
+        fields = ['id', 'type', 'sender_id', 'sender_display', 'post_id', 'created_at']
 
     def get_sender_display(self, obj):
         return obj.sender.display_name or obj.sender.username

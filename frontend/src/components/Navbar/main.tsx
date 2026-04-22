@@ -16,6 +16,7 @@ interface Notification {
     type: string;
     sender_id: number;
     sender_display: string;
+    post_id: number | null;
     created_at: string;
 }
 
@@ -60,10 +61,14 @@ const Navbar = () => {
         }
     };
 
-    const handleNotificationClick = (senderId: number) => {
+    const handleNotificationClick = (n: Notification) => {
         setDropdownOpen(false);
         setNotifications([]);
-        navigate(`/users/${senderId}`);
+        if (n.type === 'like' && n.post_id) {
+            navigate(`/posts/${n.post_id}`);
+        } else {
+            navigate(`/users/${n.sender_id}`);
+        }
     };
 
     return (
@@ -86,8 +91,9 @@ const Navbar = () => {
                                 {notifications.length === 0
                                     ? <DropdownEmpty>Nenhuma notificação.</DropdownEmpty>
                                     : notifications.map((n) => (
-                                        <DropdownItem key={n.id} onClick={() => handleNotificationClick(n.sender_id)}>
-                                            <strong>{n.sender_display}</strong> <span>começou a te seguir</span>
+                                        <DropdownItem key={n.id} onClick={() => handleNotificationClick(n)}>
+                                            <strong>{n.sender_display}</strong>{' '}
+                                            <span>{n.type === 'like' ? 'curtiu seu post' : 'começou a te seguir'}</span>
                                         </DropdownItem>
                                     ))
                                 }

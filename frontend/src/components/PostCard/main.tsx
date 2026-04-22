@@ -11,8 +11,12 @@ import {
   EditArea, EditActions, SaveButton, CancelButton,
   CommentsSection, CommentItem, CommentText, CommentMeta, CommentDate, CommentDelete,
   CommentForm, CommentInput, CommentSubmit,
-  CommentBody,
+  CommentBody, CommentGif, SeeMoreButton,
 } from "./style";
+
+const isGifUrl = (text: string) =>
+  /^https?:\/\/.+\.gif(\?.*)?$/i.test(text.trim()) ||
+  /^https?:\/\/(media\.giphy\.com|media\.tenor\.com|i\.imgur\.com)\/.+/i.test(text.trim());
 
 export interface Post {
   id: number;
@@ -43,9 +47,10 @@ interface Props {
   onDelete: (postId: number) => void;
   onEdit: (postId: number, newContent: string) => void;
   autoShowComments?: boolean;
+  commentLimit?: number;
 }
 
-const PostCard = ({ post, currentUserId, onLike, onDelete, onEdit, autoShowComments }: Props) => {
+const PostCard = ({ post, currentUserId, onLike, onDelete, onEdit, autoShowComments, commentLimit }: Props) => {
   const navigate = useNavigate();
   const [showComments, setShowComments] = useState(false);
   const [comments, setComments] = useState<Comment[]>([]);
@@ -148,7 +153,7 @@ const PostCard = ({ post, currentUserId, onLike, onDelete, onEdit, autoShowComme
 
       {showComments && (
         <CommentsSection>
-          {comments.map((c) => (
+          {(commentLimit ? comments.slice(0, commentLimit) : comments).map((c) => (
             <CommentItem key={c.id}>
               <CommentText>
                 <CommentMeta>
@@ -156,19 +161,26 @@ const PostCard = ({ post, currentUserId, onLike, onDelete, onEdit, autoShowComme
                   <span style={{ cursor: "pointer" }} onClick={() => navigate(`/users/${c.author}`)}>{c.author_username}</span>
                   <CommentDate>{timeAgo(c.created_at)}</CommentDate>
                 </CommentMeta>
-                <CommentBody>
-                  {c.content}
-                </CommentBody>
+                {isGifUrl(c.content)
+                  ? <CommentGif src={c.content.trim()} alt="gif" />
+                  : <CommentBody>{c.content}</CommentBody>
+                }
               </CommentText>
               {c.author === currentUserId && (
                 <CommentDelete onClick={() => handleDeleteComment(c.id)}><X size={12} /></CommentDelete>
               )}
             </CommentItem>
           ))}
+          {commentLimit && comments.length > commentLimit && (
+            <SeeMoreButton onClick={() => navigate(`/posts/${post.id}`)}>
+              Ver mais {comments.length - commentLimit} comentário{comments.length - commentLimit > 1 ? 's' : ''}
+            </SeeMoreButton>
+          )}
           <CommentForm onSubmit={handleComment}>
             <CommentInput
               placeholder="Escreva um comentário..."
               value={newComment}
+              maxLength={280}
               onChange={(e) => setNewComment(e.target.value)}
             />
             <CommentSubmit type="submit">Enviar</CommentSubmit>

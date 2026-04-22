@@ -4,6 +4,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from .models import Post, Like, Comment
 from .serializers import PostSerializer, CommentSerializer
+from notifications.models import Notification
 
 # Permite leitura por qualquer um, mas edição/deleção só pelo autor do objeto
 class IsAuthorOrReadOnly(permissions.BasePermission):
@@ -38,6 +39,13 @@ class LikeToggleView(APIView):
         if not created:
             like.delete()
             return Response({'status': 'unliked'})
+        if post.author != request.user:
+            Notification.objects.create(
+                recipient=post.author,
+                sender=request.user,
+                type=Notification.LIKE,
+                post=post,
+            )
         return Response({'status': 'liked'}, status=status.HTTP_201_CREATED)
 
 # Lista comentários de um post ou cria um novo comentário
