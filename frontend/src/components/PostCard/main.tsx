@@ -11,6 +11,7 @@ import {
   EditArea, EditActions, SaveButton, CancelButton,
   CommentsSection, CommentItem, CommentText, CommentMeta, CommentDate, CommentDelete,
   CommentForm, CommentInput, CommentSubmit,
+  CommentBody,
 } from "./style";
 
 export interface Post {
@@ -155,7 +156,9 @@ const PostCard = ({ post, currentUserId, onLike, onDelete, onEdit, autoShowComme
                   <span style={{ cursor: "pointer" }} onClick={() => navigate(`/users/${c.author}`)}>{c.author_username}</span>
                   <CommentDate>{timeAgo(c.created_at)}</CommentDate>
                 </CommentMeta>
-                {c.content}
+                <CommentBody>
+                  {c.content}
+                </CommentBody>
               </CommentText>
               {c.author === currentUserId && (
                 <CommentDelete onClick={() => handleDeleteComment(c.id)}><X size={12} /></CommentDelete>

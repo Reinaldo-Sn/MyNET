@@ -58,6 +58,9 @@ export const Username = styled.h1`
   font-size: 1.15rem;
   font-weight: 600;
   letter-spacing: -0.2px;
+  width: 100%;
+  word-break: break-word;
+  overflow-wrap: break-word;
 `;
 
 export const UserHandle = styled.span`
@@ -71,6 +74,9 @@ export const Bio = styled.p`
   margin: 0;
   font-size: 0.88rem;
   line-height: 1.5;
+  width: 100%;
+  word-break: break-word;
+  overflow-wrap: break-word;
 `;
 
 export const Stats = styled.div`

@@ -16,7 +16,6 @@ export const Empty = styled.p`
   font-size: 0.9rem;
 `;
 
-
 export const QuickPost = styled.form`
   background: ${({ theme }) => theme.surface};
   border: 1px solid ${({ theme }) => theme.border};
@@ -40,6 +39,7 @@ export const QuickTextarea = styled.textarea`
   box-sizing: border-box;
   &::placeholder { color: ${({ theme }) => theme.textDimmer}; }
   &:focus { outline: none; border-color: ${({ theme }) => theme.accent}; }
+  
 `;
 
 export const QuickFooter = styled.div`

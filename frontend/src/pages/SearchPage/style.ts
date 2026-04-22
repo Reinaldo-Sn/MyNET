@@ -74,12 +74,17 @@ export const UserInfo = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.15rem;
+  min-width: 0;
+  overflow: hidden;
 `;
 
 export const UserName = styled.strong`
   color: ${({ theme }) => theme.text};
   font-size: 0.9rem;
   font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `;
 
 export const Followers = styled.p`

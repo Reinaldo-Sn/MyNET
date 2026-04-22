@@ -26,11 +26,14 @@ export const AuthorAvatar = styled.img`
   flex-shrink: 0;
 `;
 
-
 export const Author = styled.strong`
   color: ${({ theme }) => theme.accent};
   font-size: 0.88rem;
   font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
 `;
 
 export const Content = styled.p`
@@ -38,6 +41,9 @@ export const Content = styled.p`
   margin: 0;
   line-height: 1.6;
   font-size: 0.95rem;
+  width: 100%;
+  word-break: break-word;
+  overflow-wrap: break-word;
 `;
 
 export const PostImage = styled.img`
@@ -189,6 +195,9 @@ export const CommentText = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.15rem;
+  min-width: 0;
+  overflow-wrap: break-word;
+  word-break: break-word;
 `;
 
 export const CommentMeta = styled.div`
@@ -199,7 +208,11 @@ export const CommentMeta = styled.div`
     color: ${({ theme }) => theme.accent};
     font-weight: 600;
     font-size: 0.82rem;
-  }
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+  };
 `;
 
 export const CommentDate = styled.small`
@@ -248,3 +261,10 @@ export const CommentSubmit = styled.button`
   cursor: pointer;
   &:hover { background: ${({ theme }) => theme.accentHover}; }
 `;
+
+export const CommentBody = styled.p`
+  margin: 0;
+  width: 100%;
+  word-break: break-word;
+  overflow-wrap: break-word;
+`
