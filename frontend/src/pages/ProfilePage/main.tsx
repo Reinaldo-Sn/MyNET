@@ -8,7 +8,7 @@ import fundoPadrao from "../../assets/fundo_padrao.webp";
 import PostCard, { Post } from "../../components/PostCard/main";
 import FollowModal from "../../components/FollowModal/main";
 import EditProfileModal from "../../components/EditProfileModal/main";
-import AvatarCropModal from "../../components/AvatarCropModal/main";
+import { AvatarCropModal, BannerCropModal } from "../../components/AvatarCropModal/main";
 import {
   Container, ProfileHeader, BannerSection, Banner, Avatar, ProfileInfo,
   Username, UserHandle, Bio, Stats, StatButton,
@@ -113,14 +113,18 @@ const ProfilePage = () => {
 
   return (
     <Container>
-      {cropSrc && (
+      {cropSrc && cropType === "avatar" && (
         <AvatarCropModal
           imageSrc={cropSrc}
           onCancel={() => setCropSrc(null)}
           onSave={handleCropSave}
-          aspect={cropType === "banner" ? 3 : 1}
-          cropShape={cropType === "banner" ? "rect" : "round"}
-          title={cropType === "banner" ? "Ajustar banner" : "Ajustar foto de perfil"}
+        />
+      )}
+      {cropSrc && cropType === "banner" && (
+        <BannerCropModal
+          imageSrc={cropSrc}
+          onCancel={() => setCropSrc(null)}
+          onSave={handleCropSave}
         />
       )}
 

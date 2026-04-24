@@ -14,16 +14,14 @@ class SingleSessionTokenSerializer(TokenObtainPairSerializer):
 
     def validate(self, attrs):
         data = super().validate(attrs)
-        # Gera novo session_key a cada login, invalidando sessões anteriores
         self.user.session_key = uuid.uuid4()
         self.user.save(update_fields=['session_key'])
-        # Recria o token com o novo session_key
         token = self.get_token(self.user)
         data['access'] = str(token.access_token)
         data['refresh'] = str(token)
         return data
 
-# Serializer de cadastro
+
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, validators=[validate_password])
 
@@ -31,7 +29,6 @@ class RegisterSerializer(serializers.ModelSerializer):
         model = User
         fields = ('username', 'email', 'password')
 
-    # Cria o usuário com senha criptografada
     def create(self, validated_data):
         user = User.objects.create_user(
             username=validated_data['username'],
@@ -40,7 +37,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         )
         return user
 
-# Serializer de perfil
+
 class ProfileSerializer(serializers.ModelSerializer):
     followers_count = serializers.SerializerMethodField()
     following_count = serializers.SerializerMethodField()
@@ -50,16 +47,24 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'display_name', 'bio', 'avatar', 'banner', 'followers_count', 'following_count', 'is_following', 'current_password', 'new_password')
+        fields = ('id', 'username', 'email', 'display_name', 'bio', 'avatar', 'banner',
+                  'followers_count', 'following_count', 'is_following',
+                  'current_password', 'new_password')
         read_only_fields = ('id', 'username', 'email')
 
     def get_followers_count(self, obj):
+        if hasattr(obj, 'followers_count_ann'):
+            return obj.followers_count_ann
         return obj.followers.count()
 
     def get_following_count(self, obj):
+        if hasattr(obj, 'following_count_ann'):
+            return obj.following_count_ann
         return obj.following.count()
 
     def get_is_following(self, obj):
+        if hasattr(obj, 'is_following_ann'):
+            return obj.is_following_ann
         request = self.context.get('request')
         if request and request.user.is_authenticated:
             return obj.followers.filter(follower=request.user).exists()

@@ -42,7 +42,15 @@ node_modules/
 # IDEs e editores
 # ========================
 .claude/
+CLAUDE.md
 .vscode/
+
+# ========================
+# Agent Skills
+# ========================
+.agents/
+.junie/
+skills-lock.json
 .idea/
 *.suo
 *.ntvs*

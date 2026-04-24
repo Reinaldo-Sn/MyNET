@@ -8,12 +8,16 @@ Rede social full-stack desenvolvida com Django REST Framework e React.
 
 ## Funcionalidades
 
-- Cadastro e login com autenticação JWT
+- Cadastro e login com autenticação JWT (sessão única por dispositivo)
 - Feed com posts de usuários seguidos
-- Criar, curtir e comentar posts (com imagem)
+- Criar, curtir e comentar posts — com imagem, GIF e menções a usuários (@)
+- Curtir comentários e replies aninhados
 - Perfil com avatar, banner e bio editáveis
 - Seguir e deixar de seguir usuários
-- Busca de usuários
+- Mensagens diretas entre usuários que se seguem
+- Cutucadas com limite diário e notificações
+- Notificações de follow, curtida, reply e menção (via polling)
+- Busca de usuários com paginação
 - Tema claro e escuro
 - Interface responsiva (desktop e mobile)
 
@@ -25,7 +29,7 @@ Rede social full-stack desenvolvida com Django REST Framework e React.
 |--------|-------------|
 | Back-end | Python 3.12, Django 6, Django REST Framework, SimpleJWT |
 | Banco de dados | SQLite (dev) · PostgreSQL (prod) |
-| Front-end | React 18, Vite, TypeScript, styled-components |
+| Front-end | React 19, Vite, TypeScript, styled-components |
 | Mídia | Cloudinary |
 | Deploy | Render (API) · Vercel (front-end) |
 
@@ -38,15 +42,18 @@ MyNET/
 ├── backend/
 │   ├── core/          # settings, urls, wsgi
 │   ├── accounts/      # User model, autenticação, perfil
-│   ├── posts/         # Post, Like, Comment
+│   ├── posts/         # Post, Like, Comment, CommentLike
 │   ├── follows/       # Follow
+│   ├── dms/           # DirectMessage
+│   ├── notifications/ # Notification (follow, like, reply, mention, poke)
+│   ├── pokes/         # Poke
 │   └── manage.py
 └── frontend/
     └── src/
-        ├── api/           # axios configurado com JWT
-        ├── components/    # Navbar, PostCard, modais
+        ├── api/           # axios configurado com JWT e refresh automático
+        ├── components/    # Navbar, PostCard, DMButton, PokeButton, modais
         ├── contexts/      # AuthContext, ThemeContext, PostContext
-        └── pages/         # Login, Register, Feed, Profile, Search, Post
+        └── pages/         # Login, Register, Feed, Profile, Search, Post, Messages
 ```
 
 ---
@@ -125,6 +132,15 @@ Front-end disponível em `http://localhost:5173/`
 | POST | `/api/posts/{id}/like/` | Curtir/descurtir |
 | GET/POST | `/api/posts/{id}/comments/` | Comentários |
 | POST | `/api/follows/{id}/toggle/` | Seguir/deixar de seguir |
+| GET | `/api/follows/{id}/followers/` | Lista de seguidores |
+| GET | `/api/follows/{id}/following/` | Lista de seguindo |
+| GET/POST | `/api/dms/` | Mensagens de uma conversa |
+| GET | `/api/dms/conversations/` | Lista de conversas |
+| GET | `/api/dms/unread/` | Total de mensagens não lidas |
+| GET | `/api/notifications/` | Notificações não lidas |
+| POST | `/api/notifications/mark-read/` | Marcar todas como lidas |
+| GET/POST | `/api/pokes/` | Cutucadas recebidas/enviadas / enviar |
+| POST | `/api/pokes/mark-seen/` | Marcar cutucadas como vistas |
 
 ---
 

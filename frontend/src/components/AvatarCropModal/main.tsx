@@ -3,13 +3,18 @@ import Cropper from "react-easy-crop";
 import type { Area } from "react-easy-crop";
 import { Overlay, Modal, Title, CropArea, SliderWrapper, SliderLabel, Slider, Footer, CancelButton, SaveButton } from "./style";
 
-interface Props {
+interface BaseProps {
   imageSrc: string;
   onCancel: () => void;
   onSave: (file: File) => void;
-  aspect?: number;
-  cropShape?: "round" | "rect";
-  title?: string;
+}
+
+interface CropConfig {
+  aspect: number;
+  cropShape: "round" | "rect";
+  title: string;
+  maxWidth: number;
+  maxHeight: number;
 }
 
 async function getCroppedFile(imageSrc: string, croppedArea: Area, maxWidth: number, maxHeight: number): Promise<File> {
@@ -38,12 +43,12 @@ async function getCroppedFile(imageSrc: string, croppedArea: Area, maxWidth: num
 
   return new Promise((resolve) => {
     canvas.toBlob((blob) => {
-      resolve(new File([blob!], "avatar.jpg", { type: "image/jpeg" }));
+      resolve(new File([blob!], "crop.jpg", { type: "image/jpeg" }));
     }, "image/jpeg", 0.85);
   });
 }
 
-const AvatarCropModal = ({ imageSrc, onCancel, onSave, aspect = 1, cropShape = "round", title = "Ajustar foto de perfil" }: Props) => {
+function CropModal({ imageSrc, onCancel, onSave, aspect, cropShape, title, maxWidth, maxHeight }: BaseProps & CropConfig) {
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [croppedArea, setCroppedArea] = useState<Area | null>(null);
@@ -54,8 +59,7 @@ const AvatarCropModal = ({ imageSrc, onCancel, onSave, aspect = 1, cropShape = "
 
   const handleSave = async () => {
     if (!croppedArea) return;
-    const isBanner = aspect !== 1;
-    const file = await getCroppedFile(imageSrc, croppedArea, isBanner ? 1200 : 400, isBanner ? 400 : 400);
+    const file = await getCroppedFile(imageSrc, croppedArea, maxWidth, maxHeight);
     onSave(file);
   };
 
@@ -94,6 +98,14 @@ const AvatarCropModal = ({ imageSrc, onCancel, onSave, aspect = 1, cropShape = "
       </Modal>
     </Overlay>
   );
-};
+}
+
+export const AvatarCropModal = (props: BaseProps) => (
+  <CropModal {...props} aspect={1} cropShape="round" title="Ajustar foto de perfil" maxWidth={400} maxHeight={400} />
+);
+
+export const BannerCropModal = (props: BaseProps) => (
+  <CropModal {...props} aspect={3} cropShape="rect" title="Ajustar banner" maxWidth={1200} maxHeight={400} />
+);
 
 export default AvatarCropModal;

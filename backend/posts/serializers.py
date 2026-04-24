@@ -25,16 +25,23 @@ class PostSerializer(serializers.ModelSerializer):
         return None
 
     def get_likes_count(self, obj):
+        if hasattr(obj, 'likes_count_ann'):
+            return obj.likes_count_ann
         return obj.likes.count()
 
     def get_comments_count(self, obj):
+        if hasattr(obj, 'comments_count_ann'):
+            return obj.comments_count_ann
         return obj.comments.filter(parent=None).count()
 
     def get_is_liked(self, obj):
+        if hasattr(obj, 'is_liked_ann'):
+            return obj.is_liked_ann
         request = self.context.get('request')
         if request and request.user.is_authenticated:
             return obj.likes.filter(user=request.user).exists()
         return False
+
 
 class ReplySerializer(serializers.ModelSerializer):
     author_username = serializers.SerializerMethodField()
@@ -59,9 +66,13 @@ class ReplySerializer(serializers.ModelSerializer):
         return None
 
     def get_likes_count(self, obj):
+        if hasattr(obj, 'likes_count_ann'):
+            return obj.likes_count_ann
         return obj.likes.count()
 
     def get_is_liked(self, obj):
+        if hasattr(obj, 'is_liked_ann'):
+            return obj.is_liked_ann
         request = self.context.get('request')
         if request and request.user.is_authenticated:
             return obj.likes.filter(user=request.user).exists()
@@ -92,9 +103,13 @@ class CommentSerializer(serializers.ModelSerializer):
         return None
 
     def get_likes_count(self, obj):
+        if hasattr(obj, 'likes_count_ann'):
+            return obj.likes_count_ann
         return obj.likes.count()
 
     def get_is_liked(self, obj):
+        if hasattr(obj, 'is_liked_ann'):
+            return obj.is_liked_ann
         request = self.context.get('request')
         if request and request.user.is_authenticated:
             return obj.likes.filter(user=request.user).exists()

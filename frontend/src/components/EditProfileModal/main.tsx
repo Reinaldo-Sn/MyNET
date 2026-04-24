@@ -31,8 +31,7 @@ const EditProfileModal = ({ currentAvatar, currentBanner, currentBio, currentDis
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
-  const [showPasswordFields, setShowPasswordFields] = useState(false);
-  const [showDeleteSection, setShowDeleteSection] = useState(false);
+  const [activeSection, setActiveSection] = useState<"password" | "delete" | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState("");
   const [deleting, setDeleting] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -58,6 +57,16 @@ const EditProfileModal = ({ currentAvatar, currentBanner, currentBio, currentDis
     setNewPassword("");
     setConfirmPassword("");
     setPasswordError("");
+  };
+
+  const toggleSection = (section: "password" | "delete") => {
+    if (activeSection === section) {
+      setActiveSection(null);
+      if (section === "password") resetPasswordFields();
+      if (section === "delete") setDeleteConfirm("");
+    } else {
+      setActiveSection(section);
+    }
   };
 
   const handleSave = async () => {
@@ -139,14 +148,11 @@ const EditProfileModal = ({ currentAvatar, currentBanner, currentBio, currentDis
           rows={3}
         />
 
-        <PasswordToggle onClick={() => {
-          if (showPasswordFields) resetPasswordFields();
-          setShowPasswordFields(!showPasswordFields);
-        }}>
-          {showPasswordFields ? "▲" : "▼"} Alterar senha
+        <PasswordToggle onClick={() => toggleSection("password")}>
+          {activeSection === "password" ? "▲" : "▼"} Alterar senha
         </PasswordToggle>
 
-        {showPasswordFields && (
+        {activeSection === "password" && (
           <PasswordSection>
             <FieldInput
               type="password"
@@ -173,11 +179,11 @@ const EditProfileModal = ({ currentAvatar, currentBanner, currentBio, currentDis
           </PasswordSection>
         )}
 
-        <DeleteToggle onClick={() => { setShowDeleteSection((v) => !v); setDeleteConfirm(""); }}>
-          {showDeleteSection ? "▲" : "▼"} Exclusão de conta
+        <DeleteToggle onClick={() => toggleSection("delete")}>
+          {activeSection === "delete" ? "▲" : "▼"} Exclusão de conta
         </DeleteToggle>
 
-        {showDeleteSection && (
+        {activeSection === "delete" && (
           <DeleteSection>
             <DeleteDescription>
               Esta ação é irreversível. Todos os seus posts, comentários e dados serão excluídos permanentemente. Para confirmar, digite <strong>{CONFIRM_WORD}</strong> abaixo.

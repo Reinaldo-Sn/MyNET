@@ -226,6 +226,7 @@ export const SearchAvatar = styled.img`
 `;
 
 export const SearchName = styled.span`
+  display: block;
   font-size: 0.85rem;
   font-weight: 500;
   color: ${({ theme }) => theme.text};
@@ -235,8 +236,12 @@ export const SearchName = styled.span`
 `;
 
 export const SearchMeta = styled.span`
+  display: block;
   font-size: 0.75rem;
   color: ${({ theme }) => theme.textFaint};
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `;
 
 export const PokeBtn = styled.button`

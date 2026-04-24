@@ -20,7 +20,7 @@ class MessageListView(APIView):
         msgs = DirectMessage.objects.filter(
             Q(sender=request.user, recipient_id=other_id) |
             Q(sender_id=other_id, recipient=request.user)
-        )
+        ).select_related('sender', 'recipient')
         DirectMessage.objects.filter(
             sender_id=other_id, recipient=request.user, is_read=False
         ).update(is_read=True)
@@ -42,31 +42,35 @@ class ConversationsListView(APIView):
 
     def get(self, request):
         user = request.user
-        msgs = DirectMessage.objects.filter(Q(sender=user) | Q(recipient=user))
+        # Uma única query com todos os usuários pré-carregados
+        msgs = DirectMessage.objects.filter(
+            Q(sender=user) | Q(recipient=user)
+        ).select_related('sender', 'recipient').order_by('-created_at')
 
-        other_ids = set()
-        for m in msgs:
-            other_id = m.recipient_id if m.sender_id == user.id else m.sender_id
-            other_ids.add(other_id)
+        seen: dict = {}
+        for msg in msgs:
+            other = msg.recipient if msg.sender_id == user.id else msg.sender
+            if other.id not in seen:
+                seen[other.id] = {
+                    'user': other,
+                    'last_message': msg.content,
+                    'last_message_at': msg.created_at.isoformat(),
+                    'unread_count': 0,
+                }
+            if msg.sender_id == other.id and not msg.is_read:
+                seen[other.id]['unread_count'] += 1
 
         conversations = []
-        for oid in other_ids:
-            last = DirectMessage.objects.filter(
-                Q(sender=user, recipient_id=oid) | Q(sender_id=oid, recipient=user)
-            ).last()
-            try:
-                other = User.objects.get(pk=oid)
-            except User.DoesNotExist:
-                continue
-            unread = DirectMessage.objects.filter(sender_id=oid, recipient=user, is_read=False).count()
+        for data in seen.values():
+            other = data['user']
             conversations.append({
                 'user_id': other.id,
                 'username': other.username,
                 'display_name': other.display_name,
                 'avatar': request.build_absolute_uri(other.avatar.url) if (other.avatar and other.avatar.name) else None,
-                'last_message': last.content if last else '',
-                'last_message_at': last.created_at.isoformat() if last else None,
-                'unread_count': unread,
+                'last_message': data['last_message'],
+                'last_message_at': data['last_message_at'],
+                'unread_count': data['unread_count'],
             })
 
         conversations.sort(key=lambda x: x['last_message_at'] or '', reverse=True)
