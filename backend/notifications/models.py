@@ -5,7 +5,9 @@ class Notification(models.Model):
     FOLLOW = 'follow'
     LIKE = 'like'
     COMMENT_REPLY = 'comment_reply'
-    TYPE_CHOICES = [(FOLLOW, 'Follow'), (LIKE, 'Like'), (COMMENT_REPLY, 'Comment Reply')]
+    POKE = 'poke'
+    MENTION = 'mention'
+    TYPE_CHOICES = [(FOLLOW, 'Follow'), (LIKE, 'Like'), (COMMENT_REPLY, 'Comment Reply'), (POKE, 'Poke'), (MENTION, 'Mention')]
 
     recipient = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='notifications')
     sender = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='sent_notifications')

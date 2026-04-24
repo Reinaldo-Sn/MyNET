@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
+import { usePostContext } from "../../contexts/PostContext";
 import api from "../../api/axios";
 import perfilPadrao from "../../assets/perfil_padrao.png";
 import fundoPadrao from "../../assets/fundo_padrao.webp";
@@ -18,6 +19,7 @@ type ModalType = "followers" | "following" | null;
 
 const ProfilePage = () => {
   const { user, logout } = useAuth();
+  const { latestPost, setLatestPost } = usePostContext();
   const navigate = useNavigate();
   const [posts, setPosts] = useState<Post[]>([]);
   const [editing, setEditing] = useState(false);
@@ -35,6 +37,12 @@ const ProfilePage = () => {
       setPosts(res.data.filter((p: Post) => p.author === user.id));
     });
   }, [user]);
+
+  useEffect(() => {
+    if (!latestPost) return;
+    setPosts((prev) => [latestPost, ...prev]);
+    setLatestPost(null);
+  }, [latestPost]);
 
   const handleSelectImage = (src: string) => {
     setCropType("avatar");

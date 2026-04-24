@@ -2,7 +2,10 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../api/axios";
 import perfilPadrao from "../../assets/perfil_padrao.png";
-import { Container, Title, SearchForm, Input, Button, UserCard, UserAvatar, UserInfo, UserName, Followers, FollowButton } from "./style";
+import {
+  Container, Title, SearchForm, Input, Button, UserCard, UserAvatar,
+  UserInfo, UserName, Followers, FollowButton, Pagination, PageBtn, PageInfo,
+} from "./style";
 
 interface UserResult {
   id: number;
@@ -13,20 +16,34 @@ interface UserResult {
   is_following: boolean;
 }
 
+const PAGE_SIZE = 8;
+
 const SearchPage = () => {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<UserResult[]>([]);
   const [suggestions, setSuggestions] = useState<UserResult[]>([]);
+  const [page, setPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const [searched, setSearched] = useState(false);
   const navigate = useNavigate();
+
+  const totalPages = Math.ceil(totalCount / PAGE_SIZE);
 
   useEffect(() => {
     api.get("/auth/users/?top=3").then((res) => setSuggestions(res.data));
   }, []);
 
+  const fetchPage = async (p: number) => {
+    const res = await api.get(`/auth/users/?search=${query}&page=${p}`);
+    setResults(res.data.results);
+    setTotalCount(res.data.count);
+    setPage(p);
+  };
+
   const handleSearch = async (e: React.SyntheticEvent) => {
     e.preventDefault();
-    const res = await api.get(`/auth/users/?search=${query}`);
-    setResults(res.data);
+    setSearched(true);
+    await fetchPage(1);
   };
 
   const handleFollow = async (e: React.MouseEvent, userId: number, inSuggestions: boolean) => {
@@ -62,22 +79,30 @@ const SearchPage = () => {
         <Input
           placeholder="Digite um username"
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(e) => { setQuery(e.target.value); setSearched(false); }}
           autoComplete="off"
         />
         <Button type="submit">Buscar</Button>
       </SearchForm>
 
-      {results.length === 0 && suggestions.length > 0 && (
+      {!searched && suggestions.length > 0 && (
         <>
           <Title style={{ fontSize: "0.85rem", color: "inherit" }}>Mais relevantes</Title>
           {suggestions.map((u) => renderCard(u, true))}
         </>
       )}
 
-      {results.map((u) => renderCard(u, false))}
+      {searched && results.map((u) => renderCard(u, false))}
+
+      {searched && totalPages > 1 && (
+        <Pagination>
+          <PageBtn onClick={() => fetchPage(page - 1)} disabled={page === 1}>Anterior</PageBtn>
+          <PageInfo>{page} / {totalPages}</PageInfo>
+          <PageBtn onClick={() => fetchPage(page + 1)} disabled={page === totalPages}>Próximo</PageBtn>
+        </Pagination>
+      )}
     </Container>
   );
-}
+};
 
-export default SearchPage
+export default SearchPage;

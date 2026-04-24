@@ -5,12 +5,13 @@ import { useNavigate } from "react-router-dom";
 import api from "../../api/axios";
 import defaultAvatar from "../../assets/perfil_padrao.png";
 import { timeAgo } from "../../utils/timeAgo";
+import { isGifUrl } from "../../utils/gif";
 import {
   FloatBtn, UnreadBadge, Panel, PanelHeader, PanelTitle, CloseBtn, IconBtn,
   Sidebar, SidebarTitle, ConvItem, ConvAvatar, ConvInfo, ConvName,
   ConvLast, ConvBadge, Chat, ChatHeader, ChatHeaderAvatar, ChatHeaderName,
-  MessagesList, BubbleWrap, BubbleTime, Bubble, Form, Input, SendBtn,
-  EmptySidebar, SearchInput, SearchResults, SearchResultItem,
+  MessagesList, BubbleWrap, BubbleTime, Bubble, BubbleGif, Form, FormRow,
+  Input, SendBtn, EmptySidebar, SearchInput, SearchResults, SearchResultItem,
 } from "./style";
 
 interface Conversation {
@@ -59,16 +60,44 @@ const DMButton = () => {
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
+  const prevUnreadRef = useRef(0);
+  const prevMsgCountRef = useRef(0);
+
+  const playNotif = () => {
+    try {
+      const ctx = new AudioContext();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(660, ctx.currentTime);
+      osc.frequency.setValueAtTime(880, ctx.currentTime + 0.1);
+      gain.gain.setValueAtTime(0.15, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.35);
+    } catch {}
+  };
 
   const fetchUnread = () =>
-    api.get("/dms/unread/").then((r) => setUnread(r.data.count)).catch(() => {});
+    api.get("/dms/unread/").then((r) => {
+      const count = r.data.count;
+      if (count > prevUnreadRef.current) playNotif();
+      prevUnreadRef.current = count;
+      setUnread(count);
+    }).catch(() => {});
 
   const fetchConversations = () =>
     api.get("/dms/conversations/").then((r) => setConversations(r.data)).catch(() => {});
 
   const fetchMessages = (uid: number) =>
     api.get(`/dms/?recipient=${uid}`).then((r) => {
-      setMessages(r.data);
+      const msgs: Message[] = r.data;
+      const newFromOther = msgs.filter((m) => m.sender !== user!.id);
+      if (newFromOther.length > prevMsgCountRef.current) playNotif();
+      prevMsgCountRef.current = newFromOther.length;
+      setMessages(msgs);
       fetchConversations();
       fetchUnread();
     }).catch(() => {});
@@ -103,7 +132,7 @@ const DMButton = () => {
   useEffect(() => {
     if (!searchQuery.trim()) { setSearchResults([]); return; }
     const timeout = setTimeout(() => {
-      api.get(`/auth/users/?search=${searchQuery}`).then((r) => setSearchResults(r.data)).catch(() => {});
+      api.get(`/auth/users/?search=${searchQuery}`).then((r) => setSearchResults(r.data.results ?? r.data)).catch(() => {});
     }, 300);
     return () => clearTimeout(timeout);
   }, [searchQuery]);
@@ -129,8 +158,16 @@ const DMButton = () => {
     setTimeout(() => { setOpen(false); setClosing(false); }, 220);
   };
 
+  useEffect(() => {
+    if (!open) return;
+    const handler = () => closePanel();
+    window.addEventListener('poke-panel-open', handler);
+    return () => window.removeEventListener('poke-panel-open', handler);
+  }, [open]);
+
   const handleOpen = () => {
     if (open) { closePanel(); return; }
+    window.dispatchEvent(new CustomEvent('dm-panel-open'));
     setView("conversations");
     setSelectedId(null);
     setOpen(true);
@@ -202,7 +239,7 @@ const DMButton = () => {
                     <ConvAvatar src={c.avatar || defaultAvatar} alt={c.username} />
                     <ConvInfo>
                       <ConvName>{c.display_name || c.username}</ConvName>
-                      <ConvLast>{c.last_message}</ConvLast>
+                      <ConvLast>{isGifUrl(c.last_message) ? "GIF" : c.last_message}</ConvLast>
                     </ConvInfo>
                     {c.unread_count > 0 && <ConvBadge>{c.unread_count}</ConvBadge>}
                   </ConvItem>
@@ -248,7 +285,10 @@ const DMButton = () => {
                   return (
                     <BubbleWrap key={m.id} $mine={mine}>
                       {showTime && <BubbleTime $mine={mine}>{timeAgo(m.created_at)}</BubbleTime>}
-                      <Bubble $mine={mine}>{m.content}</Bubble>
+                      {isGifUrl(m.content)
+                        ? <BubbleGif $mine={mine} src={m.content} alt="gif" onError={(e) => { e.currentTarget.style.display = "none"; }} />
+                        : <Bubble $mine={mine}>{m.content}</Bubble>
+                      }
                     </BubbleWrap>
                   );
                 })}
@@ -260,14 +300,16 @@ const DMButton = () => {
                 </div>
               )}
               <Form onSubmit={handleSend}>
-                <Input
-                  ref={inputRef}
-                  value={text}
-                  onChange={(e) => { setText(e.target.value); setSendError(""); }}
-                  placeholder="Mensagem..."
-                  maxLength={1000}
-                />
-                <SendBtn type="submit">Enviar</SendBtn>
+                <FormRow>
+                  <Input
+                    ref={inputRef}
+                    value={text}
+                    onChange={(e) => { setText(e.target.value); setSendError(""); }}
+                    placeholder="Mensagem..."
+                    maxLength={1000}
+                  />
+                  <SendBtn type="submit">Enviar</SendBtn>
+                </FormRow>
               </Form>
             </Chat>
           )}

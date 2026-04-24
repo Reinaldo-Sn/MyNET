@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Heart, MessageCircle, Pencil, Trash2, X } from "lucide-react";
 import api from "../../api/axios";
 import { timeAgo } from "../../utils/timeAgo";
+import { renderWithMentions } from "../../utils/mentions";
 import {
   Card, AuthorRow, AuthorAvatar, Author,
   Content, PostImage, Footer, FooterLeft,
@@ -17,6 +18,8 @@ import { extractYouTubeId, stripYouTubeUrl } from "../../utils/youtube";
 import { isGifUrl } from "../../utils/gif";
 import CommentRepliesModal from "../CommentRepliesModal/main";
 import GifImage from "../GifImage";
+import MentionSuggestions from "../MentionSuggestions";
+import { useMentionInput } from "../../hooks/useMentionInput";
 
 export interface Post {
   id: number;
@@ -61,6 +64,7 @@ const PostCard = ({ post, currentUserId, onLike, onDelete, onEdit, autoShowComme
   const [comments, setComments] = useState<Comment[]>([]);
   const [commentsCount, setCommentsCount] = useState(post.comments_count);
   const [newComment, setNewComment] = useState("");
+  const mention = useMentionInput(newComment, setNewComment);
   const [commentsLoaded, setCommentsLoaded] = useState(false);
   const [editing, setEditing] = useState(false);
   const [editContent, setEditContent] = useState(post.content);
@@ -97,14 +101,12 @@ const PostCard = ({ post, currentUserId, onLike, onDelete, onEdit, autoShowComme
     setComments((prev) => prev.map((c) =>
       c.id === commentId ? { ...c, replies: [...c.replies, reply] } : c
     ));
-    setCommentsCount((prev) => prev + 1);
   }, []);
 
   const handleReplyDeleted = useCallback((commentId: number, replyId: number) => {
     setComments((prev) => prev.map((c) =>
       c.id === commentId ? { ...c, replies: c.replies.filter((r) => r.id !== replyId) } : c
     ));
-    setCommentsCount((prev) => prev - 1);
   }, []);
 
   const handleCommentLike = async (e: React.MouseEvent, commentId: number) => {
@@ -158,7 +160,7 @@ const PostCard = ({ post, currentUserId, onLike, onDelete, onEdit, autoShowComme
         </EditActions>
       ) : (
         <Content style={{ cursor: "pointer" }} onClick={() => navigate(`/posts/${post.id}`)}>
-          {extractYouTubeId(post.content) ? stripYouTubeUrl(post.content) : post.content}
+          {renderWithMentions(extractYouTubeId(post.content) ? stripYouTubeUrl(post.content) : post.content)}
         </Content>
       )}
 
@@ -181,7 +183,7 @@ const PostCard = ({ post, currentUserId, onLike, onDelete, onEdit, autoShowComme
       <Footer>
         <FooterLeft>
           <LikeButton $liked={post.is_liked} onClick={() => onLike(post.id)}>
-            <Heart size={14} fill={post.is_liked ? "currentColor" : "none"} /> {post.likes_count}
+            <Heart size={14} fill={post.is_liked ? "currentColor" : "none"} /> <span style={{ lineHeight: 1, minWidth: "2ch", display: "inline-block" }}>{post.likes_count}</span>
           </LikeButton>
           <CommentToggle onClick={toggleComments}>
             <MessageCircle size={14} /> {commentsCount}
@@ -210,25 +212,26 @@ const PostCard = ({ post, currentUserId, onLike, onDelete, onEdit, autoShowComme
                 </CommentMeta>
                 {isGifUrl(c.content)
                   ? <GifImage src={c.content.trim()} Img={CommentGif} />
-                  : <CommentBody>{c.content}</CommentBody>
+                  : <CommentBody>{renderWithMentions(c.content)}</CommentBody>
                 }
                 <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", marginTop: "4px", fontSize: "0.78rem" }}>
-                  <span style={{ display: "flex", alignItems: "center", gap: "0.3rem", opacity: 0.45 }}>
-                    <MessageCircle size={13} />
-                    {c.replies.length > 0 && <span>{c.replies.length}</span>}
-                  </span>
                   <button
                     onClick={(e) => handleCommentLike(e, c.id)}
                     style={{
                       background: "none", border: "none", cursor: "pointer", padding: 0,
                       display: "flex", alignItems: "center", gap: "0.25rem",
+                      minWidth: "2rem",
                       color: c.is_liked ? "var(--accent, #7c6af7)" : "inherit",
                       opacity: c.is_liked ? 1 : 0.45, fontSize: "0.78rem", fontFamily: "inherit",
                     }}
                   >
                     <Heart size={13} fill={c.is_liked ? "currentColor" : "none"} />
-                    {c.likes_count > 0 && <span>{c.likes_count}</span>}
+                    {c.likes_count > 0 && <span style={{ lineHeight: 1 }}>{c.likes_count}</span>}
                   </button>
+                  <span style={{ display: "flex", alignItems: "center", gap: "0.3rem", opacity: 0.45 }}>
+                    <MessageCircle size={13} />
+                    {c.replies.length > 0 && <span>{c.replies.length}</span>}
+                  </span>
                 </div>
               </CommentText>
               {c.author === currentUserId && (
@@ -241,12 +244,14 @@ const PostCard = ({ post, currentUserId, onLike, onDelete, onEdit, autoShowComme
               Ver mais {comments.length - commentLimit} comentário{comments.length - commentLimit > 1 ? 's' : ''}
             </SeeMoreButton>
           )}
-          <CommentForm onSubmit={handleComment}>
+          <CommentForm onSubmit={handleComment} style={{ position: "relative" }}>
+            <MentionSuggestions results={mention.mentionResults} onSelect={mention.insertMention} />
             <CommentInput
+              ref={mention.inputRef}
               placeholder="Escreva um comentário..."
               value={newComment}
               maxLength={280}
-              onChange={(e) => setNewComment(e.target.value)}
+              onChange={mention.handleChange}
             />
             <CommentSubmit type="submit">Enviar</CommentSubmit>
           </CommentForm>

@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 import cloudinary.uploader
+import uuid
 
 # AbstractUser já traz os campos padrão do Django:
 # username, email, password, first_name, last_name, is_active, is_staff, etc.
@@ -16,6 +17,7 @@ class User(AbstractUser):
     banner = models.ImageField(upload_to='banners/', blank=True, null=True)
     # Preenchido automaticamente com a data/hora em que a conta foi criada
     created_at = models.DateTimeField(auto_now_add=True)
+    session_key = models.UUIDField(default=uuid.uuid4)
 
     def save(self, *args, **kwargs):
         if self.pk:

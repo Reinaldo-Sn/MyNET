@@ -1,6 +1,27 @@
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+import uuid
 from .models import User
+
+
+class SingleSessionTokenSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+        token['session_key'] = str(user.session_key)
+        return token
+
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        # Gera novo session_key a cada login, invalidando sessões anteriores
+        self.user.session_key = uuid.uuid4()
+        self.user.save(update_fields=['session_key'])
+        # Recria o token com o novo session_key
+        token = self.get_token(self.user)
+        data['access'] = str(token.access_token)
+        data['refresh'] = str(token)
+        return data
 
 # Serializer de cadastro
 class RegisterSerializer(serializers.ModelSerializer):

@@ -2,10 +2,15 @@ from rest_framework import generics, permissions, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.pagination import PageNumberPagination
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.db.models import Q, Count
 from .serializers import RegisterSerializer, ProfileSerializer
 from .models import User
+
+
+class SearchPagination(PageNumberPagination):
+    page_size = 8
 
 # View de cadastro de usuário
 class RegisterView(generics.CreateAPIView):
@@ -41,6 +46,7 @@ class ProfileView(generics.RetrieveUpdateAPIView):
 class UserSearchView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = ProfileSerializer
+    pagination_class = SearchPagination
 
     def get_queryset(self):
         search = self.request.query_params.get('search', '')
@@ -49,6 +55,11 @@ class UserSearchView(generics.ListAPIView):
         if top:
             return qs.annotate(fc=Count('followers')).order_by('-fc')[:int(top)]
         return qs.filter(Q(username__icontains=search) | Q(display_name__icontains=search))
+
+    def list(self, request, *args, **kwargs):
+        if request.query_params.get('top'):
+            self.pagination_class = None
+        return super().list(request, *args, **kwargs)
 
 class UserDetailView(generics.RetrieveAPIView):
     permission_classes = [IsAuthenticated]

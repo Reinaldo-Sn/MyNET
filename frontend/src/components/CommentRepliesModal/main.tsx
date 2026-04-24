@@ -5,7 +5,10 @@ import api from "../../api/axios";
 import defaultAvatar from "../../assets/perfil_padrao.png";
 import { timeAgo } from "../../utils/timeAgo";
 import { isGifUrl } from "../../utils/gif";
+import { renderWithMentions } from "../../utils/mentions";
 import GifImage from "../GifImage";
+import MentionSuggestions from "../MentionSuggestions";
+import { useMentionInput } from "../../hooks/useMentionInput";
 import {
   Overlay, Modal, Header, Title, CloseBtn,
   ParentComment, ReplyList, ReplyItem, ReplyMeta,
@@ -39,7 +42,8 @@ const CommentRepliesModal = ({ postId, comment, currentUserId, onClose, onReplyA
   const navigate = useNavigate();
   const [replies, setReplies] = useState<Comment[]>(comment.replies);
   const [text, setText] = useState("");
-  const inputRef = useRef<HTMLInputElement>(null);
+  const mention = useMentionInput(text, setText);
+  const inputRef = mention.inputRef;
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -97,15 +101,16 @@ const CommentRepliesModal = ({ postId, comment, currentUserId, onClose, onReplyA
           </ReplyMeta>
           {isGifUrl(comment.content)
             ? <GifImage src={comment.content.trim()} Img={ReplyGif} />
-            : <ReplyBody>{comment.content}</ReplyBody>
+            : <ReplyBody>{renderWithMentions(comment.content)}</ReplyBody>
           }
         </ParentComment>
 
-        <Form onSubmit={handleSubmit}>
+        <Form onSubmit={handleSubmit} style={{ position: "relative" }}>
+          <MentionSuggestions results={mention.mentionResults} onSelect={mention.insertMention} />
           <Input
             ref={inputRef}
             value={text}
-            onChange={(e) => setText(e.target.value)}
+            onChange={mention.handleChange}
             placeholder={`Responder ${comment.author_username}...`}
             maxLength={280}
           />
@@ -124,7 +129,7 @@ const CommentRepliesModal = ({ postId, comment, currentUserId, onClose, onReplyA
                 </ReplyMeta>
                 {isGifUrl(r.content)
                   ? <GifImage src={r.content.trim()} Img={ReplyGif} />
-                  : <ReplyBody>{r.content}</ReplyBody>
+                  : <ReplyBody>{renderWithMentions(r.content)}</ReplyBody>
                 }
                 <button
                   onClick={() => handleReplyLike(r.id)}

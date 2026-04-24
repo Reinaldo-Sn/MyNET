@@ -47,10 +47,14 @@ export const Content = styled.p`
 `;
 
 export const PostImage = styled.img`
-  width: 100%;
-  border-radius: 6px;
+  display: block;
+  max-width: 100%;
   max-height: 400px;
-  object-fit: cover;
+  width: auto;
+  height: auto;
+  border-radius: 14px;
+  margin: 0;
+  align-self: flex-start;
 `;
 
 export const Footer = styled.div`

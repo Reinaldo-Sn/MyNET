@@ -1,11 +1,13 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { Camera, X } from "lucide-react";
 import api from "../../api/axios";
 import { Post } from "../PostCard/main";
 import { isGifUrl } from "../../utils/gif";
+import defaultAvatar from "../../assets/perfil_padrao.png";
 import {
   Overlay, Modal, Header, Title, CloseButton,
-  Textarea, HiddenInput, ImagePreview, PreviewImg, RemoveImage,
+  TextareaWrap, Textarea, MentionDropdown, MentionItem, MentionAvatar, MentionName,
+  HiddenInput, ImagePreview, PreviewImg, RemoveImage,
   Footer, FooterLeft, CharCount, CameraButton, GifButton, GifInputRow, GifInput,
   ErrorMsg, SubmitButton,
 } from "./style";
@@ -37,6 +39,13 @@ async function compressImage(file: File): Promise<File> {
   });
 }
 
+interface MentionUser {
+  id: number;
+  username: string;
+  display_name: string;
+  avatar: string | null;
+}
+
 interface Props {
   onClose: () => void;
   onCreated: (post: Post) => void;
@@ -50,7 +59,57 @@ const CreatePostModal = ({ onClose, onCreated }: Props) => {
   const [showGifInput, setShowGifInput] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [mentionQuery, setMentionQuery] = useState<string | null>(null);
+  const [mentionIndex, setMentionIndex] = useState(0);
+  const [mentionResults, setMentionResults] = useState<MentionUser[]>([]);
   const fileRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const mentionTimer = useRef<ReturnType<typeof setTimeout>>();
+
+  useEffect(() => {
+    if (mentionQuery === null || mentionQuery.length === 0) {
+      setMentionResults([]);
+      return;
+    }
+    clearTimeout(mentionTimer.current);
+    mentionTimer.current = setTimeout(() => {
+      api.get(`/auth/users/?search=${mentionQuery}`)
+        .then((r) => setMentionResults(r.data.results ?? []))
+        .catch(() => {});
+    }, 200);
+  }, [mentionQuery]);
+
+  const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const val = e.target.value;
+    const pos = e.target.selectionStart ?? val.length;
+    setContent(val);
+    const textBeforeCursor = val.slice(0, pos);
+    const match = textBeforeCursor.match(/@(\w*)$/);
+    if (match) {
+      setMentionQuery(match[1]);
+      setMentionIndex(pos - match[0].length);
+    } else {
+      setMentionQuery(null);
+      setMentionResults([]);
+    }
+  };
+
+  const insertMention = (username: string) => {
+    const cursorPos = textareaRef.current?.selectionStart ?? content.length;
+    const before = content.slice(0, mentionIndex);
+    const after = content.slice(cursorPos);
+    const newContent = `${before}@${username} ${after}`;
+    setContent(newContent);
+    setMentionResults([]);
+    setMentionQuery(null);
+    setTimeout(() => {
+      if (textareaRef.current) {
+        const newPos = before.length + username.length + 2;
+        textareaRef.current.focus();
+        textareaRef.current.setSelectionRange(newPos, newPos);
+      }
+    }, 0);
+  };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] ?? null;
@@ -88,23 +147,13 @@ const CreatePostModal = ({ onClose, onCreated }: Props) => {
     }
   };
 
-  const removeImage = () => {
-    setImage(null);
-    setImagePreview(null);
-  };
-
-  const removeGif = () => {
-    setGifUrl("");
-    setShowGifInput(false);
-  };
+  const removeImage = () => { setImage(null); setImagePreview(null); };
+  const removeGif = () => { setGifUrl(""); setShowGifInput(false); };
 
   const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
     if (!content.trim() || content.length > MAX) return;
-    if (gifUrl && !isGifUrl(gifUrl)) {
-      setError("URL de GIF inválida.");
-      return;
-    }
+    if (gifUrl && !isGifUrl(gifUrl)) { setError("URL de GIF inválida."); return; }
     setLoading(true);
     try {
       const formData = new FormData();
@@ -134,13 +183,27 @@ const CreatePostModal = ({ onClose, onCreated }: Props) => {
         </Header>
 
         <form onSubmit={handleSubmit} style={{ display: "contents" }}>
-          <Textarea
-            placeholder="O que você está pensando?"
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            rows={5}
-            autoFocus
-          />
+          <TextareaWrap>
+            <Textarea
+              ref={textareaRef}
+              placeholder="O que você está pensando? Use @username para mencionar"
+              value={content}
+              onChange={handleContentChange}
+              rows={5}
+              autoFocus
+            />
+            {mentionResults.length > 0 && (
+              <MentionDropdown>
+                {mentionResults.slice(0, 6).map((u) => (
+                  <MentionItem key={u.id} onMouseDown={(e) => { e.preventDefault(); insertMention(u.username); }}>
+                    <MentionAvatar src={u.avatar || defaultAvatar} alt={u.username} />
+                    <MentionName>{u.display_name || u.username}</MentionName>
+                    <span style={{ fontSize: "0.75rem", opacity: 0.5, marginLeft: "auto" }}>@{u.username}</span>
+                  </MentionItem>
+                ))}
+              </MentionDropdown>
+            )}
+          </TextareaWrap>
 
           {showGifInput && (
             <GifInputRow>
@@ -173,7 +236,7 @@ const CreatePostModal = ({ onClose, onCreated }: Props) => {
 
           <Footer>
             <FooterLeft>
-              <CameraButton type="button" onClick={() => { fileRef.current?.click(); }} title="Adicionar imagem">
+              <CameraButton type="button" onClick={() => fileRef.current?.click()} title="Adicionar imagem">
                 <Camera size={18} />
               </CameraButton>
               <GifButton

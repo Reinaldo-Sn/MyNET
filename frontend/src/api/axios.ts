@@ -17,7 +17,14 @@ api.interceptors.response.use(
   async (error) => {
     const original = error.config;
 
-    if (error.response?.status === 401 && !original._retry) {
+    if (error.response?.status === 401) {
+      if (original._retry) {
+        // Segunda falha consecutiva — sessão inválida, força logout
+        localStorage.removeItem('access');
+        localStorage.removeItem('refresh');
+        window.location.href = '/login';
+        return Promise.reject(error);
+      }
       original._retry = true;
       const refresh = localStorage.getItem('refresh');
 
@@ -34,6 +41,7 @@ api.interceptors.response.use(
           window.location.href = '/login';
         }
       } else {
+        localStorage.removeItem('access');
         window.location.href = '/login';
       }
     }

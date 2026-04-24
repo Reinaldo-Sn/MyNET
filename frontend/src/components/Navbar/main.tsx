@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Sun, Moon, Menu, X, Bell } from "lucide-react";
+import { Sun, Moon, Menu, X, Bell, Home, Search, User } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { usePostContext } from "../../contexts/PostContext";
 import { useThemeToggle } from "../../contexts/ThemeContext";
@@ -52,18 +52,13 @@ const Navbar = () => {
     }, []);
 
     const handleBellClick = () => {
-        if (!dropdownOpen && notifications.length > 0) {
-            api.post("/notifications/mark-read/").then(() => {
-                setDropdownOpen(true);
-            });
-        } else {
-            setDropdownOpen((prev) => !prev);
-        }
+        setDropdownOpen((prev) => !prev);
     };
 
     const handleNotificationClick = (n: Notification) => {
+        api.post(`/notifications/${n.id}/mark-read/`).catch(() => {});
+        setNotifications((prev) => prev.filter((x) => x.id !== n.id));
         setDropdownOpen(false);
-        setNotifications([]);
         if (n.post_id) {
             navigate(`/posts/${n.post_id}`);
         } else {
@@ -77,10 +72,9 @@ const Navbar = () => {
                 <Logo to="/feed">MyNET<OwlImg src={coruja} alt="coruja" /></Logo>
 
                 <NavLinks>
-                    <NavLink to="/feed">Página inicial</NavLink>
-                    <NavLink to="/search">Buscar</NavLink>
-                    <NavLink to="/profile">Perfil</NavLink>
-                    <Button onClick={openModal}>Postar</Button>
+                    <NavLink to="/feed">Página inicial <Home size={14} /></NavLink>
+                    <NavLink to="/search">Buscar <Search size={14} /></NavLink>
+                    <NavLink to="/profile">Perfil <User size={14} /></NavLink>
                     <BellWrapper ref={bellRef}>
                         <BellButton onClick={handleBellClick}>
                             <Bell size={18} />
@@ -96,6 +90,8 @@ const Navbar = () => {
                                             <span>
                                                 {n.type === 'like' ? 'curtiu seu post'
                                                 : n.type === 'comment_reply' ? 'respondeu seu comentário'
+                                                : n.type === 'poke' ? 'te cutucou'
+                                                : n.type === 'mention' ? 'te mencionou em um post'
                                                 : 'começou a te seguir'}
                                             </span>
                                         </DropdownItem>
@@ -104,9 +100,6 @@ const Navbar = () => {
                             </Dropdown>
                         )}
                     </BellWrapper>
-                    <ToggleButton onClick={toggleTheme}>
-                        {isDark ? <Sun size={16} /> : <Moon size={16} />}
-                    </ToggleButton>
                 </NavLinks>
 
                 <HamburgerButton onClick={() => setMenuOpen(!menuOpen)}>

@@ -93,6 +93,33 @@ export const Followers = styled.p`
   margin: 0;
 `;
 
+export const Pagination = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding-top: 0.25rem;
+`;
+
+export const PageBtn = styled.button`
+  padding: 0.4rem 0.9rem;
+  border-radius: 6px;
+  border: 1px solid ${({ theme }) => theme.border};
+  background: transparent;
+  color: ${({ theme }) => theme.textMuted};
+  font-size: 0.85rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  &:hover:not(:disabled) { background: ${({ theme }) => theme.surfaceAlt}; color: ${({ theme }) => theme.text}; }
+  &:disabled { opacity: 0.35; cursor: not-allowed; }
+`;
+
+export const PageInfo = styled.span`
+  font-size: 0.82rem;
+  color: ${({ theme }) => theme.textFaint};
+`;
+
 export const FollowButton = styled.button<{ $following?: boolean }>`
   margin-left: auto;
   flex-shrink: 0;

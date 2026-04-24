@@ -260,12 +260,43 @@ export const Bubble = styled.div<{ $mine: boolean }>`
   word-break: break-word;
 `;
 
+export const BubbleGif = styled.img<{ $mine: boolean }>`
+  max-width: 200px;
+  max-height: 160px;
+  border-radius: 10px;
+  display: block;
+  object-fit: contain;
+  align-self: ${({ $mine }) => ($mine ? "flex-end" : "flex-start")};
+`;
+
 export const Form = styled.form`
   display: flex;
+  flex-direction: column;
   gap: 6px;
   padding: 10px 12px;
   border-top: 1px solid ${({ theme }) => theme.border};
   flex-shrink: 0;
+`;
+
+export const FormRow = styled.div`
+  display: flex;
+  gap: 6px;
+  align-items: center;
+`;
+
+export const GifBtn = styled.button`
+  background: transparent;
+  border: 1px solid ${({ theme }) => theme.border};
+  border-radius: 6px;
+  color: ${({ theme }) => theme.textMuted};
+  font-size: 0.72rem;
+  font-weight: 700;
+  font-family: inherit;
+  padding: 4px 7px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: color 0.15s, border-color 0.15s;
+  &:hover { color: ${({ theme }) => theme.text}; border-color: ${({ theme }) => theme.textMuted}; }
 `;
 
 export const Input = styled.input`

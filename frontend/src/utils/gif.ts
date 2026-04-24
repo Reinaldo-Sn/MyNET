@@ -1,6 +1,8 @@
 const GIF_HOSTNAMES = [
   'media.giphy.com',
   'media.tenor.com',
+  'c.tenor.com',
+  'media1.tenor.com',
   'i.imgur.com',
   'media.discordapp.net',
   'cdn.discordapp.com',

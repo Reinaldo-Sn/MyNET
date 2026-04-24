@@ -1,3 +1,5 @@
+import re
+from django.contrib.auth import get_user_model
 from rest_framework import generics, permissions, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
@@ -5,6 +7,24 @@ from rest_framework.response import Response
 from .models import Post, Like, Comment, CommentLike
 from .serializers import PostSerializer, CommentSerializer
 from notifications.models import Notification
+
+User = get_user_model()
+
+
+def notify_mentions(content, sender, post):
+    usernames = set(re.findall(r'@(\w+)', content))
+    for username in usernames:
+        try:
+            user = User.objects.get(username__iexact=username)
+            if user != sender:
+                Notification.objects.get_or_create(
+                    recipient=user,
+                    sender=sender,
+                    type=Notification.MENTION,
+                    post=post,
+                )
+        except User.DoesNotExist:
+            pass
 
 # Permite leitura por qualquer um, mas edição/deleção só pelo autor do objeto
 class IsAuthorOrReadOnly(permissions.BasePermission):
@@ -20,7 +40,8 @@ class PostListCreateView(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
+        post = serializer.save(author=self.request.user)
+        notify_mentions(post.content, self.request.user, post)
 
 # Detalhe, edição parcial e deleção de um post específico
 class PostDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -70,6 +91,7 @@ class CommentListCreateView(generics.ListCreateAPIView):
                 type=Notification.COMMENT_REPLY,
                 post=post,
             )
+        notify_mentions(comment.content, self.request.user, post)
 
 # Deleta um comentário específico (só o autor pode deletar)
 class CommentDeleteView(generics.DestroyAPIView):

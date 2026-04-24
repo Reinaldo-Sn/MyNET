@@ -47,6 +47,51 @@ export const CloseButton = styled.button`
   &:hover { color: ${({ theme }) => theme.text}; }
 `;
 
+export const TextareaWrap = styled.div`
+  position: relative;
+`;
+
+export const MentionDropdown = styled.div`
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: ${({ theme }) => theme.surface};
+  border: 1px solid ${({ theme }) => theme.border};
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  z-index: 300;
+  overflow: hidden;
+  max-height: 200px;
+  overflow-y: auto;
+`;
+
+export const MentionItem = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+  transition: background 0.15s;
+  &:hover { background: ${({ theme }) => theme.surfaceAlt}; }
+`;
+
+export const MentionAvatar = styled.img`
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+`;
+
+export const MentionName = styled.span`
+  font-size: 0.85rem;
+  color: ${({ theme }) => theme.text};
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`;
+
 export const Textarea = styled.textarea`
   width: 100%;
   padding: 0.7rem 0.9rem;
