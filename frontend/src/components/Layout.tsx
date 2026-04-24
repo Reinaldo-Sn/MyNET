@@ -1,6 +1,8 @@
 import { ReactNode } from "react";
 import Navbar from "./Navbar/main";
 import CreatePostModal from "./CreatePostModal/main";
+import DMButton from "./DMButton/main";
+import WhatsNewBanner from "./WhatsNewBanner/main";
 import { usePostContext } from "../contexts/PostContext";
 
 const Layout = ({ children }: { children: ReactNode }) => {
@@ -9,6 +11,7 @@ const Layout = ({ children }: { children: ReactNode }) => {
   return (
     <>
       <Navbar />
+      <WhatsNewBanner />
       {modalOpen && (
         <CreatePostModal
           onClose={closeModal}
@@ -16,6 +19,7 @@ const Layout = ({ children }: { children: ReactNode }) => {
         />
       )}
       {children}
+      <DMButton />
     </>
   );
 };

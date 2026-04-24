@@ -283,9 +283,25 @@ export const SeeMoreButton = styled.button`
 `
 
 export const CommentGif = styled.img`
-  max-width: 40%;
-  max-height: 80px;
+  max-width: 240px;
+  max-height: 200px;
   border-radius: 6px;
   display: block;
-  margin-top: 0.2rem;
+  margin-top: 0.35rem;
+  object-fit: contain;
+`
+
+export const YoutubeEmbed = styled.div`
+  position: relative;
+  width: 100%;
+  padding-top: 56.25%;
+  border-radius: 8px;
+  overflow: hidden;
+  iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
 `

@@ -8,6 +8,7 @@ import SearchPage from "./pages/SearchPage/main";
 import UserProfilePage from "./pages/UserProfilePage/main";
 import CreatePostPage from "./pages/CreatePostPage/main";
 import PostPage from "./pages/PostPage/main";
+import MessagesPage from "./pages/MessagesPage/main";
 import PrivateRoute from "./components/PrivateRoute";
 import Layout from "./components/Layout";
 import { PostProvider } from "./contexts/PostContext";
@@ -38,6 +39,7 @@ const ThemedApp = () => {
           <Route path="/users/:id" element={<PrivateRoute><Layout><UserProfilePage /></Layout></PrivateRoute>} />
           <Route path="/posts/create" element={<PrivateRoute><Layout><CreatePostPage /></Layout></PrivateRoute>} />
           <Route path="/posts/:id" element={<PrivateRoute><Layout><PostPage /></Layout></PrivateRoute>} />
+          <Route path="/messages" element={<PrivateRoute><Layout><MessagesPage /></Layout></PrivateRoute>} />
         </Routes>
       </BrowserRouter>
     </ThemeProvider>

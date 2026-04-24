@@ -2,7 +2,7 @@ from rest_framework import generics, permissions, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .models import Post, Like, Comment
+from .models import Post, Like, Comment, CommentLike
 from .serializers import PostSerializer, CommentSerializer
 from notifications.models import Notification
 
@@ -54,11 +54,22 @@ class CommentListCreateView(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
-        return Comment.objects.filter(post_id=self.kwargs['pk'])
+        return Comment.objects.filter(post_id=self.kwargs['pk'], parent=None)
 
     def perform_create(self, serializer):
         post = generics.get_object_or_404(Post, pk=self.kwargs['pk'])
-        serializer.save(author=self.request.user, post=post)
+        parent_id = self.request.data.get('parent')
+        parent = None
+        if parent_id:
+            parent = generics.get_object_or_404(Comment, pk=parent_id, post=post)
+        comment = serializer.save(author=self.request.user, post=post, parent=parent)
+        if parent and parent.author != self.request.user:
+            Notification.objects.create(
+                recipient=parent.author,
+                sender=self.request.user,
+                type=Notification.COMMENT_REPLY,
+                post=post,
+            )
 
 # Deleta um comentário específico (só o autor pode deletar)
 class CommentDeleteView(generics.DestroyAPIView):
@@ -74,6 +85,18 @@ class CommentDeleteView(generics.DestroyAPIView):
         self.check_object_permissions(self.request, comment)
         return comment
     
+class CommentLikeToggleView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk, comment_pk):
+        comment = generics.get_object_or_404(Comment, pk=comment_pk, post_id=pk)
+        like, created = CommentLike.objects.get_or_create(user=request.user, comment=comment)
+        if not created:
+            like.delete()
+            return Response({'status': 'unliked'})
+        return Response({'status': 'liked'}, status=status.HTTP_201_CREATED)
+
+
 class FeedView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = PostSerializer

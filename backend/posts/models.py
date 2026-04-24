@@ -12,6 +12,7 @@ class Post(models.Model):
     content = models.TextField()
     # Imagem opcional — salva na pasta media/posts/
     image = models.ImageField(upload_to='posts/', blank=True, null=True)
+    gif_url = models.URLField(blank=True, null=True)
     # Preenchido automaticamente com a data/hora de criação
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -39,13 +40,10 @@ class Like(models.Model):
 
 
 class Comment(models.Model):
-    # Usuário que comentou
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='comments')
-    # Post que recebeu o comentário — se o post for deletado, os comentários também são
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments')
-    # Texto do comentário
+    parent = models.ForeignKey('self', null=True, blank=True, related_name='replies', on_delete=models.CASCADE)
     content = models.TextField()
-    # Preenchido automaticamente com a data/hora de criação
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -54,3 +52,15 @@ class Comment(models.Model):
 
     def __str__(self):
         return f'{self.author.username} comentou no post {self.post.id}'
+
+
+class CommentLike(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='comment_likes')
+    comment = models.ForeignKey(Comment, on_delete=models.CASCADE, related_name='likes')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'comment')
+
+    def __str__(self):
+        return f'{self.user.username} curtiu comentário {self.comment.id}'

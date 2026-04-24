@@ -10,7 +10,7 @@ class PostSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Post
-        fields = ['id', 'author', 'author_username', 'author_avatar', 'content', 'image',
+        fields = ['id', 'author', 'author_username', 'author_avatar', 'content', 'image', 'gif_url',
                   'likes_count', 'comments_count', 'is_liked', 'created_at']
         read_only_fields = ['id', 'author', 'created_at']
 
@@ -35,14 +35,17 @@ class PostSerializer(serializers.ModelSerializer):
         if request and request.user.is_authenticated:
             return obj.likes.filter(user=request.user).exists()
         return False
-    
-class CommentSerializer(serializers.ModelSerializer):
+
+class ReplySerializer(serializers.ModelSerializer):
     author_username = serializers.SerializerMethodField()
     author_avatar = serializers.SerializerMethodField()
+    likes_count = serializers.SerializerMethodField()
+    is_liked = serializers.SerializerMethodField()
 
     class Meta:
         model = Comment
-        fields = ['id', 'author', 'author_username', 'author_avatar', 'content', 'created_at']
+        fields = ['id', 'author', 'author_username', 'author_avatar', 'content', 'parent',
+                  'likes_count', 'is_liked', 'created_at']
         read_only_fields = ['id', 'author', 'created_at']
 
     def get_author_username(self, obj):
@@ -50,7 +53,49 @@ class CommentSerializer(serializers.ModelSerializer):
 
     def get_author_avatar(self, obj):
         request = self.context.get('request')
-        if obj.author.avatar:
+        if obj.author.avatar and obj.author.avatar.name:
             url = obj.author.avatar.url
             return request.build_absolute_uri(url) if request else url
         return None
+
+    def get_likes_count(self, obj):
+        return obj.likes.count()
+
+    def get_is_liked(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return obj.likes.filter(user=request.user).exists()
+        return False
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    author_username = serializers.SerializerMethodField()
+    author_avatar = serializers.SerializerMethodField()
+    replies = ReplySerializer(many=True, read_only=True)
+    likes_count = serializers.SerializerMethodField()
+    is_liked = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Comment
+        fields = ['id', 'author', 'author_username', 'author_avatar', 'content', 'parent',
+                  'replies', 'likes_count', 'is_liked', 'created_at']
+        read_only_fields = ['id', 'author', 'created_at']
+
+    def get_author_username(self, obj):
+        return obj.author.display_name or obj.author.username
+
+    def get_author_avatar(self, obj):
+        request = self.context.get('request')
+        if obj.author.avatar and obj.author.avatar.name:
+            url = obj.author.avatar.url
+            return request.build_absolute_uri(url) if request else url
+        return None
+
+    def get_likes_count(self, obj):
+        return obj.likes.count()
+
+    def get_is_liked(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return obj.likes.filter(user=request.user).exists()
+        return False

@@ -162,6 +162,61 @@ export const BioTextarea = styled.textarea`
   &:focus { outline: none; border-color: ${({ theme }) => theme.accent}; }
 `;
 
+export const DeleteToggle = styled.button`
+  background: transparent;
+  border: 1px solid ${({ theme }) => theme.borderAlt};
+  border-radius: 6px;
+  color: ${({ theme }) => theme.textMuted};
+  font-size: 0.85rem;
+  font-family: inherit;
+  padding: 0.5rem 0.9rem;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.15s, color 0.15s;
+  &:hover { border-color: #e05555; color: #e05555; }
+`;
+
+export const DeleteSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+`;
+
+export const DeleteDescription = styled.p`
+  margin: 0;
+  font-size: 0.82rem;
+  color: ${({ theme }) => theme.textMuted};
+  line-height: 1.5;
+`;
+
+export const DeleteConfirmInput = styled.input`
+  width: 100%;
+  padding: 0.65rem 0.9rem;
+  border-radius: 6px;
+  border: 1px solid #e05555;
+  background: ${({ theme }) => theme.bg};
+  color: ${({ theme }) => theme.text};
+  font-size: 0.88rem;
+  font-family: inherit;
+  box-sizing: border-box;
+  &::placeholder { color: ${({ theme }) => theme.textDimmer}; }
+  &:focus { outline: none; border-color: #c03333; }
+`;
+
+export const DeleteButton = styled.button<{ $active: boolean }>`
+  padding: 0.5rem 1.1rem;
+  background: ${({ $active }) => ($active ? "#e05555" : "transparent")};
+  border: 1px solid #e05555;
+  border-radius: 6px;
+  color: ${({ $active }) => ($active ? "#fff" : "#e05555")};
+  font-size: 0.88rem;
+  font-family: inherit;
+  cursor: ${({ $active }) => ($active ? "pointer" : "not-allowed")};
+  opacity: ${({ $active }) => ($active ? 1 : 0.5)};
+  align-self: flex-start;
+  transition: background 0.15s, color 0.15s;
+`;
+
 export const Footer = styled.div`
   display: flex;
   justify-content: flex-end;

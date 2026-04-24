@@ -97,6 +97,12 @@ const ProfilePage = () => {
     setPosts((prev) => prev.map((p) => p.id === postId ? { ...p, content: newContent } : p));
   };
 
+  const handleDeleteAccount = async () => {
+    await api.delete("/auth/delete-account/");
+    logout();
+    navigate("/login");
+  };
+
   return (
     <Container>
       {cropSrc && (
@@ -120,6 +126,7 @@ const ProfilePage = () => {
           onSave={handleSave}
           onSelectImage={handleSelectImage}
           onSelectBannerImage={handleSelectBannerImage}
+          onDeleteAccount={handleDeleteAccount}
         />
       )}
 

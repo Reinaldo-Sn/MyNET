@@ -64,7 +64,7 @@ const Navbar = () => {
     const handleNotificationClick = (n: Notification) => {
         setDropdownOpen(false);
         setNotifications([]);
-        if (n.type === 'like' && n.post_id) {
+        if (n.post_id) {
             navigate(`/posts/${n.post_id}`);
         } else {
             navigate(`/users/${n.sender_id}`);
@@ -93,7 +93,11 @@ const Navbar = () => {
                                     : notifications.map((n) => (
                                         <DropdownItem key={n.id} onClick={() => handleNotificationClick(n)}>
                                             <strong>{n.sender_display}</strong>{' '}
-                                            <span>{n.type === 'like' ? 'curtiu seu post' : 'começou a te seguir'}</span>
+                                            <span>
+                                                {n.type === 'like' ? 'curtiu seu post'
+                                                : n.type === 'comment_reply' ? 'respondeu seu comentário'
+                                                : 'começou a te seguir'}
+                                            </span>
                                         </DropdownItem>
                                     ))
                                 }

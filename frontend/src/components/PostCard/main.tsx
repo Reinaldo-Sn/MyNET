@@ -1,22 +1,22 @@
-import { useState, useEffect, FormEvent } from "react";
+import { useState, useEffect, FormEvent, useCallback } from "react";
 import defaultAvatar from "../../assets/perfil_padrao.png";
 import { useNavigate } from "react-router-dom";
 import { Heart, MessageCircle, Pencil, Trash2, X } from "lucide-react";
 import api from "../../api/axios";
 import { timeAgo } from "../../utils/timeAgo";
 import {
-  Card, AuthorRow, AuthorAvatar, AuthorAvatarPlaceholder, Author,
+  Card, AuthorRow, AuthorAvatar, Author,
   Content, PostImage, Footer, FooterLeft,
   LikeButton, CommentToggle, EditButton, DeleteButton, DateText,
   EditArea, EditActions, SaveButton, CancelButton,
   CommentsSection, CommentItem, CommentText, CommentMeta, CommentDate, CommentDelete,
   CommentForm, CommentInput, CommentSubmit,
-  CommentBody, CommentGif, SeeMoreButton,
+  CommentBody, CommentGif, SeeMoreButton, YoutubeEmbed,
 } from "./style";
-
-const isGifUrl = (text: string) =>
-  /^https?:\/\/.+\.gif(\?.*)?$/i.test(text.trim()) ||
-  /^https?:\/\/(media\.giphy\.com|media\.tenor\.com|i\.imgur\.com)\/.+/i.test(text.trim());
+import { extractYouTubeId, stripYouTubeUrl } from "../../utils/youtube";
+import { isGifUrl } from "../../utils/gif";
+import CommentRepliesModal from "../CommentRepliesModal/main";
+import GifImage from "../GifImage";
 
 export interface Post {
   id: number;
@@ -25,6 +25,7 @@ export interface Post {
   author_avatar: string | null;
   content: string;
   image: string | null;
+  gif_url: string | null;
   likes_count: number;
   is_liked: boolean;
   comments_count: number;
@@ -38,6 +39,10 @@ interface Comment {
   author_avatar: string | null;
   content: string;
   created_at: string;
+  parent: number | null;
+  replies: Comment[];
+  likes_count: number;
+  is_liked: boolean;
 }
 
 interface Props {
@@ -59,6 +64,7 @@ const PostCard = ({ post, currentUserId, onLike, onDelete, onEdit, autoShowComme
   const [commentsLoaded, setCommentsLoaded] = useState(false);
   const [editing, setEditing] = useState(false);
   const [editContent, setEditContent] = useState(post.content);
+  const [activeReplyComment, setActiveReplyComment] = useState<Comment | null>(null);
 
   useEffect(() => {
     if (!autoShowComments) return;
@@ -82,9 +88,33 @@ const PostCard = ({ post, currentUserId, onLike, onDelete, onEdit, autoShowComme
     e.preventDefault();
     if (!newComment.trim()) return;
     const res = await api.post(`/posts/${post.id}/comments/`, { content: newComment });
-    setComments((prev) => [...prev, res.data]);
+    setComments((prev) => [...prev, { ...res.data, replies: [] }]);
     setCommentsCount((prev) => prev + 1);
     setNewComment("");
+  };
+
+  const handleReplyAdded = useCallback((commentId: number, reply: Comment) => {
+    setComments((prev) => prev.map((c) =>
+      c.id === commentId ? { ...c, replies: [...c.replies, reply] } : c
+    ));
+    setCommentsCount((prev) => prev + 1);
+  }, []);
+
+  const handleReplyDeleted = useCallback((commentId: number, replyId: number) => {
+    setComments((prev) => prev.map((c) =>
+      c.id === commentId ? { ...c, replies: c.replies.filter((r) => r.id !== replyId) } : c
+    ));
+    setCommentsCount((prev) => prev - 1);
+  }, []);
+
+  const handleCommentLike = async (e: React.MouseEvent, commentId: number) => {
+    e.stopPropagation();
+    await api.post(`/posts/${post.id}/comments/${commentId}/like/`);
+    setComments((prev) => prev.map((c) =>
+      c.id === commentId
+        ? { ...c, is_liked: !c.is_liked, likes_count: c.is_liked ? c.likes_count - 1 : c.likes_count + 1 }
+        : c
+    ));
   };
 
   const handleDeleteComment = async (commentId: number) => {
@@ -107,8 +137,9 @@ const PostCard = ({ post, currentUserId, onLike, onDelete, onEdit, autoShowComme
   };
 
   return (
+    <>
     <Card>
-      <AuthorRow onClick={() => navigate(`/users/${post.author}`)}>
+      <AuthorRow onClick={() => navigate(post.author === currentUserId ? `/profile` : `/users/${post.author}`)}>
         <AuthorAvatar src={post.author_avatar || defaultAvatar} alt={post.author_username} />
         <Author>{post.author_username}</Author>
       </AuthorRow>
@@ -126,10 +157,26 @@ const PostCard = ({ post, currentUserId, onLike, onDelete, onEdit, autoShowComme
           </EditActions>
         </EditActions>
       ) : (
-        <Content style={{ cursor: "pointer" }} onClick={() => navigate(`/posts/${post.id}`)}>{post.content}</Content>
+        <Content style={{ cursor: "pointer" }} onClick={() => navigate(`/posts/${post.id}`)}>
+          {extractYouTubeId(post.content) ? stripYouTubeUrl(post.content) : post.content}
+        </Content>
       )}
 
+      {!editing && (() => {
+        const ytId = extractYouTubeId(post.content);
+        return ytId ? (
+          <YoutubeEmbed>
+            <iframe
+              src={`https://www.youtube.com/embed/${ytId}`}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
+          </YoutubeEmbed>
+        ) : null;
+      })()}
+
       {post.image && <PostImage src={post.image} alt="imagem do post" style={{ cursor: "pointer" }} onClick={() => navigate(`/posts/${post.id}`)} />}
+      {post.gif_url && <GifImage src={post.gif_url} Img={PostImage} />}
 
       <Footer>
         <FooterLeft>
@@ -154,20 +201,38 @@ const PostCard = ({ post, currentUserId, onLike, onDelete, onEdit, autoShowComme
       {showComments && (
         <CommentsSection>
           {(commentLimit ? comments.slice(0, commentLimit) : comments).map((c) => (
-            <CommentItem key={c.id}>
+            <CommentItem key={c.id} onClick={() => setActiveReplyComment(c)} style={{ cursor: "pointer" }}>
               <CommentText>
                 <CommentMeta>
                   <AuthorAvatar src={c.author_avatar || defaultAvatar} alt={c.author_username} style={{ width: 22, height: 22 }} />
-                  <span style={{ cursor: "pointer" }} onClick={() => navigate(`/users/${c.author}`)}>{c.author_username}</span>
+                  <span style={{ cursor: "pointer" }} onClick={(e) => { e.stopPropagation(); navigate(c.author === currentUserId ? `/profile` : `/users/${c.author}`); }}>{c.author_username}</span>
                   <CommentDate>{timeAgo(c.created_at)}</CommentDate>
                 </CommentMeta>
                 {isGifUrl(c.content)
-                  ? <CommentGif src={c.content.trim()} alt="gif" />
+                  ? <GifImage src={c.content.trim()} Img={CommentGif} />
                   : <CommentBody>{c.content}</CommentBody>
                 }
+                <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", marginTop: "4px", fontSize: "0.78rem" }}>
+                  <span style={{ display: "flex", alignItems: "center", gap: "0.3rem", opacity: 0.45 }}>
+                    <MessageCircle size={13} />
+                    {c.replies.length > 0 && <span>{c.replies.length}</span>}
+                  </span>
+                  <button
+                    onClick={(e) => handleCommentLike(e, c.id)}
+                    style={{
+                      background: "none", border: "none", cursor: "pointer", padding: 0,
+                      display: "flex", alignItems: "center", gap: "0.25rem",
+                      color: c.is_liked ? "var(--accent, #7c6af7)" : "inherit",
+                      opacity: c.is_liked ? 1 : 0.45, fontSize: "0.78rem", fontFamily: "inherit",
+                    }}
+                  >
+                    <Heart size={13} fill={c.is_liked ? "currentColor" : "none"} />
+                    {c.likes_count > 0 && <span>{c.likes_count}</span>}
+                  </button>
+                </div>
               </CommentText>
               {c.author === currentUserId && (
-                <CommentDelete onClick={() => handleDeleteComment(c.id)}><X size={12} /></CommentDelete>
+                <CommentDelete onClick={(e) => { e.stopPropagation(); handleDeleteComment(c.id); }}><X size={12} /></CommentDelete>
               )}
             </CommentItem>
           ))}
@@ -188,6 +253,18 @@ const PostCard = ({ post, currentUserId, onLike, onDelete, onEdit, autoShowComme
         </CommentsSection>
       )}
     </Card>
+
+    {activeReplyComment && (
+      <CommentRepliesModal
+        postId={post.id}
+        comment={activeReplyComment}
+        currentUserId={currentUserId}
+        onClose={() => setActiveReplyComment(null)}
+        onReplyAdded={handleReplyAdded}
+        onReplyDeleted={handleReplyDeleted}
+      />
+    )}
+    </>
   );
 };
 

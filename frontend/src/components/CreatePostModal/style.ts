@@ -125,6 +125,39 @@ export const RemoveImage = styled.button`
   &:hover { background: ${({ theme }) => theme.accent}; }
 `;
 
+export const GifButton = styled.button`
+  background: transparent;
+  border: none;
+  color: ${({ theme }) => theme.textFaint};
+  cursor: pointer;
+  padding: 0;
+  font-size: 0.78rem;
+  font-weight: 700;
+  font-family: inherit;
+  letter-spacing: 0.5px;
+  transition: color 0.15s;
+  &:hover { color: ${({ theme }) => theme.text}; }
+`;
+
+export const GifInputRow = styled.div`
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+`;
+
+export const GifInput = styled.input`
+  flex: 1;
+  padding: 0.45rem 0.75rem;
+  border-radius: 6px;
+  border: 1px solid ${({ theme }) => theme.borderAlt};
+  background: ${({ theme }) => theme.bg};
+  color: ${({ theme }) => theme.text};
+  font-size: 0.85rem;
+  font-family: inherit;
+  &::placeholder { color: ${({ theme }) => theme.textDimmer}; }
+  &:focus { outline: none; border-color: ${({ theme }) => theme.accent}; }
+`;
+
 export const ErrorMsg = styled.p`
   color: ${({ theme }) => theme.accent};
   font-size: 0.82rem;

@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     "posts",
     "follows",
     "notifications",
+    "dms",
 ]
 
 MIDDLEWARE = [

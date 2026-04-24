@@ -4,7 +4,8 @@ from django.conf import settings
 class Notification(models.Model):
     FOLLOW = 'follow'
     LIKE = 'like'
-    TYPE_CHOICES = [(FOLLOW, 'Follow'), (LIKE, 'Like')]
+    COMMENT_REPLY = 'comment_reply'
+    TYPE_CHOICES = [(FOLLOW, 'Follow'), (LIKE, 'Like'), (COMMENT_REPLY, 'Comment Reply')]
 
     recipient = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='notifications')
     sender = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='sent_notifications')

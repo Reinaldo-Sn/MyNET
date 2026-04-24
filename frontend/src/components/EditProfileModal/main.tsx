@@ -5,8 +5,12 @@ import {
   Overlay, Modal, Header, Title, CloseButton,
   BannerWrapper, BannerArea, BannerOverlay,
   AvatarWrapper, AvatarImg, CameraOverlay, HiddenInput,
-  FieldInput, BioTextarea, ErrorText, PasswordToggle, PasswordSection, Footer, SaveButton, CancelButton,
+  FieldInput, BioTextarea, ErrorText, PasswordToggle, PasswordSection,
+  DeleteToggle, DeleteSection, DeleteDescription, DeleteConfirmInput, DeleteButton,
+  Footer, SaveButton, CancelButton,
 } from "./style";
+
+const CONFIRM_WORD = "EXCLUIR";
 
 interface Props {
   currentAvatar: string | null;
@@ -17,9 +21,10 @@ interface Props {
   onSave: (bio: string, avatarFile: File | null, bannerFile: File | null, displayName: string, currentPassword: string, newPassword: string) => Promise<void>;
   onSelectImage: (src: string) => void;
   onSelectBannerImage: (src: string) => void;
+  onDeleteAccount: () => Promise<void>;
 }
 
-const EditProfileModal = ({ currentAvatar, currentBanner, currentBio, currentDisplayName, onClose, onSave, onSelectImage, onSelectBannerImage }: Props) => {
+const EditProfileModal = ({ currentAvatar, currentBanner, currentBio, currentDisplayName, onClose, onSave, onSelectImage, onSelectBannerImage, onDeleteAccount }: Props) => {
   const [bio, setBio] = useState(currentBio);
   const [displayName, setDisplayName] = useState(currentDisplayName);
   const [currentPassword, setCurrentPassword] = useState("");
@@ -27,6 +32,9 @@ const EditProfileModal = ({ currentAvatar, currentBanner, currentBio, currentDis
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [showPasswordFields, setShowPasswordFields] = useState(false);
+  const [showDeleteSection, setShowDeleteSection] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState("");
+  const [deleting, setDeleting] = useState(false);
   const [saving, setSaving] = useState(false);
   const avatarRef = useRef<HTMLInputElement>(null);
   const bannerRef = useRef<HTMLInputElement>(null);
@@ -80,6 +88,16 @@ const EditProfileModal = ({ currentAvatar, currentBanner, currentBio, currentDis
       }
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (deleteConfirm !== CONFIRM_WORD) return;
+    setDeleting(true);
+    try {
+      await onDeleteAccount();
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -153,6 +171,31 @@ const EditProfileModal = ({ currentAvatar, currentBanner, currentBio, currentDis
             />
             {passwordError && <ErrorText>{passwordError}</ErrorText>}
           </PasswordSection>
+        )}
+
+        <DeleteToggle onClick={() => { setShowDeleteSection((v) => !v); setDeleteConfirm(""); }}>
+          {showDeleteSection ? "▲" : "▼"} Exclusão de conta
+        </DeleteToggle>
+
+        {showDeleteSection && (
+          <DeleteSection>
+            <DeleteDescription>
+              Esta ação é irreversível. Todos os seus posts, comentários e dados serão excluídos permanentemente. Para confirmar, digite <strong>{CONFIRM_WORD}</strong> abaixo.
+            </DeleteDescription>
+            <DeleteConfirmInput
+              placeholder={`Digite ${CONFIRM_WORD} para confirmar`}
+              value={deleteConfirm}
+              onChange={(e) => setDeleteConfirm(e.target.value)}
+              autoComplete="off"
+            />
+            <DeleteButton
+              $active={deleteConfirm === CONFIRM_WORD}
+              onClick={handleDelete}
+              disabled={deleteConfirm !== CONFIRM_WORD || deleting}
+            >
+              {deleting ? "Excluindo..." : "Excluir minha conta"}
+            </DeleteButton>
+          </DeleteSection>
         )}
 
         <Footer>

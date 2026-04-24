@@ -188,6 +188,8 @@ export const DropdownItem = styled.div`
   border-bottom: 1px solid ${({ theme }) => theme.border};
   cursor: pointer;
   transition: background 0.15s;
+  word-break: break-word;
+  overflow-wrap: anywhere;
   &:last-child { border-bottom: none; }
   &:hover { background: ${({ theme }) => theme.surfaceAlt}; }
   span { color: ${({ theme }) => theme.textMuted}; }
