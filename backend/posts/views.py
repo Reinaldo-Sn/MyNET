@@ -28,7 +28,7 @@ def _annotate_posts(queryset, user=None):
                 Like.objects.filter(post=OuterRef('pk'), user=user)
             )
         )
-    return qs
+    return qs.order_by('-created_at')
 
 
 def _annotate_comments(queryset, user=None):
@@ -50,7 +50,8 @@ def _annotate_comments(queryset, user=None):
                 CommentLike.objects.filter(comment=OuterRef('pk'), user=user)
             )
         )
-    return qs.prefetch_related(Prefetch('replies', queryset=replies_qs))
+    replies_qs = replies_qs.order_by('-created_at')
+    return qs.order_by('-created_at').prefetch_related(Prefetch('replies', queryset=replies_qs))
 
 
 def notify_mentions(content, sender, post):
