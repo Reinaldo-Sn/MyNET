@@ -5,6 +5,7 @@ from rest_framework import generics, permissions, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.pagination import PageNumberPagination
 from .models import Post, Like, Comment, CommentLike
 from .serializers import PostSerializer, CommentSerializer
 from notifications.models import Notification
@@ -199,9 +200,14 @@ class PostLikersView(APIView):
         return Response(data)
 
 
+class FeedPagination(PageNumberPagination):
+    page_size = 15
+
+
 class FeedView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = PostSerializer
+    pagination_class = FeedPagination
 
     def get_queryset(self):
         following_users = self.request.user.following.values_list('following', flat=True)

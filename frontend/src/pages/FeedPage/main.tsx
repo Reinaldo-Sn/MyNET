@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { usePostContext } from "../../contexts/PostContext";
 import api from "../../api/axios";
@@ -11,16 +11,51 @@ const FeedPage = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [quickContent, setQuickContent] = useState("");
   const [quickLoading, setQuickLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const sentinelRef = useRef<HTMLDivElement>(null);
+
+  const loadPage = useCallback(async (pageNum: number) => {
+    setLoadingMore(true);
+    try {
+      const res = await api.get(`/posts/feed/?page=${pageNum}`);
+      setPosts((prev) => pageNum === 1 ? res.data.results : [...prev, ...res.data.results]);
+      setHasMore(!!res.data.next);
+    } finally {
+      setLoadingMore(false);
+    }
+  }, []);
 
   useEffect(() => {
-    api.get("/posts/feed/").then((res) => setPosts(res.data));
-  }, []);
+    loadPage(1);
+  }, [loadPage]);
 
   useEffect(() => {
     if (!latestPost) return;
     setPosts((prev) => [latestPost, ...prev]);
     setLatestPost(null);
   }, [latestPost]);
+
+  useEffect(() => {
+    if (page === 1) return;
+    loadPage(page);
+  }, [page, loadPage]);
+
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!sentinel) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !loadingMore) {
+          setPage((prev) => prev + 1);
+        }
+      },
+      { threshold: 0.1 }
+    );
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [hasMore, loadingMore]);
 
   const handleQuickPost = async (e: React.SyntheticEvent) => {
     e.preventDefault();
@@ -79,7 +114,7 @@ const FeedPage = () => {
         </QuickFooter>
       </QuickPost>
 
-      {posts.length === 0 && <Empty>Nenhum post ainda. Siga alguém!</Empty>}
+      {posts.length === 0 && !loadingMore && <Empty>Nenhum post ainda. Siga alguém!</Empty>}
       {posts.map((post) => (
         <PostCard
           key={post.id}
@@ -92,6 +127,9 @@ const FeedPage = () => {
           commentLimit={4}
         />
       ))}
+
+      <div ref={sentinelRef} style={{ height: 1 }} />
+      {loadingMore && <p style={{ color: "#aaa", textAlign: "center", padding: "1rem 0" }}>Carregando...</p>}
     </Container>
   );
 };
