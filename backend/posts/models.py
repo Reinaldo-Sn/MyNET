@@ -14,10 +14,13 @@ class Post(models.Model):
     image = models.ImageField(upload_to='posts/', blank=True, null=True)
     gif_url = models.URLField(blank=True, null=True)
     # Preenchido automaticamente com a data/hora de criação
+    repost_of = models.ForeignKey(
+        'self', null=True, blank=True,
+        related_name='reposts', on_delete=models.CASCADE
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        # Posts mais recentes aparecem primeiro por padrão
         ordering = ['-created_at']
 
     def __str__(self):

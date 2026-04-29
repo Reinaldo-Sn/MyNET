@@ -7,11 +7,15 @@ class PostSerializer(serializers.ModelSerializer):
     likes_count = serializers.SerializerMethodField()
     comments_count = serializers.SerializerMethodField()
     is_liked = serializers.SerializerMethodField()
+    reposts_count = serializers.SerializerMethodField()
+    is_reposted = serializers.SerializerMethodField()
+    repost_of = serializers.SerializerMethodField()
 
     class Meta:
         model = Post
         fields = ['id', 'author', 'author_username', 'author_avatar', 'content', 'image', 'gif_url',
-                  'likes_count', 'comments_count', 'is_liked', 'created_at']
+                  'likes_count', 'comments_count', 'is_liked',
+                  'reposts_count', 'is_reposted', 'repost_of', 'created_at']
         read_only_fields = ['id', 'author', 'created_at']
 
     def get_author_username(self, obj):
@@ -41,6 +45,24 @@ class PostSerializer(serializers.ModelSerializer):
         if request and request.user.is_authenticated:
             return obj.likes.filter(user=request.user).exists()
         return False
+
+    def get_reposts_count(self, obj):
+        if hasattr(obj, 'reposts_count_ann'):
+            return obj.reposts_count_ann
+        return obj.reposts.count()
+
+    def get_is_reposted(self, obj):
+        if hasattr(obj, 'is_reposted_ann'):
+            return obj.is_reposted_ann
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return obj.reposts.filter(author=request.user).exists()
+        return False
+
+    def get_repost_of(self, obj):
+        if not obj.repost_of_id:
+            return None
+        return PostSerializer(obj.repost_of, context=self.context).data
 
 
 class ReplySerializer(serializers.ModelSerializer):

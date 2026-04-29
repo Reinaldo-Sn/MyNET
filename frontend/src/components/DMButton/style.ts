@@ -28,6 +28,7 @@ export const FloatBtn = styled.button`
   z-index: 300;
   transition: transform 0.15s, opacity 0.15s;
   &:hover { transform: scale(1.07); opacity: 0.9; }
+  @media (max-width: 768px) { display: none; }
 `;
 
 export const UnreadBadge = styled.span`
@@ -59,6 +60,15 @@ export const Panel = styled.div<{ $closing: boolean }>`
   overflow: hidden;
   transform-origin: bottom right;
   animation: ${({ $closing }) => $closing ? slideDown : slideUp} 0.22s ease forwards;
+  @media (max-width: 768px) {
+    bottom: 56px;
+    right: 0;
+    left: 0;
+    width: auto;
+    height: 70vh;
+    border-radius: 12px 12px 0 0;
+    transform-origin: bottom center;
+  }
 `;
 
 export const PanelHeader = styled.div`

@@ -74,30 +74,34 @@ export const LikeButton = styled.button<{ $liked: boolean }>`
   background: none;
   border: none;
   cursor: pointer;
-  color: ${({ $liked, theme }) => ($liked ? theme.accent : theme.textFaint)};
+  color: ${({ $liked }) => ($liked ? '#f06292' : 'inherit')};
+  opacity: ${({ $liked }) => ($liked ? 1 : 0.45)};
   font-size: 0.85rem;
   font-family: inherit;
-  padding: 0;
+  padding: 0.3rem 0.5rem;
+  border-radius: 999px;
   display: flex;
   align-items: center;
   gap: 0.3rem;
-  transition: color 0.15s;
-  &:hover { color: ${({ theme }) => theme.accent}; }
+  transition: color 0.15s, opacity 0.15s, background 0.15s;
+  &:hover { color: #f06292; opacity: 1; background: rgba(240, 98, 146, 0.12); }
 `;
 
 export const CommentToggle = styled.button`
   background: none;
   border: none;
   cursor: pointer;
-  color: ${({ theme }) => theme.textFaint};
+  color: inherit;
+  opacity: 0.45;
   font-size: 0.85rem;
   font-family: inherit;
-  padding: 0;
+  padding: 0.3rem 0.5rem;
+  border-radius: 999px;
   display: flex;
   align-items: center;
   gap: 0.3rem;
-  transition: color 0.15s;
-  &:hover { color: ${({ theme }) => theme.textMuted}; }
+  transition: color 0.15s, opacity 0.15s, background 0.15s;
+  &:hover { color: #42a5f5; opacity: 1; background: rgba(66, 165, 245, 0.12); }
 `;
 
 export const EditButton = styled.button`
@@ -294,6 +298,116 @@ export const CommentGif = styled.img`
   margin-top: 0.35rem;
   object-fit: contain;
 `
+
+export const PinHeader = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.76rem;
+  color: ${({ theme }) => theme.textMuted};
+  margin-bottom: -0.2rem;
+`;
+
+export const PinButton = styled.button<{ $pinned: boolean }>`
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: ${({ $pinned }) => ($pinned ? '#f5a623' : 'inherit')};
+  opacity: ${({ $pinned }) => ($pinned ? 1 : 0.45)};
+  font-size: 0.85rem;
+  font-family: inherit;
+  padding: 0.3rem 0.5rem;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  transition: color 0.15s, opacity 0.15s, background 0.15s;
+  &:hover { color: #f5a623; opacity: 1; background: rgba(245, 166, 35, 0.12); }
+`;
+
+export const RepostHeader = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.76rem;
+  color: ${({ theme }) => theme.textMuted};
+  margin-bottom: -0.2rem;
+`;
+
+export const RepostButton = styled.button<{ $reposted: boolean }>`
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: ${({ $reposted }) => ($reposted ? '#4caf50' : 'inherit')};
+  opacity: ${({ $reposted }) => ($reposted ? 1 : 0.45)};
+  font-size: 0.85rem;
+  font-family: inherit;
+  padding: 0.3rem 0.5rem;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  transition: color 0.15s, opacity 0.15s, background 0.15s;
+  &:hover { color: #4caf50; opacity: 1; background: rgba(76, 175, 80, 0.12); }
+`;
+
+export const LikeTooltipWrap = styled.div`
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  touch-action: none;
+  user-select: none;
+`;
+
+export const LikeTooltip = styled.div<{ $visible: boolean }>`
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 0;
+  background: ${({ theme }) => theme.surface};
+  border: 1px solid ${({ theme }) => theme.border};
+  border-radius: 10px;
+  padding: 7px 12px;
+  font-size: 0.8rem;
+  color: ${({ theme }) => theme.textMuted};
+  white-space: nowrap;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.22);
+  pointer-events: none;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  opacity: ${({ $visible }) => ($visible ? 1 : 0)};
+  transform: ${({ $visible }) => ($visible ? "translateY(0) scale(1)" : "translateY(4px) scale(0.97)")};
+  transition: opacity 0.18s, transform 0.18s;
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 14px;
+    border: 5px solid transparent;
+    border-top-color: ${({ theme }) => theme.border};
+  }
+  &::before {
+    content: "";
+    position: absolute;
+    top: calc(100% - 1px);
+    left: 14px;
+    border: 5px solid transparent;
+    border-top-color: ${({ theme }) => theme.surface};
+    z-index: 1;
+  }
+`;
+
+export const LikeTooltipName = styled.span`
+  font-weight: 600;
+  color: #f06292;
+`;
+
+export const LikeTooltipSep = styled.span`
+  color: ${({ theme }) => theme.textMuted};
+  opacity: 0.5;
+`;
 
 export const YoutubeEmbed = styled.div`
   position: relative;

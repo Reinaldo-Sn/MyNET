@@ -96,6 +96,12 @@ const PokeButton = () => {
     return () => window.removeEventListener('dm-panel-open', handler);
   }, [open]);
 
+  useEffect(() => {
+    const handler = () => handleOpen();
+    window.addEventListener('poke-panel-toggle', handler);
+    return () => window.removeEventListener('poke-panel-toggle', handler);
+  }, [open]);
+
   const handleOpen = () => {
     if (open) { closePanel(); return; }
     window.dispatchEvent(new CustomEvent('poke-panel-open'));

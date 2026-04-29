@@ -37,13 +37,20 @@ const FeedPage = () => {
 
   const handleLike = async (postId: number) => {
     await api.post(`/posts/${postId}/like/`);
-    setPosts((prev) =>
-      prev.map((p) =>
-        p.id === postId
-          ? { ...p, is_liked: !p.is_liked, likes_count: p.is_liked ? p.likes_count - 1 : p.likes_count + 1 }
-          : p
-      )
-    );
+    setPosts((prev) => prev.map((p) => {
+      if (p.id === postId) return { ...p, is_liked: !p.is_liked, likes_count: p.is_liked ? p.likes_count - 1 : p.likes_count + 1 };
+      if (p.repost_of?.id === postId) return { ...p, repost_of: { ...p.repost_of!, is_liked: !p.repost_of!.is_liked, likes_count: p.repost_of!.is_liked ? p.repost_of!.likes_count - 1 : p.repost_of!.likes_count + 1 } };
+      return p;
+    }));
+  };
+
+  const handleRepost = async (postId: number) => {
+    await api.post(`/posts/${postId}/repost/`);
+    setPosts((prev) => prev.map((p) => {
+      if (p.id === postId) return { ...p, is_reposted: !p.is_reposted, reposts_count: p.is_reposted ? p.reposts_count - 1 : p.reposts_count + 1 };
+      if (p.repost_of?.id === postId) return { ...p, repost_of: { ...p.repost_of!, is_reposted: !p.repost_of!.is_reposted, reposts_count: p.repost_of!.is_reposted ? p.repost_of!.reposts_count - 1 : p.repost_of!.reposts_count + 1 } };
+      return p;
+    }));
   };
 
   const handleDelete = (postId: number) => {
@@ -79,6 +86,7 @@ const FeedPage = () => {
           post={post}
           currentUserId={user!.id}
           onLike={handleLike}
+          onRepost={handleRepost}
           onDelete={handleDelete}
           onEdit={handleEdit}
           commentLimit={4}

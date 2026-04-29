@@ -2,6 +2,7 @@ import { ReactNode } from "react";
 import styled from "styled-components";
 import { Plus, Sun, Moon } from "lucide-react";
 import Navbar from "./Navbar/main";
+import BottomNav from "./BottomNav/main";
 import CreatePostModal from "./CreatePostModal/main";
 import DMButton from "./DMButton/main";
 import PokeButton from "./PokeButton/main";
@@ -26,6 +27,11 @@ const FloatBtn = styled.button`
   z-index: 297;
   transition: transform 0.15s, opacity 0.15s;
   &:hover { transform: scale(1.07); opacity: 0.9; }
+  @media (max-width: 768px) { display: none; }
+`;
+
+const PageContent = styled.div`
+  @media (max-width: 768px) { padding-bottom: 56px; }
 `;
 
 const Layout = ({ children }: { children: ReactNode }) => {
@@ -42,7 +48,7 @@ const Layout = ({ children }: { children: ReactNode }) => {
           onCreated={(post) => { setLatestPost(post); closeModal(); }}
         />
       )}
-      {children}
+      <PageContent>{children}</PageContent>
       <FloatBtn style={{ bottom: "220px" }} onClick={openModal} title="Novo post">
         <Plus size={22} />
       </FloatBtn>
@@ -51,6 +57,7 @@ const Layout = ({ children }: { children: ReactNode }) => {
       </FloatBtn>
       <PokeButton />
       <DMButton />
+      <BottomNav />
     </>
   );
 };

@@ -2,24 +2,31 @@ import styled from "styled-components";
 import { Link } from "react-router-dom";
 
 export const Nav = styled.nav`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 2rem;
-  height: 56px;
   background: ${({ theme }) => theme.surface};
   border-bottom: 1px solid ${({ theme }) => theme.border};
   position: sticky;
   top: 0;
   z-index: 100;
+`;
+
+export const NavRow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+  height: 56px;
+  width: 100%;
+  box-sizing: border-box;
 
   @media (max-width: 768px) {
-    flex-wrap: wrap;
-    height: auto;
-    min-height: 56px;
     padding: 0 1rem;
-    align-items: flex-start;
   }
+`;
+
+export const NavRight = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
 `;
 
 export const Logo = styled(Link)`
@@ -58,86 +65,6 @@ export const NavLink = styled(Link)`
   gap: 0.35rem;
   transition: color 0.15s;
   &:hover { color: ${({ theme }) => theme.text}; }
-`;
-
-export const Button = styled.button`
-  background: transparent;
-  color: ${({ theme }) => theme.accent};
-  border: 1px solid ${({ theme }) => theme.accent};
-  padding: 0.35rem 0.9rem;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 0.85rem;
-  font-weight: 500;
-  font-family: inherit;
-  transition: background 0.15s, color 0.15s;
-  &:hover {
-    background: ${({ theme }) => theme.accent};
-    color: ${({ theme }) => theme.accentFg};
-  }
-`;
-
-export const ToggleButton = styled.button`
-  background: transparent;
-  border: none;
-  color: ${({ theme }) => theme.textMuted};
-  cursor: pointer;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  transition: color 0.15s;
-  &:hover { color: ${({ theme }) => theme.text}; }
-`;
-
-export const HamburgerButton = styled.button`
-  display: none;
-  background: transparent;
-  border: none;
-  color: ${({ theme }) => theme.textMuted};
-  cursor: pointer;
-  padding: 0.25rem;
-  align-items: center;
-  transition: color 0.15s;
-  &:hover { color: ${({ theme }) => theme.text}; }
-
-  @media (max-width: 768px) {
-    display: flex;
-    align-self: center;
-  }
-`;
-
-export const MobileMenu = styled.div<{ $open: boolean }>`
-  display: none;
-
-  @media (max-width: 768px) {
-    display: ${({ $open }) => ($open ? 'flex' : 'none')};
-    flex-direction: column;
-    width: 100%;
-    padding: 0.5rem 0 0.75rem;
-    border-top: 1px solid ${({ theme }) => theme.border};
-    gap: 0.1rem;
-  }
-`;
-
-export const MobileNavLink = styled(Link)`
-  color: ${({ theme }) => theme.textMuted};
-  text-decoration: none;
-  font-size: 0.95rem;
-  font-weight: 500;
-  padding: 0.65rem 0.5rem;
-  border-radius: 8px;
-  transition: color 0.15s, background 0.15s;
-  &:hover {
-    color: ${({ theme }) => theme.text};
-    background: ${({ theme }) => theme.surfaceAlt};
-  }
-`;
-
-export const MobileActions = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.4rem 0.5rem 0;
 `;
 
 export const BellWrapper = styled.div`
@@ -205,14 +132,53 @@ export const DropdownEmpty = styled.div`
   text-align: center;
 `;
 
-export const NavRow = styled.div`
+export const DropdownHeader = styled.div`
   display: flex;
-  width: 100%;
   align-items: center;
   justify-content: space-between;
-  height: 56px;
+  padding: 0.6rem 1rem;
+  border-bottom: 1px solid ${({ theme }) => theme.border};
+`;
 
-  @media (min-width: 769px) {
-    display: contents;
+export const MarkAllBtn = styled.button`
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.78rem;
+  font-family: inherit;
+  color: ${({ theme }) => theme.accent};
+  padding: 0;
+  transition: opacity 0.15s;
+  &:hover { opacity: 0.7; }
+`;
+
+export const MobileThemeBtn = styled.button`
+  display: none;
+  @media (max-width: 768px) {
+    display: flex;
+    align-items: center;
+    background: transparent;
+    border: none;
+    color: ${({ theme }) => theme.textMuted};
+    cursor: pointer;
+    padding: 0.25rem;
+    transition: color 0.15s;
+    &:hover { color: ${({ theme }) => theme.text}; }
+  }
+`;
+
+export const MobilePokeBtn = styled.button`
+  display: none;
+  @media (max-width: 768px) {
+    display: flex;
+    align-items: center;
+    background: transparent;
+    border: none;
+    color: ${({ theme }) => theme.textMuted};
+    cursor: pointer;
+    padding: 0.25rem;
+    position: relative;
+    transition: color 0.15s;
+    &:hover { color: ${({ theme }) => theme.text}; }
   }
 `;

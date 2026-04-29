@@ -18,7 +18,7 @@ import {
 type ModalType = "followers" | "following" | null;
 
 const ProfilePage = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, setPinnedPost } = useAuth();
   const { latestPost, setLatestPost } = usePostContext();
   const navigate = useNavigate();
   const [posts, setPosts] = useState<Post[]>([]);
@@ -88,13 +88,20 @@ const ProfilePage = () => {
 
   const handleLike = async (postId: number) => {
     await api.post(`/posts/${postId}/like/`);
-    setPosts((prev) =>
-      prev.map((p) =>
-        p.id === postId
-          ? { ...p, is_liked: !p.is_liked, likes_count: p.is_liked ? p.likes_count - 1 : p.likes_count + 1 }
-          : p
-      )
-    );
+    setPosts((prev) => prev.map((p) => {
+      if (p.id === postId) return { ...p, is_liked: !p.is_liked, likes_count: p.is_liked ? p.likes_count - 1 : p.likes_count + 1 };
+      if (p.repost_of?.id === postId) return { ...p, repost_of: { ...p.repost_of!, is_liked: !p.repost_of!.is_liked, likes_count: p.repost_of!.is_liked ? p.repost_of!.likes_count - 1 : p.repost_of!.likes_count + 1 } };
+      return p;
+    }));
+  };
+
+  const handleRepost = async (postId: number) => {
+    await api.post(`/posts/${postId}/repost/`);
+    setPosts((prev) => prev.map((p) => {
+      if (p.id === postId) return { ...p, is_reposted: !p.is_reposted, reposts_count: p.is_reposted ? p.reposts_count - 1 : p.reposts_count + 1 };
+      if (p.repost_of?.id === postId) return { ...p, repost_of: { ...p.repost_of!, is_reposted: !p.repost_of!.is_reposted, reposts_count: p.repost_of!.is_reposted ? p.repost_of!.reposts_count - 1 : p.repost_of!.reposts_count + 1 } };
+      return p;
+    }));
   };
 
   const handleDelete = (postId: number) => {
@@ -103,6 +110,11 @@ const ProfilePage = () => {
 
   const handleEdit = (postId: number, newContent: string) => {
     setPosts((prev) => prev.map((p) => p.id === postId ? { ...p, content: newContent } : p));
+  };
+
+  const handlePin = async (postId: number) => {
+    const res = await api.post(`/auth/pin-post/${postId}/`);
+    setPinnedPost(res.data.pinned_post_id);
   };
 
   const handleDeleteAccount = async () => {
@@ -168,14 +180,17 @@ const ProfilePage = () => {
 
       <SectionTitle>Meus posts</SectionTitle>
       {posts.length === 0 && <Empty>Nenhum post ainda.</Empty>}
-      {posts.map((post) => (
+      {[...posts].sort((a, b) => a.id === user?.pinned_post_id ? -1 : b.id === user?.pinned_post_id ? 1 : 0).map((post) => (
         <PostCard
           key={post.id}
           post={post}
           currentUserId={user!.id}
           onLike={handleLike}
+          onRepost={handleRepost}
           onDelete={handleDelete}
           onEdit={handleEdit}
+          onPin={handlePin}
+          pinnedPostId={user?.pinned_post_id}
           commentLimit={4}
         />
       ))}

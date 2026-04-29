@@ -97,3 +97,20 @@ class DeleteAccountView(APIView):
     def delete(self, request):
         request.user.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class PinPostView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        from posts.models import Post
+        try:
+            post = Post.objects.get(pk=pk, author=request.user, repost_of__isnull=True)
+        except Post.DoesNotExist:
+            return Response({'detail': 'Post não encontrado.'}, status=status.HTTP_404_NOT_FOUND)
+        if request.user.pinned_post_id == post.pk:
+            request.user.pinned_post = None
+        else:
+            request.user.pinned_post = post
+        request.user.save(update_fields=['pinned_post'])
+        return Response({'pinned_post_id': request.user.pinned_post_id})

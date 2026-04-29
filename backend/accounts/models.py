@@ -18,6 +18,10 @@ class User(AbstractUser):
     # Preenchido automaticamente com a data/hora em que a conta foi criada
     created_at = models.DateTimeField(auto_now_add=True)
     session_key = models.UUIDField(default=uuid.uuid4)
+    pinned_post = models.ForeignKey(
+        'posts.Post', null=True, blank=True,
+        on_delete=models.SET_NULL, related_name='+'
+    )
 
     def save(self, *args, **kwargs):
         if self.pk:

@@ -11,6 +11,7 @@ interface User {
   banner: string | null;
   followers_count: number;
   following_count: number;
+  pinned_post_id: number | null;
 }
 
 interface AuthContextType {
@@ -18,6 +19,7 @@ interface AuthContextType {
   loading: boolean;
   login: (username: string, password: string) => Promise<void>;
   logout: () => void;
+  setPinnedPost: (postId: number | null) => void;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -55,8 +57,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   };
 
+  const setPinnedPost = (postId: number | null) => {
+    setUser((prev) => prev ? { ...prev, pinned_post_id: postId } : prev);
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, logout, setPinnedPost }}>
       {children}
     </AuthContext.Provider>
   );

@@ -49,8 +49,8 @@ class ProfileSerializer(serializers.ModelSerializer):
         model = User
         fields = ('id', 'username', 'email', 'display_name', 'bio', 'avatar', 'banner',
                   'followers_count', 'following_count', 'is_following',
-                  'current_password', 'new_password')
-        read_only_fields = ('id', 'username', 'email')
+                  'pinned_post_id', 'current_password', 'new_password')
+        read_only_fields = ('id', 'username', 'email', 'pinned_post_id')
 
     def get_followers_count(self, obj):
         if hasattr(obj, 'followers_count_ann'):

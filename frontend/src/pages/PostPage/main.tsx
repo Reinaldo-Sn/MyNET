@@ -17,9 +17,22 @@ const PostPage = () => {
 
   const handleLike = async (postId: number) => {
     await api.post(`/posts/${postId}/like/`);
-    setPost((prev) =>
-      prev ? { ...prev, is_liked: !prev.is_liked, likes_count: prev.is_liked ? prev.likes_count - 1 : prev.likes_count + 1 } : prev
-    );
+    setPost((prev) => {
+      if (!prev) return prev;
+      if (prev.id === postId) return { ...prev, is_liked: !prev.is_liked, likes_count: prev.is_liked ? prev.likes_count - 1 : prev.likes_count + 1 };
+      if (prev.repost_of?.id === postId) return { ...prev, repost_of: { ...prev.repost_of!, is_liked: !prev.repost_of!.is_liked, likes_count: prev.repost_of!.is_liked ? prev.repost_of!.likes_count - 1 : prev.repost_of!.likes_count + 1 } };
+      return prev;
+    });
+  };
+
+  const handleRepost = async (postId: number) => {
+    await api.post(`/posts/${postId}/repost/`);
+    setPost((prev) => {
+      if (!prev) return prev;
+      if (prev.id === postId) return { ...prev, is_reposted: !prev.is_reposted, reposts_count: prev.is_reposted ? prev.reposts_count - 1 : prev.reposts_count + 1 };
+      if (prev.repost_of?.id === postId) return { ...prev, repost_of: { ...prev.repost_of!, is_reposted: !prev.repost_of!.is_reposted, reposts_count: prev.repost_of!.is_reposted ? prev.repost_of!.reposts_count - 1 : prev.repost_of!.reposts_count + 1 } };
+      return prev;
+    });
   };
 
   const handleDelete = () => navigate(-1);
@@ -37,6 +50,7 @@ const PostPage = () => {
         post={post}
         currentUserId={user!.id}
         onLike={handleLike}
+        onRepost={handleRepost}
         onDelete={handleDelete}
         onEdit={handleEdit}
         autoShowComments

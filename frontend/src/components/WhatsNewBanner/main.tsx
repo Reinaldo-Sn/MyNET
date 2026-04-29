@@ -1,16 +1,14 @@
 import { useState } from "react";
 import { Modal, TitleRow, BannerTitle, Version, List, Item, CloseBtn } from "./style";
 
-const BANNER_VERSION = "v1";
+const BANNER_VERSION = "v2";
 const STORAGE_KEY = "whats_new_seen";
 
 const ITEMS = [
-  "Curtir comentários e respostas",
-  "Mensagens diretas entre usuários",
-  "Vídeos do YouTube incorporados e Gifs",
-  "Imagens da área de transferência",
-  "Gifs de preferência Giphy e Tenor",
-  "Exclusão de conta pro Micael"
+  "Republicar posts de outros usuários",
+  "Ajuste de UI",
+  "Marcar todas as notificações como lidas",
+  "Fixar um post no topo do perfil",
 ];
 
 const WhatsNewBanner = () => {

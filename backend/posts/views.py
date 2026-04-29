@@ -14,19 +14,23 @@ User = get_user_model()
 
 def _annotate_posts(queryset, user=None):
     """Adiciona contagens e flags ao queryset de posts — elimina N+1."""
-    qs = queryset.select_related('author').annotate(
+    qs = queryset.select_related('author', 'repost_of__author').annotate(
         likes_count_ann=Count('likes', distinct=True),
         comments_count_ann=Count(
             'comments',
             filter=Q(comments__parent__isnull=True),
             distinct=True,
         ),
+        reposts_count_ann=Count('reposts', distinct=True),
     )
     if user and user.is_authenticated:
         qs = qs.annotate(
             is_liked_ann=Exists(
                 Like.objects.filter(post=OuterRef('pk'), user=user)
-            )
+            ),
+            is_reposted_ann=Exists(
+                Post.objects.filter(repost_of=OuterRef('pk'), author=user)
+            ),
         )
     return qs.order_by('-created_at')
 
@@ -166,6 +170,33 @@ class CommentLikeToggleView(APIView):
             like.delete()
             return Response({'status': 'unliked'})
         return Response({'status': 'liked'}, status=status.HTTP_201_CREATED)
+
+
+class RepostToggleView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk):
+        original = generics.get_object_or_404(Post, pk=pk)
+        if original.repost_of_id:
+            return Response({'detail': 'Não é possível republicar uma republicação.'}, status=status.HTTP_400_BAD_REQUEST)
+        if original.author == request.user:
+            return Response({'detail': 'Não é possível republicar o próprio post.'}, status=status.HTTP_400_BAD_REQUEST)
+        existing = Post.objects.filter(author=request.user, repost_of=original).first()
+        if existing:
+            existing.delete()
+            return Response({'status': 'unreposted'})
+        Post.objects.create(author=request.user, content='', repost_of=original)
+        return Response({'status': 'reposted'}, status=status.HTTP_201_CREATED)
+
+
+class PostLikersView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, pk):
+        post = generics.get_object_or_404(Post, pk=pk)
+        likers = Like.objects.filter(post=post).select_related('user').order_by('-id')[:3]
+        data = [{'display_name': like.user.display_name or like.user.username} for like in likers]
+        return Response(data)
 
 
 class FeedView(generics.ListAPIView):

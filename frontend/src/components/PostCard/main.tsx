@@ -1,19 +1,22 @@
-import { useState, useEffect, FormEvent, useCallback } from "react";
+import { useState, useEffect, useRef, FormEvent, useCallback } from "react";
 import defaultAvatar from "../../assets/perfil_padrao.png";
 import { useNavigate } from "react-router-dom";
-import { Heart, MessageCircle, Pencil, Trash2, X } from "lucide-react";
+import { Heart, MessageCircle, Pencil, Trash2, X, Repeat2 } from "lucide-react";
 import api from "../../api/axios";
 import { timeAgo } from "../../utils/timeAgo";
 import { renderWithMentions } from "../../utils/mentions";
 import {
   Card, AuthorRow, AuthorAvatar, Author,
   Content, PostImage, Footer, FooterLeft,
-  LikeButton, CommentToggle, EditButton, DeleteButton, DateText,
+  LikeButton, LikeTooltipWrap, LikeTooltip, LikeTooltipName, LikeTooltipSep,
+  PinHeader, PinButton, RepostHeader, RepostButton,
+  CommentToggle, EditButton, DeleteButton, DateText,
   EditArea, EditActions, SaveButton, CancelButton,
   CommentsSection, CommentItem, CommentText, CommentMeta, CommentDate, CommentDelete,
   CommentForm, CommentInput, CommentSubmit,
   CommentBody, CommentGif, SeeMoreButton, YoutubeEmbed,
 } from "./style";
+import { Pin } from "lucide-react";
 import { extractYouTubeId, stripYouTubeUrl } from "../../utils/youtube";
 import { isGifUrl } from "../../utils/gif";
 import CommentRepliesModal from "../CommentRepliesModal/main";
@@ -32,7 +35,10 @@ export interface Post {
   likes_count: number;
   is_liked: boolean;
   comments_count: number;
+  reposts_count: number;
+  is_reposted: boolean;
   created_at: string;
+  repost_of: Post | null;
 }
 
 interface Comment {
@@ -52,36 +58,54 @@ interface Props {
   post: Post;
   currentUserId: number;
   onLike: (postId: number) => void;
+  onRepost: (postId: number) => void;
   onDelete: (postId: number) => void;
   onEdit: (postId: number, newContent: string) => void;
+  onPin?: (postId: number) => void;
+  pinnedPostId?: number | null;
   autoShowComments?: boolean;
   commentLimit?: number;
 }
 
-const PostCard = ({ post, currentUserId, onLike, onDelete, onEdit, autoShowComments, commentLimit }: Props) => {
+const PostCard = ({ post, currentUserId, onLike, onRepost, onDelete, onEdit, onPin, pinnedPostId, autoShowComments, commentLimit }: Props) => {
   const navigate = useNavigate();
+  // ep = post efetivo a exibir (o original se for repost, ou o próprio post)
+  const ep = post.repost_of ?? post;
+
   const [showComments, setShowComments] = useState(false);
   const [comments, setComments] = useState<Comment[]>([]);
-  const [commentsCount, setCommentsCount] = useState(post.comments_count);
+  const [commentsCount, setCommentsCount] = useState(ep.comments_count);
   const [newComment, setNewComment] = useState("");
   const mention = useMentionInput(newComment, setNewComment);
   const [commentsLoaded, setCommentsLoaded] = useState(false);
   const [editing, setEditing] = useState(false);
-  const [editContent, setEditContent] = useState(post.content);
+  const [editContent, setEditContent] = useState(ep.content);
   const [activeReplyComment, setActiveReplyComment] = useState<Comment | null>(null);
+  const [likeTooltip, setLikeTooltip] = useState<string[]>([]);
+  const [tooltipVisible, setTooltipVisible] = useState(false);
+  const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isLongPress = useRef(false);
+
+  useEffect(() => {
+    return () => {
+      if (longPressTimer.current) clearTimeout(longPressTimer.current);
+      if (hideTimer.current) clearTimeout(hideTimer.current);
+    };
+  }, []);
 
   useEffect(() => {
     if (!autoShowComments) return;
-    api.get(`/posts/${post.id}/comments/`).then((res) => {
+    api.get(`/posts/${ep.id}/comments/`).then((res) => {
       setComments(res.data);
       setCommentsLoaded(true);
       setShowComments(true);
     });
-  }, [autoShowComments, post.id]);
+  }, [autoShowComments, ep.id]);
 
   const toggleComments = async () => {
     if (!commentsLoaded) {
-      const res = await api.get(`/posts/${post.id}/comments/`);
+      const res = await api.get(`/posts/${ep.id}/comments/`);
       setComments(res.data);
       setCommentsLoaded(true);
     }
@@ -91,7 +115,7 @@ const PostCard = ({ post, currentUserId, onLike, onDelete, onEdit, autoShowComme
   const handleComment = async (e: FormEvent) => {
     e.preventDefault();
     if (!newComment.trim()) return;
-    const res = await api.post(`/posts/${post.id}/comments/`, { content: newComment });
+    const res = await api.post(`/posts/${ep.id}/comments/`, { content: newComment });
     setComments((prev) => [...prev, { ...res.data, replies: [] }]);
     setCommentsCount((prev) => prev + 1);
     setNewComment("");
@@ -111,7 +135,7 @@ const PostCard = ({ post, currentUserId, onLike, onDelete, onEdit, autoShowComme
 
   const handleCommentLike = async (e: React.MouseEvent, commentId: number) => {
     e.stopPropagation();
-    await api.post(`/posts/${post.id}/comments/${commentId}/like/`);
+    await api.post(`/posts/${ep.id}/comments/${commentId}/like/`);
     setComments((prev) => prev.map((c) =>
       c.id === commentId
         ? { ...c, is_liked: !c.is_liked, likes_count: c.is_liked ? c.likes_count - 1 : c.likes_count + 1 }
@@ -120,7 +144,7 @@ const PostCard = ({ post, currentUserId, onLike, onDelete, onEdit, autoShowComme
   };
 
   const handleDeleteComment = async (commentId: number) => {
-    await api.delete(`/posts/${post.id}/comments/${commentId}/`);
+    await api.delete(`/posts/${ep.id}/comments/${commentId}/`);
     setComments((prev) => prev.filter((c) => c.id !== commentId));
     setCommentsCount((prev) => prev - 1);
   };
@@ -133,17 +157,58 @@ const PostCard = ({ post, currentUserId, onLike, onDelete, onEdit, autoShowComme
   const handleSaveEdit = async (e: FormEvent) => {
     e.preventDefault();
     if (!editContent.trim()) return;
-    await api.patch(`/posts/${post.id}/`, { content: editContent });
-    onEdit(post.id, editContent);
+    await api.patch(`/posts/${ep.id}/`, { content: editContent });
+    onEdit(ep.id, editContent);
     setEditing(false);
   };
+
+  const handleLikePressStart = () => {
+    isLongPress.current = false;
+    if (hideTimer.current) { clearTimeout(hideTimer.current); hideTimer.current = null; }
+    longPressTimer.current = setTimeout(async () => {
+      isLongPress.current = true;
+      try {
+        const res = await api.get(`/posts/${ep.id}/likers/`);
+        setLikeTooltip(res.data.map((l: { display_name: string }) => l.display_name));
+      } catch { setLikeTooltip([]); }
+      setTooltipVisible(true);
+    }, 500);
+  };
+
+  const handleLikePressEnd = () => {
+    if (longPressTimer.current) { clearTimeout(longPressTimer.current); longPressTimer.current = null; }
+    if (isLongPress.current) {
+      hideTimer.current = setTimeout(() => setTooltipVisible(false), 1500);
+    }
+  };
+
+  const handleLikeClick = () => {
+    if (isLongPress.current) { isLongPress.current = false; return; }
+    onLike(ep.id);
+  };
+
+  const canDelete = post.author === currentUserId;
+  const canEdit = !post.repost_of && post.author === currentUserId;
+  const canPin = !!onPin && !post.repost_of && post.author === currentUserId;
+  const isPinned = pinnedPostId === post.id;
 
   return (
     <>
     <Card>
-      <AuthorRow onClick={() => navigate(post.author === currentUserId ? `/profile` : `/users/${post.author}`)}>
-        <AuthorAvatar src={post.author_avatar || defaultAvatar} alt={post.author_username} />
-        <Author>{post.author_username}</Author>
+      {isPinned && (
+        <PinHeader>
+          <Pin size={12} /> Fixado
+        </PinHeader>
+      )}
+      {post.repost_of && (
+        <RepostHeader>
+          <Repeat2 size={12} /> {post.author_username} republicou
+        </RepostHeader>
+      )}
+
+      <AuthorRow onClick={() => navigate(ep.author === currentUserId ? `/profile` : `/users/${ep.author}`)}>
+        <AuthorAvatar src={ep.author_avatar || defaultAvatar} alt={ep.author_username} />
+        <Author>{ep.author_username}</Author>
       </AuthorRow>
 
       {editing ? (
@@ -159,13 +224,13 @@ const PostCard = ({ post, currentUserId, onLike, onDelete, onEdit, autoShowComme
           </EditActions>
         </EditActions>
       ) : (
-        <Content style={{ cursor: "pointer" }} onClick={() => navigate(`/posts/${post.id}`)}>
-          {renderWithMentions(extractYouTubeId(post.content) ? stripYouTubeUrl(post.content) : post.content)}
+        <Content style={{ cursor: "pointer" }} onClick={() => navigate(`/posts/${ep.id}`)}>
+          {renderWithMentions(extractYouTubeId(ep.content) ? stripYouTubeUrl(ep.content) : ep.content)}
         </Content>
       )}
 
       {!editing && (() => {
-        const ytId = extractYouTubeId(post.content);
+        const ytId = extractYouTubeId(ep.content);
         return ytId ? (
           <YoutubeEmbed>
             <iframe
@@ -177,25 +242,55 @@ const PostCard = ({ post, currentUserId, onLike, onDelete, onEdit, autoShowComme
         ) : null;
       })()}
 
-      {post.image && <PostImage src={post.image} alt="imagem do post" style={{ cursor: "pointer" }} onClick={() => navigate(`/posts/${post.id}`)} />}
-      {post.gif_url && <GifImage src={post.gif_url} Img={PostImage} />}
+      {ep.image && <PostImage src={ep.image} alt="imagem do post" style={{ cursor: "pointer" }} onClick={() => navigate(`/posts/${ep.id}`)} />}
+      {ep.gif_url && <GifImage src={ep.gif_url} Img={PostImage} />}
 
       <Footer>
         <FooterLeft>
-          <LikeButton $liked={post.is_liked} onClick={() => onLike(post.id)}>
-            <Heart size={14} fill={post.is_liked ? "currentColor" : "none"} /> <span style={{ lineHeight: 1, minWidth: "2ch", display: "inline-block" }}>{post.likes_count}</span>
-          </LikeButton>
+          <LikeTooltipWrap>
+            <LikeTooltip $visible={tooltipVisible}>
+              {likeTooltip.length === 0 ? "Ninguém curtiu ainda" : likeTooltip.map((name, i) => (
+                <span key={i}>
+                  <LikeTooltipName>{name}</LikeTooltipName>
+                  {i < likeTooltip.length - 1 && <LikeTooltipSep>,</LikeTooltipSep>}
+                </span>
+              ))}
+            </LikeTooltip>
+            <LikeButton
+              $liked={ep.is_liked}
+              onClick={handleLikeClick}
+              onMouseDown={handleLikePressStart}
+              onMouseUp={handleLikePressEnd}
+              onMouseLeave={handleLikePressEnd}
+              onTouchStart={handleLikePressStart}
+              onTouchEnd={handleLikePressEnd}
+            >
+              <Heart size={14} fill={ep.is_liked ? "currentColor" : "none"} />
+              <span style={{ lineHeight: 1, minWidth: "2ch", display: "inline-block" }}>{ep.likes_count}</span>
+            </LikeButton>
+          </LikeTooltipWrap>
           <CommentToggle onClick={toggleComments}>
             <MessageCircle size={14} /> {commentsCount}
           </CommentToggle>
+          {!post.repost_of && ep.author !== currentUserId && (
+            <RepostButton $reposted={ep.is_reposted} onClick={() => onRepost(ep.id)}>
+              <Repeat2 size={14} />
+              <span style={{ lineHeight: 1, minWidth: "2ch", display: "inline-block" }}>{ep.reposts_count}</span>
+            </RepostButton>
+          )}
         </FooterLeft>
         <FooterLeft>
-          <DateText>{timeAgo(post.created_at)}</DateText>
-          {post.author === currentUserId && (
-            <>
-              <EditButton onClick={() => setEditing(true)}><Pencil size={13} /></EditButton>
-              <DeleteButton onClick={handleDelete}><Trash2 size={13} /></DeleteButton>
-            </>
+          <DateText>{timeAgo(ep.created_at)}</DateText>
+          {canPin && (
+            <PinButton $pinned={isPinned} onClick={() => onPin!(post.id)} title={isPinned ? "Desafixar" : "Fixar no perfil"}>
+              <Pin size={13} />
+            </PinButton>
+          )}
+          {canEdit && (
+            <EditButton onClick={() => setEditing(true)}><Pencil size={13} /></EditButton>
+          )}
+          {canDelete && (
+            <DeleteButton onClick={handleDelete}><Trash2 size={13} /></DeleteButton>
           )}
         </FooterLeft>
       </Footer>
@@ -240,7 +335,7 @@ const PostCard = ({ post, currentUserId, onLike, onDelete, onEdit, autoShowComme
             </CommentItem>
           ))}
           {commentLimit && comments.length > commentLimit && (
-            <SeeMoreButton onClick={() => navigate(`/posts/${post.id}`)}>
+            <SeeMoreButton onClick={() => navigate(`/posts/${ep.id}`)}>
               Ver mais {comments.length - commentLimit} comentário{comments.length - commentLimit > 1 ? 's' : ''}
             </SeeMoreButton>
           )}
@@ -261,7 +356,7 @@ const PostCard = ({ post, currentUserId, onLike, onDelete, onEdit, autoShowComme
 
     {activeReplyComment && (
       <CommentRepliesModal
-        postId={post.id}
+        postId={ep.id}
         comment={activeReplyComment}
         currentUserId={currentUserId}
         onClose={() => setActiveReplyComment(null)}
