@@ -10,6 +10,7 @@ import {
   Content, PostImage, Footer, FooterLeft,
   LikeButton, LikeTooltipWrap, LikeTooltip, LikeTooltipName, LikeTooltipSep,
   PinHeader, PinButton, RepostHeader, RepostButton,
+  RepostTooltipWrap, RepostTooltip, RepostTooltipName,
   CommentToggle, EditButton, DeleteButton, DateText,
   EditArea, EditActions, SaveButton, CancelButton,
   CommentsSection, CommentItem, CommentText, CommentMeta, CommentDate, CommentDelete,
@@ -86,11 +87,18 @@ const PostCard = ({ post, currentUserId, onLike, onRepost, onDelete, onEdit, onP
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isLongPress = useRef(false);
+  const [repostTooltip, setRepostTooltip] = useState<string[]>([]);
+  const [repostTooltipVisible, setRepostTooltipVisible] = useState(false);
+  const repostLongPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const repostHideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isRepostLongPress = useRef(false);
 
   useEffect(() => {
     return () => {
       if (longPressTimer.current) clearTimeout(longPressTimer.current);
       if (hideTimer.current) clearTimeout(hideTimer.current);
+      if (repostLongPressTimer.current) clearTimeout(repostLongPressTimer.current);
+      if (repostHideTimer.current) clearTimeout(repostHideTimer.current);
     };
   }, []);
 
@@ -187,6 +195,31 @@ const PostCard = ({ post, currentUserId, onLike, onRepost, onDelete, onEdit, onP
     onLike(ep.id);
   };
 
+  const handleRepostPressStart = () => {
+    isRepostLongPress.current = false;
+    if (repostHideTimer.current) { clearTimeout(repostHideTimer.current); repostHideTimer.current = null; }
+    repostLongPressTimer.current = setTimeout(async () => {
+      isRepostLongPress.current = true;
+      try {
+        const res = await api.get(`/posts/${ep.id}/reposters/`);
+        setRepostTooltip(res.data.map((r: { display_name: string }) => r.display_name));
+      } catch { setRepostTooltip([]); }
+      setRepostTooltipVisible(true);
+    }, 500);
+  };
+
+  const handleRepostPressEnd = () => {
+    if (repostLongPressTimer.current) { clearTimeout(repostLongPressTimer.current); repostLongPressTimer.current = null; }
+    if (isRepostLongPress.current) {
+      repostHideTimer.current = setTimeout(() => setRepostTooltipVisible(false), 1500);
+    }
+  };
+
+  const handleRepostClick = () => {
+    if (isRepostLongPress.current) { isRepostLongPress.current = false; return; }
+    onRepost(ep.id);
+  };
+
   const canDelete = post.author === currentUserId;
   const canEdit = !post.repost_of && post.author === currentUserId;
   const canPin = !!onPin && !post.repost_of && post.author === currentUserId;
@@ -273,10 +306,28 @@ const PostCard = ({ post, currentUserId, onLike, onRepost, onDelete, onEdit, onP
             <MessageCircle size={14} /> {commentsCount}
           </CommentToggle>
           {!post.repost_of && ep.author !== currentUserId && (
-            <RepostButton $reposted={ep.is_reposted} onClick={() => onRepost(ep.id)}>
-              <Repeat2 size={14} />
-              <span style={{ lineHeight: 1, minWidth: "2ch", display: "inline-block" }}>{ep.reposts_count}</span>
-            </RepostButton>
+            <RepostTooltipWrap>
+              <RepostTooltip $visible={repostTooltipVisible}>
+                {repostTooltip.length === 0 ? "Ninguém republicou ainda" : repostTooltip.map((name, i) => (
+                  <span key={i}>
+                    <RepostTooltipName>{name}</RepostTooltipName>
+                    {i < repostTooltip.length - 1 && <LikeTooltipSep>,</LikeTooltipSep>}
+                  </span>
+                ))}
+              </RepostTooltip>
+              <RepostButton
+                $reposted={ep.is_reposted}
+                onClick={handleRepostClick}
+                onMouseDown={handleRepostPressStart}
+                onMouseUp={handleRepostPressEnd}
+                onMouseLeave={handleRepostPressEnd}
+                onTouchStart={handleRepostPressStart}
+                onTouchEnd={handleRepostPressEnd}
+              >
+                <Repeat2 size={14} />
+                <span style={{ lineHeight: 1, minWidth: "2ch", display: "inline-block" }}>{ep.reposts_count}</span>
+              </RepostButton>
+            </RepostTooltipWrap>
           )}
         </FooterLeft>
         <FooterLeft>

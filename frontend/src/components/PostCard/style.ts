@@ -409,6 +409,59 @@ export const LikeTooltipSep = styled.span`
   opacity: 0.5;
 `;
 
+export const RepostTooltipWrap = styled.div`
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  touch-action: none;
+  user-select: none;
+`;
+
+export const RepostTooltip = styled.div<{ $visible: boolean }>`
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 0;
+  background: ${({ theme }) => theme.surface};
+  border: 1px solid ${({ theme }) => theme.border};
+  border-radius: 10px;
+  padding: 7px 12px;
+  font-size: 0.8rem;
+  color: ${({ theme }) => theme.textMuted};
+  white-space: nowrap;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.22);
+  pointer-events: none;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  opacity: ${({ $visible }) => ($visible ? 1 : 0)};
+  transform: ${({ $visible }) => ($visible ? "translateY(0) scale(1)" : "translateY(4px) scale(0.97)")};
+  transition: opacity 0.18s, transform 0.18s;
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 14px;
+    border: 5px solid transparent;
+    border-top-color: ${({ theme }) => theme.border};
+  }
+  &::before {
+    content: "";
+    position: absolute;
+    top: calc(100% - 1px);
+    left: 14px;
+    border: 5px solid transparent;
+    border-top-color: ${({ theme }) => theme.surface};
+    z-index: 1;
+  }
+`;
+
+export const RepostTooltipName = styled.span`
+  font-weight: 600;
+  color: #4caf50;
+`;
+
 export const YoutubeEmbed = styled.div`
   position: relative;
   width: 100%;

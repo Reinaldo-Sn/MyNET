@@ -200,6 +200,16 @@ class PostLikersView(APIView):
         return Response(data)
 
 
+class PostRepostersView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, pk):
+        post = generics.get_object_or_404(Post, pk=pk)
+        reposters = Post.objects.filter(repost_of=post).select_related('author').order_by('-id')[:3]
+        data = [{'display_name': r.author.display_name or r.author.username} for r in reposters]
+        return Response(data)
+
+
 class FeedPagination(PageNumberPagination):
     page_size = 15
 
@@ -211,5 +221,5 @@ class FeedView(generics.ListAPIView):
 
     def get_queryset(self):
         following_users = self.request.user.following.values_list('following', flat=True)
-        base = Post.objects.filter(author__in=following_users).order_by('-created_at')
+        base = Post.objects.filter(author__in=following_users, repost_of__isnull=True).order_by('-created_at')
         return _annotate_posts(base, self.request.user)

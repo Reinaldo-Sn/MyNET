@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import api from "../../api/axios";
 import defaultAvatar from "../../assets/perfil_padrao.png";
 import { timeAgo } from "../../utils/timeAgo";
+import { useAuth } from "../../contexts/AuthContext";
 import {
   FloatBtn, UnreadBadge, Panel, PanelHeader, PanelTitle, CloseBtn, IconBtn,
   Body, Section, SectionHeader, SectionTitle, RemainingBadge, PokeNewBtn,
@@ -37,6 +38,7 @@ type View = "main" | "search";
 
 const PokeButton = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [open, setOpen] = useState(false);
   const [closing, setClosing] = useState(false);
   const [view, setView] = useState<View>("main");
@@ -46,6 +48,7 @@ const PokeButton = () => {
   const [remaining, setRemaining] = useState(5);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<UserResult[]>([]);
+  const [suggestions, setSuggestions] = useState<UserResult[]>([]);
   const [poking, setPoking] = useState<number | null>(null);
   const [pokeMsg, setPokeMsg] = useState("");
   const searchRef = useRef<HTMLInputElement>(null);
@@ -113,12 +116,26 @@ const PokeButton = () => {
   const goSearch = () => {
     setView("search");
     setPokeMsg("");
+    if (user) {
+      api.get(`/follows/${user.id}/following/`)
+        .then((r) => {
+          const list: UserResult[] = (r.data ?? []).slice(0, 5).map((u: any) => ({
+            id: u.id,
+            username: u.username,
+            display_name: u.display_name,
+            avatar: u.avatar,
+          }));
+          setSuggestions(list);
+        })
+        .catch(() => {});
+    }
   };
 
   const goBack = () => {
     setView("main");
     setSearchQuery("");
     setSearchResults([]);
+    setSuggestions([]);
     setPokeMsg("");
   };
 
@@ -221,24 +238,51 @@ const PokeButton = () => {
                   {pokeMsg}
                 </div>
               )}
-              <SearchResults>
-                {searchResults.map((u) => (
-                  <SearchResultItem key={u.id}>
-                    <SearchAvatar src={u.avatar || defaultAvatar} alt={u.username} />
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <SearchName>{u.display_name || u.username}</SearchName>
-                      <SearchMeta>@{u.username}</SearchMeta>
-                    </div>
-                    <PokeBtn
-                      onClick={() => handlePoke(u.id)}
-                      disabled={poking === u.id || remaining === 0}
-                      title={remaining === 0 ? "Sem cutucadas restantes hoje" : "Cutucar"}
-                    >
-                      <Hand size={15} />
-                    </PokeBtn>
-                  </SearchResultItem>
-                ))}
-              </SearchResults>
+              {!searchQuery.trim() && suggestions.length > 0 && (
+                <>
+                  <div style={{ padding: "6px 1rem 4px", fontSize: "0.75rem", opacity: 0.5 }}>
+                    Sugestões
+                  </div>
+                  <SearchResults>
+                    {suggestions.map((u) => (
+                      <SearchResultItem key={u.id}>
+                        <SearchAvatar src={u.avatar || defaultAvatar} alt={u.username} />
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <SearchName>{u.display_name || u.username}</SearchName>
+                          <SearchMeta>@{u.username}</SearchMeta>
+                        </div>
+                        <PokeBtn
+                          onClick={() => handlePoke(u.id)}
+                          disabled={poking === u.id || remaining === 0}
+                          title={remaining === 0 ? "Sem cutucadas restantes hoje" : "Cutucar"}
+                        >
+                          <Hand size={15} />
+                        </PokeBtn>
+                      </SearchResultItem>
+                    ))}
+                  </SearchResults>
+                </>
+              )}
+              {searchQuery.trim() && (
+                <SearchResults>
+                  {searchResults.map((u) => (
+                    <SearchResultItem key={u.id}>
+                      <SearchAvatar src={u.avatar || defaultAvatar} alt={u.username} />
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <SearchName>{u.display_name || u.username}</SearchName>
+                        <SearchMeta>@{u.username}</SearchMeta>
+                      </div>
+                      <PokeBtn
+                        onClick={() => handlePoke(u.id)}
+                        disabled={poking === u.id || remaining === 0}
+                        title={remaining === 0 ? "Sem cutucadas restantes hoje" : "Cutucar"}
+                      >
+                        <Hand size={15} />
+                      </PokeBtn>
+                    </SearchResultItem>
+                  ))}
+                </SearchResults>
+              )}
             </Body>
           )}
         </Panel>
