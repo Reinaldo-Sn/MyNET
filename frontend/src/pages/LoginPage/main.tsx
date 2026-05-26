@@ -6,14 +6,15 @@ import coruja from "../../assets/corujapreta.png";
 import { Container, Card, Title, Input, Button, ErrorMsg, LinkText } from "./style";
 
 const LoginPage = () => {
-  const { login, user } = useAuth();
+  const { login, user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
-
-  if (user) return <Navigate to="/feed" replace />;
   const { isDark, toggleTheme } = useThemeToggle();
   const [form, setForm] = useState({ username: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  if (authLoading) return null;
+  if (user) return <Navigate to="/feed" replace />;
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
