@@ -6,6 +6,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.exceptions import ValidationError
+from .ai import moderate_content, summarize_post
 from .models import Post, Like, Comment, CommentLike
 from .serializers import PostSerializer, CommentSerializer
 from notifications.models import Notification
@@ -79,7 +81,7 @@ class IsAuthorOrReadOnly(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         if request.method in permissions.SAFE_METHODS:
             return True
-        return obj.author == request.user
+        return obj.author == request.user or request.user.is_staff
 
 
 class PostListCreateView(generics.ListCreateAPIView):
@@ -90,6 +92,11 @@ class PostListCreateView(generics.ListCreateAPIView):
         return _annotate_posts(Post.objects.all(), self.request.user)
 
     def perform_create(self, serializer):
+        content = serializer.validated_data.get('content', '')
+        if content:
+            is_flagged, reason = moderate_content(content)
+            if is_flagged:
+                raise ValidationError({'content': f'Conteúdo não permitido ({reason}).'})
         post = serializer.save(author=self.request.user)
         notify_mentions(post.content, self.request.user, post)
 
@@ -208,6 +215,22 @@ class PostRepostersView(APIView):
         reposters = Post.objects.filter(repost_of=post).select_related('author').order_by('-id')[:3]
         data = [{'display_name': r.author.display_name or r.author.username} for r in reposters]
         return Response(data)
+
+
+class PostSummaryView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, pk):
+        post = generics.get_object_or_404(Post, pk=pk)
+        if not post.content.strip():
+            return Response({'summary': 'Post sem texto para resumir.'})
+        if not __import__('os').getenv('GROQ_API_KEY'):
+            return Response({'summary': 'Serviço não configurado.'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        try:
+            summary = summarize_post(post.content)
+            return Response({'summary': summary})
+        except Exception:
+            return Response({'summary': 'Não foi possível gerar o resumo.'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
 
 class FeedPagination(PageNumberPagination):

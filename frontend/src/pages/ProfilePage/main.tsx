@@ -185,6 +185,7 @@ const ProfilePage = () => {
           key={post.id}
           post={post}
           currentUserId={user!.id}
+          isStaff={user!.is_staff}
           onLike={handleLike}
           onRepost={handleRepost}
           onDelete={handleDelete}

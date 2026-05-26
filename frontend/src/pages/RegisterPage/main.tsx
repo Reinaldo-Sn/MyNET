@@ -44,8 +44,10 @@ const RegisterPage = () => {
             onChange={(e) => setForm({ ...form, username: e.target.value })}
           />
           <Input
-            placeholder="Email (opcional)"
+            type="email"
+            placeholder="Email"
             value={form.email}
+            required
             onChange={(e) => setForm({ ...form, email: e.target.value })}
           />
           <Input

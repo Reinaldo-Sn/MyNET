@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
+from django.core.validators import validate_email as django_validate_email
+from django.core.exceptions import ValidationError as DjangoValidationError
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 import uuid
 from .models import User
@@ -13,6 +15,21 @@ class SingleSessionTokenSerializer(TokenObtainPairSerializer):
         return token
 
     def validate(self, attrs):
+        from rest_framework.exceptions import AuthenticationFailed
+        identifier = attrs.get('username', '')
+        if '@' in identifier:
+            try:
+                user = User.objects.get(email=identifier)
+                attrs['username'] = user.username
+            except User.DoesNotExist:
+                pass
+        else:
+            try:
+                user = User.objects.get(username=identifier)
+                if user.email:
+                    raise AuthenticationFailed('Use seu email para entrar.')
+            except User.DoesNotExist:
+                pass
         data = super().validate(attrs)
         self.user.session_key = uuid.uuid4()
         self.user.save(update_fields=['session_key'])
@@ -24,10 +41,16 @@ class SingleSessionTokenSerializer(TokenObtainPairSerializer):
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, validators=[validate_password])
+    email = serializers.EmailField(required=True)
 
     class Meta:
         model = User
         fields = ('username', 'email', 'password')
+
+    def validate_email(self, value):
+        if User.objects.filter(email=value).exists():
+            raise serializers.ValidationError("Este email já está em uso.")
+        return value
 
     def create(self, validated_data):
         user = User.objects.create_user(
@@ -49,8 +72,8 @@ class ProfileSerializer(serializers.ModelSerializer):
         model = User
         fields = ('id', 'username', 'email', 'display_name', 'bio', 'avatar', 'banner',
                   'followers_count', 'following_count', 'is_following',
-                  'pinned_post_id', 'current_password', 'new_password')
-        read_only_fields = ('id', 'username', 'email', 'pinned_post_id')
+                  'pinned_post_id', 'current_password', 'new_password', 'is_staff')
+        read_only_fields = ('id', 'username', 'email', 'pinned_post_id', 'is_staff')
 
     def get_followers_count(self, obj):
         if hasattr(obj, 'followers_count_ann'):

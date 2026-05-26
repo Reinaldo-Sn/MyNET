@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, FormEvent, useCallback } from "react";
+import { Sparkles } from "lucide-react";
 import defaultAvatar from "../../assets/perfil_padrao.png";
 import { useNavigate } from "react-router-dom";
 import { Heart, MessageCircle, Pencil, Trash2, X, Repeat2 } from "lucide-react";
@@ -16,6 +17,7 @@ import {
   CommentsSection, CommentItem, CommentText, CommentMeta, CommentDate, CommentDelete,
   CommentForm, CommentInput, CommentSubmit,
   CommentBody, CommentGif, SeeMoreButton, YoutubeEmbed,
+  SummaryButton, SummaryBox,
 } from "./style";
 import { Pin } from "lucide-react";
 import { extractYouTubeId, stripYouTubeUrl } from "../../utils/youtube";
@@ -58,6 +60,7 @@ interface Comment {
 interface Props {
   post: Post;
   currentUserId: number;
+  isStaff?: boolean;
   onLike: (postId: number) => void;
   onRepost: (postId: number) => void;
   onDelete: (postId: number) => void;
@@ -68,7 +71,7 @@ interface Props {
   commentLimit?: number;
 }
 
-const PostCard = ({ post, currentUserId, onLike, onRepost, onDelete, onEdit, onPin, pinnedPostId, autoShowComments, commentLimit }: Props) => {
+const PostCard = ({ post, currentUserId, isStaff, onLike, onRepost, onDelete, onEdit, onPin, pinnedPostId, autoShowComments, commentLimit }: Props) => {
   const navigate = useNavigate();
   // ep = post efetivo a exibir (o original se for repost, ou o próprio post)
   const ep = post.repost_of ?? post;
@@ -92,6 +95,9 @@ const PostCard = ({ post, currentUserId, onLike, onRepost, onDelete, onEdit, onP
   const repostLongPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const repostHideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isRepostLongPress = useRef(false);
+  const [summary, setSummary] = useState<string | null>(null);
+  const [loadingSummary, setLoadingSummary] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   useEffect(() => {
     return () => {
@@ -162,6 +168,9 @@ const PostCard = ({ post, currentUserId, onLike, onRepost, onDelete, onEdit, onP
     onDelete(post.id);
   };
 
+  const handleDeleteClick = () => setConfirmDelete(true);
+  const handleDeleteCancel = () => setConfirmDelete(false);
+
   const handleSaveEdit = async (e: FormEvent) => {
     e.preventDefault();
     if (!editContent.trim()) return;
@@ -220,8 +229,21 @@ const PostCard = ({ post, currentUserId, onLike, onRepost, onDelete, onEdit, onP
     onRepost(ep.id);
   };
 
-  const canDelete = post.author === currentUserId;
-  const canEdit = !post.repost_of && post.author === currentUserId;
+  const handleSummarize = async () => {
+    if (summary) { setSummary(null); return; }
+    setLoadingSummary(true);
+    try {
+      const res = await api.get(`/posts/${ep.id}/summary/`);
+      setSummary(res.data.summary);
+    } catch {
+      setSummary("Não foi possível gerar o resumo.");
+    } finally {
+      setLoadingSummary(false);
+    }
+  };
+
+  const canDelete = post.author === currentUserId || !!isStaff;
+  const canEdit = !post.repost_of && (post.author === currentUserId || !!isStaff);
   const canPin = !!onPin && !post.repost_of && post.author === currentUserId;
   const isPinned = pinnedPostId === post.id;
 
@@ -337,14 +359,28 @@ const PostCard = ({ post, currentUserId, onLike, onRepost, onDelete, onEdit, onP
               <Pin size={13} />
             </PinButton>
           )}
+          {ep.content.trim() && (
+            <SummaryButton onClick={handleSummarize} disabled={loadingSummary} title="Resumir com IA">
+              <Sparkles size={13} />
+            </SummaryButton>
+          )}
           {canEdit && (
             <EditButton onClick={() => setEditing(true)}><Pencil size={13} /></EditButton>
           )}
-          {canDelete && (
-            <DeleteButton onClick={handleDelete}><Trash2 size={13} /></DeleteButton>
+          {canDelete && !confirmDelete && (
+            <DeleteButton onClick={handleDeleteClick}><Trash2 size={13} /></DeleteButton>
+          )}
+          {confirmDelete && (
+            <span style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontSize: "0.8rem" }}>
+              <span style={{ opacity: 0.7 }}>Apagar?</span>
+              <SaveButton type="button" style={{ padding: "0.2rem 0.6rem", fontSize: "0.78rem", background: "#e57373" }} onClick={handleDelete}>Sim</SaveButton>
+              <CancelButton type="button" style={{ padding: "0.2rem 0.6rem", fontSize: "0.78rem" }} onClick={handleDeleteCancel}>Não</CancelButton>
+            </span>
           )}
         </FooterLeft>
       </Footer>
+
+      {summary && <SummaryBox>{loadingSummary ? "Resumindo..." : summary}</SummaryBox>}
 
       {showComments && (
         <CommentsSection>

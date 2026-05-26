@@ -20,8 +20,9 @@ const LoginPage = () => {
     try {
       await login(form.username, form.password);
       navigate("/feed");
-    } catch {
-      setError("Usuário ou senha inválidos.");
+    } catch (err: any) {
+      const detail = err?.response?.data?.detail;
+      setError(detail || "Email/usuário ou senha inválidos.");
     } finally {
       setLoading(false);
     }
@@ -34,7 +35,7 @@ const LoginPage = () => {
         <Title>MyNET</Title>
         <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "0.8rem" }}>
           <Input
-            placeholder="Usuário"
+            placeholder="Email ou usuário"
             value={form.username}
             onChange={(e) => setForm({ ...form, username: e.target.value })}
           />

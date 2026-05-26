@@ -92,7 +92,9 @@ WSGI_APPLICATION = "core.wsgi.application"
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 if DATABASE_URL:
-    DATABASES = {"default": dj_database_url.config(default=DATABASE_URL, conn_max_age=600)}
+    DATABASES = {"default": dj_database_url.config(default=DATABASE_URL, conn_max_age=0, conn_health_checks=False)}
+    DATABASES["default"]["DISABLE_SERVER_SIDE_CURSORS"] = True
+    DATABASES["default"].setdefault("OPTIONS", {})["client_encoding"] = "UTF8"
 else:
     DATABASES = {
         "default": {

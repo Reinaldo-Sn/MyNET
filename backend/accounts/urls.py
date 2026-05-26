@@ -2,7 +2,7 @@ from django.urls import path
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from rest_framework_simplejwt.views import TokenObtainPairView as BaseTokenView
 from .serializers import SingleSessionTokenSerializer
-from .views import RegisterView, ProfileView, UserSearchView, UserDetailView, DeleteAccountView, PinPostView
+from .views import RegisterView, ProfileView, UserSearchView, UserDetailView, DeleteAccountView, PinPostView, AddEmailView
 
 
 class SingleSessionTokenView(BaseTokenView):
@@ -18,4 +18,5 @@ urlpatterns = [
     path('users/', UserSearchView.as_view(), name='user-search'),
     path('users/<int:pk>/', UserDetailView.as_view(), name='user-detail'),
     path('pin-post/<int:pk>/', PinPostView.as_view(), name='pin-post'),
+    path('add-email/', AddEmailView.as_view(), name='add-email'),
 ]

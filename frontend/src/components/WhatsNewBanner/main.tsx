@@ -1,14 +1,13 @@
 import { useState } from "react";
 import { Modal, TitleRow, BannerTitle, Version, List, Item, CloseBtn } from "./style";
 
-const BANNER_VERSION = "v2";
+const BANNER_VERSION = "v3";
 const STORAGE_KEY = "whats_new_seen";
 
 const ITEMS = [
-  "Republicar posts de outros usuários",
-  "Ajuste de UI",
-  "Marcar todas as notificações como lidas",
-  "Fixar um post no topo do perfil",
+  "Login agora é feito por email",
+  "Moderação automática de conteúdo com IA",
+  "Botão ✨ para resumir posts com IA",
 ];
 
 const WhatsNewBanner = () => {

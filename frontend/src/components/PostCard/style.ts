@@ -462,6 +462,32 @@ export const RepostTooltipName = styled.span`
   color: #4caf50;
 `;
 
+export const SummaryButton = styled.button`
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: ${({ theme }) => theme.textGhost};
+  font-size: 0.82rem;
+  font-family: inherit;
+  padding: 0;
+  transition: color 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  &:hover { color: ${({ theme }) => theme.accent}; }
+  &:disabled { opacity: 0.4; cursor: not-allowed; }
+`;
+
+export const SummaryBox = styled.div`
+  background: ${({ theme }) => theme.bg};
+  border: 1px solid ${({ theme }) => theme.border};
+  border-radius: 8px;
+  padding: 0.65rem 0.9rem;
+  font-size: 0.88rem;
+  color: ${({ theme }) => theme.textMuted};
+  line-height: 1.6;
+`;
+
 export const YoutubeEmbed = styled.div`
   position: relative;
   width: 100%;

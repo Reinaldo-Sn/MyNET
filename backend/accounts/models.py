@@ -9,7 +9,7 @@ import uuid
 
 
 class User(AbstractUser):
-    # Texto de apresentação opcional do perfil
+    email = models.EmailField(blank=True, null=True, unique=True, default=None)
     display_name = models.CharField(max_length=100, blank=True, default='')
     bio = models.TextField(blank=True, default='')
     # Foto de perfil — salva na pasta media/avatars/ — não é obrigatória

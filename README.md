@@ -1,109 +1,73 @@
 # MyNET
 
-Rede social full-stack desenvolvida com Django REST Framework e React.
+Rede social full-stack inspirada no Twitter, desenvolvida com Django REST Framework e React.
 
 **Demo:** [my-net-three.vercel.app](https://my-net-three.vercel.app)
 
 ---
 
-## Funcionalidades
-
-- Cadastro e login com autenticação JWT (sessão única por dispositivo)
-- Feed com posts de usuários seguidos
-- Criar, curtir e comentar posts — com imagem, GIF e menções a usuários (@)
-- Curtir comentários e replies aninhados
-- Perfil com avatar, banner e bio editáveis
-- Seguir e deixar de seguir usuários
-- Mensagens diretas entre usuários que se seguem
-- Cutucadas com limite diário e notificações
-- Notificações de follow, curtida, reply e menção (via polling)
-- Busca de usuários com paginação
-- Tema claro e escuro
-- Interface responsiva (desktop e mobile)
-
----
-
 ## Stack
 
-| Camada | Tecnologias |
-|--------|-------------|
-| Back-end | Python 3.12, Django 6, Django REST Framework, SimpleJWT |
-| Banco de dados | SQLite (dev) · PostgreSQL (prod) |
-| Front-end | React 19, Vite, TypeScript, styled-components |
+| Camada | Tecnologia |
+|---|---|
+| Backend | Python · Django 6 · Django REST Framework · SimpleJWT |
+| Frontend | React 19 · TypeScript · Vite · Styled Components |
+| Banco de dados | PostgreSQL (Supabase) · SQLite (dev) |
 | Mídia | Cloudinary |
-| Deploy | Render (API) · Vercel (front-end) |
+| Deploy | Render (API) · Vercel (frontend) |
 
 ---
 
-## Estrutura do projeto
+## Funcionalidades
 
-```
-MyNET/
-├── backend/
-│   ├── core/          # settings, urls, wsgi
-│   ├── accounts/      # User model, autenticação, perfil
-│   ├── posts/         # Post, Like, Comment, CommentLike
-│   ├── follows/       # Follow
-│   ├── dms/           # DirectMessage
-│   ├── notifications/ # Notification (follow, like, reply, mention, poke)
-│   ├── pokes/         # Poke
-│   └── manage.py
-└── frontend/
-    └── src/
-        ├── api/           # axios configurado com JWT e refresh automático
-        ├── components/    # Navbar, PostCard, DMButton, PokeButton, modais
-        ├── contexts/      # AuthContext, ThemeContext, PostContext
-        └── pages/         # Login, Register, Feed, Profile, Search, Post, Messages
-```
+- Autenticação com JWT (sessão única por usuário)
+- Login por email; cadastro com email obrigatório
+- Perfil com avatar, banner e bio (upload com crop)
+- Posts com imagens, GIFs e menções
+- Curtidas, comentários, reposts e fixar post no perfil
+- Sistema de follows com sugestões
+- Mensagens diretas (DMs)
+- Notificações em tempo real (polling)
+- Cutucar (poke) outros usuários
+- Busca de usuários
+- Tema claro/escuro
+- Feed com scroll infinito
+- Moderação automática de conteúdo com IA
+- Resumo de posts com IA (✨)
 
 ---
 
-## Rodando localmente
+## Rodar localmente
 
-### Pré-requisitos
+### Backend
 
-- Python 3.12+
-- Node.js 18+
-
----
-
-### Back-end
-
-**1. Entrar na pasta e ativar o ambiente virtual**
 ```bash
 cd backend
-
-# Windows (Git Bash)
-source env/Scripts/activate
-
-# Windows (PowerShell)
-.\env\Scripts\Activate.ps1
+python -m venv env
+env\Scripts\activate        # Windows
+pip install -r requirements.txt
 ```
 
-**2. Criar o arquivo `.env`** na pasta `backend/`
+Crie `backend/.env`:
 
 ```env
 SECRET_KEY=sua-chave-secreta
 DEBUG=True
 ALLOWED_HOSTS=localhost,127.0.0.1
-
-# Cloudinary (opcional em dev, necessário em prod)
-CLOUDINARY_CLOUD_NAME=
-CLOUDINARY_API_KEY=
-CLOUDINARY_API_SECRET=
+# DATABASE_URL=   (opcional — sem isso usa SQLite)
+# CLOUDINARY_URL= (opcional — sem isso mídia fica local)
+# OPENAI_API_KEY= (moderação de conteúdo)
+# GROQ_API_KEY=   (resumo de posts)
 ```
 
-**3. Rodar as migrations e iniciar o servidor**
 ```bash
 python manage.py migrate
 python manage.py runserver
 ```
 
-API disponível em `http://127.0.0.1:8000/`
+API disponível em `http://localhost:8000`.
 
----
-
-### Front-end
+### Frontend
 
 ```bash
 cd frontend
@@ -111,62 +75,37 @@ npm install
 npm run dev
 ```
 
-Front-end disponível em `http://localhost:5173/`
-
-> Certifique-se de que o back-end está rodando. A URL da API é configurada em `frontend/src/api/axios.ts`.
+App disponível em `http://localhost:5173`.
 
 ---
 
-## Principais endpoints da API
+## Estrutura
 
-| Método | Rota | Descrição |
-|--------|------|-----------|
-| POST | `/api/auth/register/` | Cadastro |
-| POST | `/api/auth/login/` | Login (retorna JWT) |
-| POST | `/api/auth/token/refresh/` | Renovar access token |
-| GET | `/api/auth/me/` | Dados do usuário autenticado |
-| GET/PUT | `/api/auth/profile/` | Perfil próprio |
-| GET | `/api/auth/users/` | Listar/buscar usuários |
-| GET | `/api/posts/feed/` | Feed personalizado |
-| GET/POST | `/api/posts/` | Listar / criar posts |
-| POST | `/api/posts/{id}/like/` | Curtir/descurtir |
-| GET/POST | `/api/posts/{id}/comments/` | Comentários |
-| POST | `/api/follows/{id}/toggle/` | Seguir/deixar de seguir |
-| GET | `/api/follows/{id}/followers/` | Lista de seguidores |
-| GET | `/api/follows/{id}/following/` | Lista de seguindo |
-| GET/POST | `/api/dms/` | Mensagens de uma conversa |
-| GET | `/api/dms/conversations/` | Lista de conversas |
-| GET | `/api/dms/unread/` | Total de mensagens não lidas |
-| GET | `/api/notifications/` | Notificações não lidas |
-| POST | `/api/notifications/mark-read/` | Marcar todas como lidas |
-| GET/POST | `/api/pokes/` | Cutucadas recebidas/enviadas / enviar |
-| POST | `/api/pokes/mark-seen/` | Marcar cutucadas como vistas |
+```
+MyNET/
+├── backend/
+│   ├── core/           # settings, urls, wsgi
+│   ├── accounts/       # User, auth, perfil
+│   ├── posts/          # Post, Like, Comment, Repost
+│   ├── follows/        # Follow
+│   ├── notifications/  # Notification
+│   ├── dms/            # DirectMessage
+│   └── pokes/          # Poke
+└── frontend/
+    └── src/
+        ├── api/        # cliente axios
+        ├── components/ # componentes reutilizáveis
+        ├── contexts/   # AuthContext, PostContext, ThemeContext
+        ├── pages/      # páginas da aplicação
+        ├── hooks/      # hooks customizados
+        └── utils/      # helpers (timeAgo, mentions, gif, youtube)
+```
 
 ---
 
 ## Deploy
 
-| Serviço | Plataforma | URL |
-|---------|-----------|-----|
-| API | Render | `https://mynet-api.onrender.com` |
-| Front-end | Vercel | `https://my-net-three.vercel.app` |
-
-### Variáveis de ambiente em produção
-
-**Render (back-end)**
-
-| Variável | Descrição |
-|----------|-----------|
-| `SECRET_KEY` | Chave secreta do Django |
-| `DEBUG` | `False` |
-| `ALLOWED_HOSTS` | domínio do Render |
-| `DATABASE_URL` | URL do PostgreSQL |
-| `CLOUDINARY_CLOUD_NAME` | Nome do cloud no Cloudinary |
-| `CLOUDINARY_API_KEY` | API key do Cloudinary |
-| `CLOUDINARY_API_SECRET` | API secret do Cloudinary |
-
-**Vercel (front-end)**
-
-| Variável | Descrição |
-|----------|-----------|
-| `VITE_API_URL` | URL da API em produção |
+- **Frontend:** Vercel — deploy automático via push no GitHub
+- **Backend:** Render — build via `backend/build.sh`
+- **Banco:** Supabase (PostgreSQL) — connection pooler porta 6543
+- **Mídia:** Cloudinary

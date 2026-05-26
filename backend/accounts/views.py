@@ -4,6 +4,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.core.validators import validate_email as django_validate_email
+from django.core.exceptions import ValidationError as DjangoValidationError
 from django.db.models import Count, Exists, OuterRef, Q
 from follows.models import Follow
 from .serializers import RegisterSerializer, ProfileSerializer
@@ -97,6 +99,24 @@ class DeleteAccountView(APIView):
     def delete(self, request):
         request.user.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class AddEmailView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        email = request.data.get('email', '').strip()
+        if not email:
+            return Response({'email': 'Email é obrigatório.'}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            django_validate_email(email)
+        except DjangoValidationError:
+            return Response({'email': 'Email inválido.'}, status=status.HTTP_400_BAD_REQUEST)
+        if User.objects.filter(email=email).exclude(pk=request.user.pk).exists():
+            return Response({'email': 'Este email já está em uso.'}, status=status.HTTP_400_BAD_REQUEST)
+        request.user.email = email
+        request.user.save(update_fields=['email'])
+        return Response({'email': email})
 
 
 class PinPostView(APIView):

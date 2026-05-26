@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider, createGlobalStyle } from "styled-components";
 import LoginPage from "./pages/LoginPage/main";
@@ -11,8 +12,10 @@ import PostPage from "./pages/PostPage/main";
 import MessagesPage from "./pages/MessagesPage/main";
 import PrivateRoute from "./components/PrivateRoute";
 import Layout from "./components/Layout";
+import AddEmailModal from "./components/AddEmailModal/main";
 import { PostProvider } from "./contexts/PostContext";
 import { ThemeContextProvider, useThemeToggle } from "./contexts/ThemeContext";
+import { useAuth } from "./contexts/AuthContext";
 import { darkTheme, lightTheme } from "./styles/theme";
 
 const GlobalStyle = createGlobalStyle`
@@ -25,9 +28,18 @@ const GlobalStyle = createGlobalStyle`
 
 const ThemedApp = () => {
   const { isDark } = useThemeToggle();
+  const { user } = useAuth();
+  const [showAddEmail, setShowAddEmail] = useState(false);
+
+  useEffect(() => {
+    if (user && !user.email) setShowAddEmail(true);
+    else setShowAddEmail(false);
+  }, [user]);
+
   return (
     <ThemeProvider theme={isDark ? darkTheme : lightTheme}>
       <GlobalStyle />
+      {showAddEmail && <AddEmailModal onClose={() => setShowAddEmail(false)} />}
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Navigate to="/feed" />} />
