@@ -12,7 +12,6 @@ import {
   ErrorMsg, SubmitButton,
 } from "./style";
 
-const MAX = 180;
 const MAX_FILE_MB = 5;
 
 async function compressImage(file: File): Promise<File> {
@@ -246,9 +245,9 @@ const CreatePostModal = ({ onClose, onCreated }: Props) => {
               >
                 GIF
               </GifButton>
-              <CharCount $over={content.length > MAX}>{content.length}/{MAX}</CharCount>
+              <CharCount $over={false}>{content.length}</CharCount>
             </FooterLeft>
-            <SubmitButton type="submit" disabled={loading || !content.trim() || content.length > MAX}>
+            <SubmitButton type="submit" disabled={loading || !content.trim()}>
               {loading ? "Publicando..." : "Publicar"}
             </SubmitButton>
           </Footer>

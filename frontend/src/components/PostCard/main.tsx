@@ -17,7 +17,7 @@ import {
   CommentsSection, CommentItem, CommentText, CommentMeta, CommentDate, CommentDelete,
   CommentForm, CommentInput, CommentSubmit,
   CommentBody, CommentGif, SeeMoreButton, YoutubeEmbed,
-  SummaryButton, SummaryBox,
+  SummaryButton, SummaryBox, ShowMoreButton,
 } from "./style";
 import { Pin } from "lucide-react";
 import { extractYouTubeId, stripYouTubeUrl } from "../../utils/youtube";
@@ -98,6 +98,8 @@ const PostCard = ({ post, currentUserId, isStaff, onLike, onRepost, onDelete, on
   const [summary, setSummary] = useState<string | null>(null);
   const [loadingSummary, setLoadingSummary] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+  const CONTENT_LIMIT = 300;
 
   useEffect(() => {
     return () => {
@@ -278,11 +280,23 @@ const PostCard = ({ post, currentUserId, isStaff, onLike, onRepost, onDelete, on
             <CancelButton type="button" onClick={() => setEditing(false)}>Cancelar</CancelButton>
           </EditActions>
         </EditActions>
-      ) : (
-        <Content style={{ cursor: "pointer" }} onClick={() => navigate(`/posts/${ep.id}`)}>
-          {renderWithMentions(extractYouTubeId(ep.content) ? stripYouTubeUrl(ep.content) : ep.content)}
-        </Content>
-      )}
+      ) : (() => {
+          const rawText = extractYouTubeId(ep.content) ? stripYouTubeUrl(ep.content) : ep.content;
+          const isLong = rawText.length > CONTENT_LIMIT;
+          const displayText = isLong && !expanded ? rawText.slice(0, CONTENT_LIMIT) : rawText;
+          return (
+            <>
+              <Content style={{ cursor: "pointer" }} onClick={() => navigate(`/posts/${ep.id}`)}>
+                {renderWithMentions(displayText)}{isLong && !expanded && '...'}
+              </Content>
+              {isLong && (
+                <ShowMoreButton onClick={(e) => { e.stopPropagation(); setExpanded(v => !v); }}>
+                  {expanded ? 'Mostrar menos' : 'Mostrar mais'}
+                </ShowMoreButton>
+              )}
+            </>
+          );
+        })()}
 
       {!editing && (() => {
         const ytId = extractYouTubeId(ep.content);
@@ -290,7 +304,7 @@ const PostCard = ({ post, currentUserId, isStaff, onLike, onRepost, onDelete, on
           <YoutubeEmbed>
             <iframe
               src={`https://www.youtube.com/embed/${ytId}`}
-              allow="autoplay; encrypted-media; picture-in-picture; web-share"
+              allow="autoplay; clipboard-write; gyroscope; web-share"
               allowFullScreen
               loading="lazy"
               referrerPolicy="strict-origin-when-cross-origin"

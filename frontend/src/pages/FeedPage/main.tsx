@@ -103,12 +103,11 @@ const FeedPage = () => {
           placeholder="O que você está pensando?"
           value={quickContent}
           onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setQuickContent(e.target.value)}
-          maxLength={180}
           rows={3}
         />
         <QuickFooter>
-          <CharCount $over={quickContent.length > 180}>{quickContent.length}/180</CharCount>
-          <QuickButton type="submit" disabled={quickLoading || !quickContent.trim() || quickContent.length > 180}>
+          <CharCount $over={false}>{quickContent.length}</CharCount>
+          <QuickButton type="submit" disabled={quickLoading || !quickContent.trim()}>
             {quickLoading ? "Postando..." : "Postar"}
           </QuickButton>
         </QuickFooter>

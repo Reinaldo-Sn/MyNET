@@ -488,6 +488,17 @@ export const SummaryBox = styled.div`
   line-height: 1.6;
 `;
 
+export const ShowMoreButton = styled.button`
+  background: none;
+  border: none;
+  padding: 0;
+  margin-top: 4px;
+  color: #4a9eff;
+  cursor: pointer;
+  font-size: 0.85rem;
+  &:hover { text-decoration: underline; }
+`
+
 export const YoutubeEmbed = styled.div`
   position: relative;
   width: 100%;
