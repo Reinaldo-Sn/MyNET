@@ -290,14 +290,16 @@ const PostCard = ({ post, currentUserId, isStaff, onLike, onRepost, onDelete, on
           <YoutubeEmbed>
             <iframe
               src={`https://www.youtube.com/embed/${ytId}`}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allow="autoplay; encrypted-media; picture-in-picture; web-share"
               allowFullScreen
+              loading="lazy"
+              referrerPolicy="strict-origin-when-cross-origin"
             />
           </YoutubeEmbed>
         ) : null;
       })()}
 
-      {ep.image && <PostImage src={ep.image} alt="imagem do post" style={{ cursor: "pointer" }} onClick={() => navigate(`/posts/${ep.id}`)} />}
+      {ep.image && <PostImage src={ep.image} alt="imagem do post" loading="lazy" style={{ cursor: "pointer" }} onClick={() => navigate(`/posts/${ep.id}`)} />}
       {ep.gif_url && <GifImage src={ep.gif_url} Img={PostImage} />}
 
       <Footer>

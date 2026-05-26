@@ -1,12 +1,16 @@
 import { useState, FormEvent } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, Navigate } from "react-router-dom";
 import api from "../../api/axios";
+import { useAuth } from "../../contexts/AuthContext";
 import { useThemeToggle } from "../../contexts/ThemeContext";
 import coruja from "../../assets/corujapreta.png";
 import { Container, Card, Title, Input, Button, ErrorMsg, LinkText } from "./style";
 
 const RegisterPage = () => {
+  const { user } = useAuth();
   const navigate = useNavigate();
+
+  if (user) return <Navigate to="/feed" replace />;
   const { isDark, toggleTheme } = useThemeToggle();
   const [form, setForm] = useState({ username: "", email: "", password: "" });
   const [confirmPassword, setConfirmPassword] = useState("");
